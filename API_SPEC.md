@@ -1,0 +1,75 @@
+## API Sözleşmesi
+
+Tüm endpointler JSON döner. Kimlik doğrulama gerektiren uçlarda `Authorization: Bearer <token>` başlığı zorunludur.
+
+### Kimlik Doğrulama
+- POST `/auth/login`
+  - Body
+    ```json
+    { "email": "admin@example.com", "password": "secret" }
+    ```
+  - 200
+    ```json
+    {
+      "accessToken": "<jwt>",
+      "user": { "id": "uuid", "email": "admin@example.com", "full_name": "Admin", "role": "ADMIN" }
+    }
+    ```
+  - 401: Geçersiz kimlik bilgileri
+
+### Ziyaretler
+- GET `/visits`
+  - Sorgu: `dateFrom,dateTo,company,hasVehicle,plate,visitedPerson,page,pageSize,sort`
+  - 200
+    ```json
+    { "items": [ { "id": "uuid", "visitor_full_name": "...", "company_name": "...", "entry_at": "2025-01-01T08:30:00Z", "exit_at": null, "has_vehicle": true, "vehicle_plate": "34ABC123" } ], "total": 1 }
+    ```
+- POST `/visits`
+  - Body
+    ```json
+    {
+      "entry_at": "2025-01-01T08:30:00.000Z",
+      "exit_at": null,
+      "visitor_full_name": "Ad Soyad",
+      "visited_person_full_name": "Ziyaret Edilen Ad Soyad",
+      "company_name": "Şirket A",
+      "has_vehicle": true,
+      "vehicle_plate": "34ABC123"
+    }
+    ```
+  - 201: Oluşturulan ziyaret kaydı
+- PATCH `/visits/:id`
+  - Kısmi güncellemeler için
+- POST `/visits/:id/exit`
+  - Body: boş; sunucu `exit_at = now()` atar
+
+### Raporlar
+- GET `/reports/summary?dateFrom&dateTo`
+  - 200
+    ```json
+    { "total": 120, "withVehicle": 70, "withoutVehicle": 50, "active": 12, "exited": 108 }
+    ```
+- GET `/reports/by-company?dateFrom&dateTo`
+  - 200
+    ```json
+    [ { "company": "Şirket A", "count": 30 }, { "company": "Şirket B", "count": 20 } ]
+    ```
+
+### Admin (yalnızca ADMIN)
+- GET `/admin/users` — kullanıcı listesi
+- POST `/admin/users` — kullanıcı oluştur
+  - Body
+    ```json
+    { "email": "op@example.com", "password": "secret", "full_name": "Operatör", "role": "OPERATOR" }
+    ```
+- PATCH `/admin/users/:id`
+- DELETE `/admin/users/:id`
+
+### Hata Formatı
+```json
+{ "statusCode": 400, "message": "Validation failed", "error": "Bad Request" }
+```
+
+### Notlar
+- Ziyaret kuralı: `has_vehicle = false` ise `vehicle_plate` gönderilmemeli; gönderilirse reddedilebilir
+- Tarihler ISO 8601 formatında UTC olarak gönderilmelidir
