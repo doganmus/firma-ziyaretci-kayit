@@ -18,7 +18,7 @@ Ziyaretçi giriş-çıkışlarının kayıt altına alındığı, raporlanabildi
 ## Hızlı Başlangıç (Docker)
 
 ### Önkoşullar
-- Docker ve Docker Compose kurulu olmalı
+- Docker Desktop
 
 ### 1) Ortam değişkenleri
 Proje kökünde bir `.env` dosyası oluşturun:
@@ -32,17 +32,18 @@ PGADMIN_PASSWORD=admin
 JWT_SECRET=super-secret-change-me
 ```
 
-### 2) Çalıştırma
-```bash
-docker compose up -d --build
+### 2) Çalıştırma (Windows notu)
+```powershell
+# docker CLI PATH'te yoksa tam yol ile çalıştırın
+& "C:\Program Files\Docker\Docker\resources\bin\docker.exe" compose up -d --build
 ```
 
 ### 3) Erişim
 - Frontend: `http://localhost:5173`
 - Backend API: `http://localhost:3000`
-- pgAdmin: `http://localhost:5050` (Giriş: `.env` içindeki e-posta/şifre)
+- pgAdmin: `http://localhost:5050`
 
-> İlk admin kullanıcı oluşturma ve diğer ayrıntılar için `API_SPEC.md` ve `OPERATIONS.md` dosyalarına bakın.
+> Admin seed ve login örnekleri için `OPERATIONS.md` dosyasına bakın.
 
 ## Proje Yapısı (taslak)
 ```

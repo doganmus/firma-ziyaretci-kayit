@@ -2,16 +2,17 @@
 
 ### Docker Komutları
 - İlk kurulum ve çalıştırma
-```bash
-docker compose up -d --build
+```powershell
+# Windows (Docker Desktop): docker CLI PATH'te değilse tam yolu kullanın
+& "C:\Program Files\Docker\Docker\resources\bin\docker.exe" compose up -d --build
 ```
 - Loglar
-```bash
-docker compose logs -f backend
+```powershell
+& "C:\Program Files\Docker\Docker\resources\bin\docker.exe" compose logs -f backend
 ```
 - Durdurma ve silme
-```bash
-docker compose down
+```powershell
+& "C:\Program Files\Docker\Docker\resources\bin\docker.exe" compose down
 ```
 
 ### Ortam Değişkenleri (.env)
@@ -22,28 +23,32 @@ docker compose down
 ### Veritabanı
 - Bağlantı: `postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}`
 - Yedekleme (container içinden)
-```bash
-docker compose exec db pg_dump -U ${POSTGRES_USER} ${POSTGRES_DB} > backup.sql
+```powershell
+& "C:\Program Files\Docker\Docker\resources\bin\docker.exe" compose exec db pg_dump -U ${env:POSTGRES_USER} ${env:POSTGRES_DB} | Out-File -FilePath backup.sql -Encoding ascii
 ```
 - Geri yükleme
-```bash
-docker compose exec -T db psql -U ${POSTGRES_USER} ${POSTGRES_DB} < backup.sql
+```powershell
+Get-Content backup.sql | & "C:\Program Files\Docker\Docker\resources\bin\docker.exe" compose exec -T db psql -U ${env:POSTGRES_USER} ${env:POSTGRES_DB}
 ```
 
-### Migration ve Seed (backend hazır olduğunda)
-- Migration çalıştırma (örnek)
-```bash
-docker compose exec backend npm run typeorm migration:run | cat
+### Seed ve Test (Aşama 1)
+- Admin kullanıcı seed (geçici açık uç)
+```powershell
+$body = @{ email = 'admin@example.com'; password = 'admin123'; full_name = 'Admin'; role = 'ADMIN' } | ConvertTo-Json
+Invoke-RestMethod -Method Post -Uri 'http://localhost:3000/admin/users' -ContentType 'application/json' -Body $body
 ```
-- Seed kullanıcı (örnek — ayrıntı `API_SPEC.md` ve ilerideki scriptlerde)
-  - Admin oluştur: `POST /admin/users` (ilk kullanıcı için geçici açık uç veya seed script)
+- Login testi
+```powershell
+$login = @{ email = 'admin@example.com'; password = 'admin123' } | ConvertTo-Json
+Invoke-RestMethod -Method Post -Uri 'http://localhost:3000/auth/login' -ContentType 'application/json' -Body $login
+```
 
 ### Sorun Giderme
 - Backend API açılmıyor
-  - `docker compose logs -f backend`
+  - log: `compose logs -f backend`
   - `.env` değerlerini doğrulayın
 - Frontend 5173 portu dolu
-  - `.env` veya compose port eşlemelerini değiştirin
+  - compose port eşlemelerini değiştirin
 - pgAdmin bağlanamıyor
   - `db` servisinin sağlıklı olduğundan emin olun; healthcheck çıkışlarını kontrol edin
 

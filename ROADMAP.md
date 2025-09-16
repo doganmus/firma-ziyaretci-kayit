@@ -9,23 +9,15 @@ Her aşama sonunda proje Docker Compose ile çalışır. Temel özellikler Aşam
   - Ziyaret oluşturma (araçlı/araçsız), listeleme ve çıkış verme çalışır
   - Araç yoksa plaka veritabanında `NULL` olur; formda pasif görünür
 - Teslimatlar
-  - Docker Compose iskeleti (PostgreSQL, pgAdmin, backend, frontend)
-  - Backend: NestJS iskeleti, TypeORM konfigürasyonu, `users` ve `visits` entity'leri
-  - Auth: `POST /auth/login` (JWT), basit RBAC (`ADMIN`, `OPERATOR`)
-  - Visits: `POST /visits`, `GET /visits`, `POST /visits/:id/exit`
-  - Frontend: Login, Ziyaret Formu, Ziyaret Listesi (basit)
-  - Validasyon ve DB `CHECK` kuralı (araç/plaka)
-- Görevler
-  - [ ] Docker Compose temel servisler (db, pgadmin, backend, frontend)
-  - [ ] Backend iskeleti ve env yapılandırması
-  - [ ] Entity'ler: `User`, `Visit` + migration
-  - [ ] Auth: login (JWT), basit rol kontrolü
-  - [ ] Visits: oluştur, listele, çıkış ver
-  - [ ] Frontend: Login sayfası
-  - [ ] Frontend: Ziyaret Formu (araç/plaka kuralı ile)
-  - [ ] Frontend: Ziyaret Listesi (basit tablo)
-  - [ ] Dokümantasyon güncellemesi (README/OPERATIONS)
-  - [ ] (Opsiyonel) Swagger aç (API dokümantasyonu)
+  - [x] Docker Compose iskeleti (PostgreSQL, pgAdmin, backend, frontend)
+  - [x] Backend: NestJS iskeleti (health endpoint)
+  - [x] Backend: TypeORM konfigürasyonu, `users` ve `visits` entity'leri
+  - [x] Auth: `POST /auth/login` (JWT)
+  - [x] Visits: `POST /visits`, `GET /visits`, `POST /visits/:id/exit`
+  - [x] Frontend: Login, Ziyaret Formu, Ziyaret Listesi (basit)
+  - [ ] RBAC (`ADMIN`, `OPERATOR`) ve guard'lar
+  - [ ] Validasyon ve DB `CHECK` kuralı (araç/plaka)
+  - [ ] (Opsiyonel) Swagger (API dokümantasyonu)
 
 ### Aşama 2 - Filtreler ve Temel Raporlar
 - Kabul Kriterleri

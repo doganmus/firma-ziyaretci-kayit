@@ -3,7 +3,7 @@
 Bu dosya günlük/haftalık çalışmayı izlemek için kullanılır. Aşamalar `ROADMAP.md` ile uyumludur.
 
 ### In Progress
-- (boş)
+- [ ] a1: Docker Compose ile çalışma ve seed testleri
 
 ### Done
 - [x] README.md oluşturuldu
@@ -12,16 +12,16 @@ Bu dosya günlük/haftalık çalışmayı izlemek için kullanılır. Aşamalar 
 - [x] ARCHITECTURE.md oluşturuldu
 - [x] API_SPEC.md oluşturuldu
 - [x] OPERATIONS.md oluşturuldu
+- [x] Docker Compose: db, pgAdmin, backend, frontend
+- [x] Backend: NestJS iskeleti ve health endpoint
+- [x] Backend: TypeORM + User/Visit + auth + visits endpointleri
+- [x] Frontend: Login sayfası
+- [x] Frontend: Ziyaret Formu
+- [x] Frontend: Ziyaret Listesi
 
 ### Backlog (Aşama 1)
-- [ ] Docker Compose: db, pgAdmin, backend, frontend
-- [ ] Backend: NestJS iskeleti ve TypeORM yapılandırması
-- [ ] DB: `User` ve `Visit` entity'leri + migration
-- [ ] Auth: JWT login ve rol kontrolü
-- [ ] Visits: oluşturma, listeleme, çıkış verme endpointleri
-- [ ] Frontend: Login sayfası
-- [ ] Frontend: Ziyaret Formu (araç/plaka kuralı)
-- [ ] Frontend: Ziyaret Listesi (basit tablo)
+- [ ] RBAC guard'ları ve roller (`ADMIN`, `OPERATOR`)
+- [ ] Validasyon ve DB `CHECK` kuralı (araç/plaka)
 - [ ] (Opsiyonel) Swagger UI
 
 ### Backlog (Aşama 2)
