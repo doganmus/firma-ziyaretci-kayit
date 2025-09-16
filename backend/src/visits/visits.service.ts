@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Visit } from './visit.entity';
 
+const TR_PLATE_REGEX = /^(0[1-9]|[1-7][0-9]|80|81)[A-Z]{1,3}[0-9]{2,4}$/;
+
 @Injectable()
 export class VisitsService {
   constructor(@InjectRepository(Visit) private readonly repo: Repository<Visit>) {}
@@ -20,12 +22,17 @@ export class VisitsService {
     has_vehicle: boolean;
     vehicle_plate?: string | null;
   }): Promise<Visit> {
-    if (payload.has_vehicle && !payload.vehicle_plate) {
-      throw new BadRequestException('vehicle_plate required when has_vehicle is true');
+    let normalizedPlate: string | null = null;
+    if (payload.has_vehicle) {
+      if (!payload.vehicle_plate) {
+        throw new BadRequestException('vehicle_plate required when has_vehicle is true');
+      }
+      normalizedPlate = payload.vehicle_plate.replace(/\s+/g, '').toUpperCase();
+      if (!TR_PLATE_REGEX.test(normalizedPlate)) {
+        throw new BadRequestException('vehicle_plate must match TR plate format (e.g. 34ABC1234)');
+      }
     }
-    if (!payload.has_vehicle) {
-      payload.vehicle_plate = null;
-    }
+
     const entryAt = new Date(payload.entry_at);
     const date = entryAt.toISOString().slice(0, 10);
 
@@ -37,7 +44,7 @@ export class VisitsService {
       visited_person_full_name: payload.visited_person_full_name,
       company_name: payload.company_name,
       has_vehicle: payload.has_vehicle,
-      vehicle_plate: payload.vehicle_plate ?? null,
+      vehicle_plate: payload.has_vehicle ? normalizedPlate : null,
     });
     return this.repo.save(visit);
   }
