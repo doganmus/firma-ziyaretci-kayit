@@ -15,9 +15,10 @@ Her aşama sonunda proje Docker Compose ile çalışır. Temel özellikler Aşam
   - [x] Auth: `POST /auth/login` (JWT)
   - [x] Visits: `POST /visits`, `GET /visits`, `POST /visits/:id/exit`
   - [x] Frontend: Login, Ziyaret Formu, Ziyaret Listesi (basit)
-  - [ ] RBAC (`ADMIN`, `OPERATOR`) ve guard'lar
-  - [ ] Validasyon ve DB `CHECK` kuralı (araç/plaka)
-  - [ ] (Opsiyonel) Swagger (API dokümantasyonu)
+  - [x] RBAC (backend): JwtAuthGuard + RolesGuard
+  - [x] Swagger `/docs`
+  - [x] Araç/plaka kuralı (DB CHECK + DTO + TR formatı)
+  - [ ] RBAC (frontend): role-based görünürlük
 
 ### Aşama 2 - Filtreler ve Temel Raporlar
 - Kabul Kriterleri

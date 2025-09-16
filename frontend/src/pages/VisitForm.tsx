@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { api } from '../api/client'
 
+const TR_PLATE_REGEX = /^(0[1-9]|[1-7][0-9]|80|81)[A-Z]{1,3}[0-9]{2,4}$/
+
 export default function VisitForm() {
   const [visitorFullName, setVisitorFullName] = useState('')
   const [visitedPersonFullName, setVisitedPersonFullName] = useState('')
@@ -14,13 +16,18 @@ export default function VisitForm() {
     setMessage(null)
     try {
       const now = new Date().toISOString()
+      const normalizedPlate = vehiclePlate.replace(/\s+/g, '').toUpperCase()
+      if (hasVehicle && !TR_PLATE_REGEX.test(normalizedPlate)) {
+        setMessage('Plaka formatı geçersiz (örn. 34ABC1234)')
+        return
+      }
       await api.post('/visits', {
         entry_at: now,
         visitor_full_name: visitorFullName,
         visited_person_full_name: visitedPersonFullName,
         company_name: companyName,
         has_vehicle: hasVehicle,
-        vehicle_plate: hasVehicle ? vehiclePlate : undefined,
+        vehicle_plate: hasVehicle ? normalizedPlate : undefined,
       })
       setMessage('Kayıt oluşturuldu')
       setVisitorFullName('')

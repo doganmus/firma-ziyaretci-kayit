@@ -1,6 +1,10 @@
 ## API Sözleşmesi
 
-Tüm endpointler JSON döner. Kimlik doğrulama gerektiren uçlarda `Authorization: Bearer <token>` başlığı zorunludur.
+Tüm endpointler JSON döner. Kimlik doğrulama gerektiren uçlarda `Authorization: Bearer <token>` başlığı zorunludur. Swagger: `/docs`.
+
+RBAC: `visits` → `ADMIN|OPERATOR`, `admin/users` → `ADMIN`.
+
+Plaka kuralı: TR formatı — `^(0[1-9]|[1-7][0-9]|80|81)[A-Z]{1,3}[0-9]{2,4}$` (boşluklar yok sayılır, büyük harfe çevrilir).
 
 ### Kimlik Doğrulama
 - POST `/auth/login`
@@ -17,7 +21,7 @@ Tüm endpointler JSON döner. Kimlik doğrulama gerektiren uçlarda `Authorizati
     ```
   - 401: Geçersiz kimlik bilgileri
 
-### Ziyaretler
+### Ziyaretler (JWT + RBAC)
 - GET `/visits`
   - Sorgu: `dateFrom,dateTo,company,hasVehicle,plate,visitedPerson,page,pageSize,sort`
   - 200
@@ -29,12 +33,11 @@ Tüm endpointler JSON döner. Kimlik doğrulama gerektiren uçlarda `Authorizati
     ```json
     {
       "entry_at": "2025-01-01T08:30:00.000Z",
-      "exit_at": null,
       "visitor_full_name": "Ad Soyad",
-      "visited_person_full_name": "Ziyaret Edilen Ad Soyad",
+      "visited_person_full_name": "Ziyaret Edilen",
       "company_name": "Şirket A",
       "has_vehicle": true,
-      "vehicle_plate": "34ABC123"
+      "vehicle_plate": "34ABC1234"
     }
     ```
   - 201: Oluşturulan ziyaret kaydı
@@ -55,7 +58,7 @@ Tüm endpointler JSON döner. Kimlik doğrulama gerektiren uçlarda `Authorizati
     [ { "company": "Şirket A", "count": 30 }, { "company": "Şirket B", "count": 20 } ]
     ```
 
-### Admin (yalnızca ADMIN)
+### Admin (JWT + ADMIN)
 - GET `/admin/users` — kullanıcı listesi
 - POST `/admin/users` — kullanıcı oluştur
   - Body

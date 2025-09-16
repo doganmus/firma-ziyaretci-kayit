@@ -3,7 +3,7 @@
 Bu dosya günlük/haftalık çalışmayı izlemek için kullanılır. Aşamalar `ROADMAP.md` ile uyumludur.
 
 ### In Progress
-- [ ] a1: Docker Compose ile çalışma ve seed testleri
+- [ ] RBAC (frontend): role-based görünürlük
 
 ### Done
 - [x] README.md oluşturuldu
@@ -18,11 +18,14 @@ Bu dosya günlük/haftalık çalışmayı izlemek için kullanılır. Aşamalar 
 - [x] Frontend: Login sayfası
 - [x] Frontend: Ziyaret Formu
 - [x] Frontend: Ziyaret Listesi
+- [x] RBAC (backend): JwtAuthGuard + RolesGuard
+- [x] Swagger `/docs`
+- [x] Araç/plaka: DB CHECK + DTO + TR formatı
+- [x] SPA fallback (Nginx)
+- [x] Navbar auth görünürlüğü
 
 ### Backlog (Aşama 1)
-- [ ] RBAC guard'ları ve roller (`ADMIN`, `OPERATOR`)
-- [ ] Validasyon ve DB `CHECK` kuralı (araç/plaka)
-- [ ] (Opsiyonel) Swagger UI
+- [ ] —
 
 ### Backlog (Aşama 2)
 - [ ] Visits: filtreler (tarih, firma, araç, plaka, ziyaret edilen)
