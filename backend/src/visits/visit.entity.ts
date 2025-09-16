@@ -2,6 +2,10 @@ import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, Update
 
 @Entity('visits')
 @Check('vehicle_check', '(has_vehicle = false AND vehicle_plate IS NULL) OR (has_vehicle = true AND vehicle_plate IS NOT NULL)')
+@Check(
+  'vehicle_plate_format',
+  "(has_vehicle = false AND vehicle_plate IS NULL) OR (has_vehicle = true AND vehicle_plate ~ '^(0[1-9]|[1-7][0-9]|80|81)[A-Z]{1,3}[0-9]{2,4}$')",
+)
 export class Visit {
   @PrimaryGeneratedColumn('uuid')
   id: string;
