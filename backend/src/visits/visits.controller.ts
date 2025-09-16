@@ -1,7 +1,13 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { VisitsService } from './visits.service';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';
+import { CreateVisitDto } from './dto/create-visit.dto';
 
 @Controller('visits')
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('ADMIN', 'OPERATOR')
 export class VisitsController {
   constructor(private readonly visits: VisitsService) {}
 
@@ -11,18 +17,7 @@ export class VisitsController {
   }
 
   @Post()
-  create(
-    @Body()
-    body: {
-      entry_at: string;
-      exit_at?: string | null;
-      visitor_full_name: string;
-      visited_person_full_name: string;
-      company_name: string;
-      has_vehicle: boolean;
-      vehicle_plate?: string | null;
-    },
-  ) {
+  create(@Body() body: CreateVisitDto) {
     return this.visits.create(body);
   }
 

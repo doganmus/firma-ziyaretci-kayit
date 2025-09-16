@@ -1,6 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn, Check } from 'typeorm';
 
 @Entity('visits')
+@Check('vehicle_check', '(has_vehicle = false AND vehicle_plate IS NULL) OR (has_vehicle = true AND vehicle_plate IS NOT NULL)')
 export class Visit {
   @PrimaryGeneratedColumn('uuid')
   id: string;

@@ -3,9 +3,12 @@ import Login from './pages/Login'
 import VisitForm from './pages/VisitForm'
 import VisitList from './pages/VisitList'
 
+function isAuthed() {
+  return !!localStorage.getItem('accessToken')
+}
+
 function RequireAuth({ children }: { children: JSX.Element }) {
-  const token = localStorage.getItem('accessToken')
-  if (!token) return <Navigate to="/login" replace />
+  if (!isAuthed()) return <Navigate to="/login" replace />
   return children
 }
 
@@ -18,12 +21,14 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <nav style={{ display: 'flex', gap: 12, padding: 12, borderBottom: '1px solid #eee' }}>
-        <Link to="/">Ziyaretler</Link>
-        <Link to="/new">Ziyaret Ekle</Link>
-        <span style={{ marginLeft: 'auto' }} />
-        <button onClick={logout}>Çıkış</button>
-      </nav>
+      {isAuthed() && (
+        <nav style={{ display: 'flex', gap: 12, padding: 12, borderBottom: '1px solid #eee' }}>
+          <Link to="/">Ziyaretler</Link>
+          <Link to="/new">Ziyaret Ekle</Link>
+          <span style={{ marginLeft: 'auto' }} />
+          <button onClick={logout}>Çıkış</button>
+        </nav>
+      )}
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<RequireAuth><VisitList /></RequireAuth>} />
