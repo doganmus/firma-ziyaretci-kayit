@@ -1,0 +1,65 @@
+import { useState } from 'react'
+import { api } from '../api/client'
+
+export default function VisitForm() {
+  const [visitorFullName, setVisitorFullName] = useState('')
+  const [visitedPersonFullName, setVisitedPersonFullName] = useState('')
+  const [companyName, setCompanyName] = useState('')
+  const [hasVehicle, setHasVehicle] = useState(false)
+  const [vehiclePlate, setVehiclePlate] = useState('')
+  const [message, setMessage] = useState<string | null>(null)
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setMessage(null)
+    try {
+      const now = new Date().toISOString()
+      await api.post('/visits', {
+        entry_at: now,
+        visitor_full_name: visitorFullName,
+        visited_person_full_name: visitedPersonFullName,
+        company_name: companyName,
+        has_vehicle: hasVehicle,
+        vehicle_plate: hasVehicle ? vehiclePlate : undefined,
+      })
+      setMessage('Kayıt oluşturuldu')
+      setVisitorFullName('')
+      setVisitedPersonFullName('')
+      setCompanyName('')
+      setHasVehicle(false)
+      setVehiclePlate('')
+    } catch (err) {
+      setMessage('Hata oluştu')
+    }
+  }
+
+  return (
+    <div style={{ maxWidth: 600, margin: '24px auto' }}>
+      <h2>Ziyaret Kaydı</h2>
+      <form onSubmit={submit}>
+        <div>
+          <label>Adı Soyadı</label>
+          <input value={visitorFullName} onChange={(e) => setVisitorFullName(e.target.value)} style={{ width: '100%' }} />
+        </div>
+        <div>
+          <label>Ziyaret Edilen Adı Soyadı</label>
+          <input value={visitedPersonFullName} onChange={(e) => setVisitedPersonFullName(e.target.value)} style={{ width: '100%' }} />
+        </div>
+        <div>
+          <label>Firma</label>
+          <input value={companyName} onChange={(e) => setCompanyName(e.target.value)} style={{ width: '100%' }} />
+        </div>
+        <div>
+          <label>Araç Var mı?</label>
+          <input type="checkbox" checked={hasVehicle} onChange={(e) => setHasVehicle(e.target.checked)} />
+        </div>
+        <div>
+          <label>Plaka</label>
+          <input value={vehiclePlate} onChange={(e) => setVehiclePlate(e.target.value)} disabled={!hasVehicle} placeholder={!hasVehicle ? 'PASİF' : ''} />
+        </div>
+        <button type="submit">Kaydet</button>
+      </form>
+      {message && <div style={{ marginTop: 8 }}>{message}</div>}
+    </div>
+  )
+}
