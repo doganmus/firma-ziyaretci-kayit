@@ -38,15 +38,11 @@ Her aşama sonunda proje Docker Compose ile çalışır. Temel özellikler Aşam
 
 ### Aşama 3 - Admin Modülü
 - Kabul Kriterleri
-  - Admin kullanıcılar için CRUD ve rol atama
-  - Sadece `ADMIN` erişebiliyor
+  - Admin kullanıcılar için CRUD ve rol atama ✓
+  - Sadece `ADMIN` erişebiliyor ✓
 - Teslimatlar
-  - Backend: `/admin/users` CRUD
-  - Frontend: Admin sayfası (kullanıcı listesi/ekle/düzenle/sil)
-- Görevler
-  - [ ] Users service + controller
-  - [ ] RBAC guard'ları ve policy'ler
-  - [ ] Frontend Admin ekranları
+  - [x] Backend: `/admin/users` CRUD
+  - [x] Frontend: Admin sayfası (kullanıcı listesi/ekle/düzenle/sil)
 
 ### Aşama 4 - Üretim Hazırlığı ve Gelişmiş UX
 - Kabul Kriterleri
