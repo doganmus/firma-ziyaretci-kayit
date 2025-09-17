@@ -9,8 +9,24 @@ const TR_PLATE_REGEX = /^(0[1-9]|[1-7][0-9]|80|81)[A-Z]{1,3}[0-9]{2,4}$/;
 export class VisitsService {
   constructor(@InjectRepository(Visit) private readonly repo: Repository<Visit>) {}
 
-  async list(): Promise<Visit[]> {
-    return this.repo.find({ order: { entry_at: 'DESC' } });
+  async list(filters?: {
+    dateFrom?: string;
+    dateTo?: string;
+    company?: string;
+    hasVehicle?: boolean;
+    plate?: string;
+    visitedPerson?: string;
+  }): Promise<Visit[]> {
+    const qb = this.repo.createQueryBuilder('v').orderBy('v.entry_at', 'DESC');
+
+    if (filters?.dateFrom) qb.andWhere('v.entry_at >= :df', { df: new Date(filters.dateFrom) });
+    if (filters?.dateTo) qb.andWhere('v.entry_at <= :dt', { dt: new Date(filters.dateTo) });
+    if (filters?.company) qb.andWhere('v.company_name ILIKE :c', { c: `%${filters.company}%` });
+    if (typeof filters?.hasVehicle === 'boolean') qb.andWhere('v.has_vehicle = :hv', { hv: filters.hasVehicle });
+    if (filters?.plate) qb.andWhere("REPLACE(UPPER(v.vehicle_plate), ' ', '') LIKE :p", { p: `%${filters.plate.replace(/\s+/g, '').toUpperCase()}%` });
+    if (filters?.visitedPerson) qb.andWhere('v.visited_person_full_name ILIKE :vp', { vp: `%${filters.visitedPerson}%` });
+
+    return qb.getMany();
   }
 
   async create(payload: {

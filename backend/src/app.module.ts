@@ -6,6 +6,7 @@ import { Visit } from './visits/visit.entity';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { VisitsModule } from './visits/visits.module';
+import { ReportsModule } from './reports/reports.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { VisitsModule } from './visits/visits.module';
     UsersModule,
     AuthModule,
     VisitsModule,
+    ReportsModule,
   ],
   controllers: [HealthController],
 })
