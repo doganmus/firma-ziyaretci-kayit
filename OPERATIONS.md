@@ -32,14 +32,22 @@ Get-Content backup.sql | & "C:\Program Files\Docker\Docker\resources\bin\docker.
 ```
 
 ### Seed ve Test (Aşama 1)
-- Admin kullanıcı seed (geçici açık uç)
+- Admin kullanıcı seed
 ```powershell
 $body = @{ email = 'admin@example.com'; password = 'admin123'; full_name = 'Admin'; role = 'ADMIN' } | ConvertTo-Json
 Invoke-RestMethod -Method Post -Uri 'http://localhost:3000/admin/users' -ContentType 'application/json' -Body $body
 ```
-- Login testi
+- Operator kullanıcı seed
 ```powershell
 $login = @{ email = 'admin@example.com'; password = 'admin123' } | ConvertTo-Json
+$tok = (Invoke-RestMethod -Method Post -Uri 'http://localhost:3000/auth/login' -ContentType 'application/json' -Body $login).accessToken
+$headers = @{ Authorization = "Bearer $tok" }
+$op = @{ email = 'operator@example.com'; password = 'operator123'; full_name = 'Operator'; role = 'OPERATOR' } | ConvertTo-Json
+Invoke-RestMethod -Method Post -Uri 'http://localhost:3000/admin/users' -Headers $headers -ContentType 'application/json' -Body $op
+```
+- Login testi
+```powershell
+$login = @{ email = 'operator@example.com'; password = 'operator123' } | ConvertTo-Json
 Invoke-RestMethod -Method Post -Uri 'http://localhost:3000/auth/login' -ContentType 'application/json' -Body $login
 ```
 

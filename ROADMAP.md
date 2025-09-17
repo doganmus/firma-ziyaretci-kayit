@@ -18,7 +18,7 @@ Her aşama sonunda proje Docker Compose ile çalışır. Temel özellikler Aşam
   - [x] RBAC (backend): JwtAuthGuard + RolesGuard
   - [x] Swagger `/docs`
   - [x] Araç/plaka kuralı (DB CHECK + DTO + TR formatı)
-  - [ ] RBAC (frontend): role-based görünürlük
+  - [x] RBAC (frontend): role-based görünürlük
 
 ### Aşama 2 - Filtreler ve Temel Raporlar
 - Kabul Kriterleri

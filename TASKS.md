@@ -3,7 +3,7 @@
 Bu dosya günlük/haftalık çalışmayı izlemek için kullanılır. Aşamalar `ROADMAP.md` ile uyumludur.
 
 ### In Progress
-- [ ] RBAC (frontend): role-based görünürlük
+- [ ] Aşama 2: Visits filtreleri ve raporlar tasarımı
 
 ### Done
 - [x] README.md oluşturuldu
@@ -20,12 +20,10 @@ Bu dosya günlük/haftalık çalışmayı izlemek için kullanılır. Aşamalar 
 - [x] Frontend: Ziyaret Listesi
 - [x] RBAC (backend): JwtAuthGuard + RolesGuard
 - [x] Swagger `/docs`
-- [x] Araç/plaka: DB CHECK + DTO + TR formatı
+- [x] Araç/plaka: DB CHECK + DTO + TR formatı + servis validasyonu
 - [x] SPA fallback (Nginx)
-- [x] Navbar auth görünürlüğü
-
-### Backlog (Aşama 1)
-- [ ] —
+- [x] Navbar auth görünürlüğü + role-based
+- [x] Admin + Operator kullanıcı seed/test
 
 ### Backlog (Aşama 2)
 - [ ] Visits: filtreler (tarih, firma, araç, plaka, ziyaret edilen)
