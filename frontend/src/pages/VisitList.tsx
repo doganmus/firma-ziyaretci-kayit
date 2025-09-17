@@ -14,14 +14,28 @@ type Visit = {
 
 export default function VisitList() {
   const [items, setItems] = useState<Visit[]>([])
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
+  const [company, setCompany] = useState('')
+  const [hasVehicle, setHasVehicle] = useState<string>('') // '', 'true', 'false'
+  const [plate, setPlate] = useState('')
+  const [visitedPerson, setVisitedPerson] = useState('')
 
   const load = async () => {
-    const res = await api.get<Visit[]>('/visits')
+    const params: any = {}
+    if (dateFrom) params.dateFrom = new Date(dateFrom).toISOString()
+    if (dateTo) params.dateTo = new Date(dateTo).toISOString()
+    if (company) params.company = company
+    if (hasVehicle) params.hasVehicle = hasVehicle
+    if (plate) params.plate = plate
+    if (visitedPerson) params.visitedPerson = visitedPerson
+    const res = await api.get<Visit[]>('/visits', { params })
     setItems(res.data)
   }
 
   useEffect(() => {
     load()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const exitVisit = async (id: string) => {
@@ -29,9 +43,66 @@ export default function VisitList() {
     await load()
   }
 
+  const exportCsv = () => {
+    const headers = ['Ad Soyad','Ziyaret Edilen','Firma','Giriş','Çıkış','Araç/Plaka']
+    const rows = items.map(v => [
+      v.visitor_full_name,
+      v.visited_person_full_name,
+      v.company_name,
+      new Date(v.entry_at).toLocaleString(),
+      v.exit_at ? new Date(v.exit_at).toLocaleString() : '-',
+      v.has_vehicle ? (v.vehicle_plate ?? '') : 'PASİF',
+    ])
+    const csv = [headers, ...rows].map(r => r.map(x => `"${(x ?? '').toString().replace(/"/g,'""')}"`).join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `ziyaretler_${Date.now()}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <div style={{ padding: 24 }}>
       <h2>Ziyaretler</h2>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 8, marginBottom: 12 }}>
+        <div>
+          <label>Başlangıç</label>
+          <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
+        </div>
+        <div>
+          <label>Bitiş</label>
+          <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
+        </div>
+        <div>
+          <label>Firma</label>
+          <input value={company} onChange={(e) => setCompany(e.target.value)} />
+        </div>
+        <div>
+          <label>Araç</label>
+          <select value={hasVehicle} onChange={(e) => setHasVehicle(e.target.value)}>
+            <option value="">Tümü</option>
+            <option value="true">Var</option>
+            <option value="false">Yok</option>
+          </select>
+        </div>
+        <div>
+          <label>Plaka</label>
+          <input value={plate} onChange={(e) => setPlate(e.target.value)} />
+        </div>
+        <div>
+          <label>Ziyaret Edilen</label>
+          <input value={visitedPerson} onChange={(e) => setVisitedPerson(e.target.value)} />
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+        <button onClick={load}>Filtrele</button>
+        <button onClick={exportCsv}>CSV İndir</button>
+      </div>
+
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr>

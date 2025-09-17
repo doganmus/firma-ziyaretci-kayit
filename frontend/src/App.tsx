@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom'
 import Login from './pages/Login'
 import VisitForm from './pages/VisitForm'
 import VisitList from './pages/VisitList'
+import Reports from './pages/Reports'
 
 function isAuthed() {
   return !!localStorage.getItem('accessToken')
@@ -36,6 +37,7 @@ export default function App() {
         <nav style={{ display: 'flex', gap: 12, padding: 12, borderBottom: '1px solid #eee' }}>
           <Link to="/">Ziyaretler</Link>
           {(role === 'ADMIN' || role === 'OPERATOR') && <Link to="/new">Ziyaret Ekle</Link>}
+          <Link to="/reports">Raporlar</Link>
           <span style={{ marginLeft: 'auto' }} />
           <button onClick={logout}>Çıkış</button>
         </nav>
@@ -44,6 +46,8 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<RequireAuth><VisitList /></RequireAuth>} />
         <Route path="/new" element={<RequireAuth><VisitForm /></RequireAuth>} />
+        <Route path="/reports" element={<RequireAuth><Reports /></RequireAuth>} />
+        <Route path="*" element={isAuthed() ? <Navigate to="/" replace /> : <Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
   )
