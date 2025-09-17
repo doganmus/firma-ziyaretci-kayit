@@ -3,6 +3,7 @@ import Login from './pages/Login'
 import VisitForm from './pages/VisitForm'
 import VisitList from './pages/VisitList'
 import Reports from './pages/Reports'
+import Admin from './pages/Admin'
 
 function isAuthed() {
   return !!localStorage.getItem('accessToken')
@@ -38,6 +39,7 @@ export default function App() {
           <Link to="/">Ziyaretler</Link>
           {(role === 'ADMIN' || role === 'OPERATOR') && <Link to="/new">Ziyaret Ekle</Link>}
           <Link to="/reports">Raporlar</Link>
+          {role === 'ADMIN' && <Link to="/admin">Admin</Link>}
           <span style={{ marginLeft: 'auto' }} />
           <button onClick={logout}>Çıkış</button>
         </nav>
@@ -47,6 +49,7 @@ export default function App() {
         <Route path="/" element={<RequireAuth><VisitList /></RequireAuth>} />
         <Route path="/new" element={<RequireAuth><VisitForm /></RequireAuth>} />
         <Route path="/reports" element={<RequireAuth><Reports /></RequireAuth>} />
+        <Route path="/admin" element={role === 'ADMIN' ? <RequireAuth><Admin /></RequireAuth> : <Navigate to="/" replace />} />
         <Route path="*" element={isAuthed() ? <Navigate to="/" replace /> : <Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
