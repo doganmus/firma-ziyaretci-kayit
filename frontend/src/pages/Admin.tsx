@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { api } from '../api/client'
 
 type User = { id: string; email: string; full_name: string; role: string }
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export default function Admin() {
   const [users, setUsers] = useState<User[]>([])
@@ -9,6 +10,7 @@ export default function Admin() {
   const [fullName, setFullName] = useState('')
   const [password, setPassword] = useState('')
   const [role, setRole] = useState('OPERATOR')
+  const [rowPasswords, setRowPasswords] = useState<Record<string, string>>({})
 
   const load = async () => {
     const res = await api.get<User[]>('/admin/users')
@@ -18,6 +20,8 @@ export default function Admin() {
   useEffect(() => { load() }, [])
 
   const createUser = async () => {
+    if (!EMAIL_RE.test(email)) { alert('Geçersiz e-posta'); return }
+    if (password.length < 6) { alert('Şifre en az 6 karakter olmalı'); return }
     await api.post('/admin/users', { email, password, full_name: fullName, role })
     setEmail(''); setFullName(''); setPassword(''); setRole('OPERATOR')
     await load()
@@ -31,6 +35,14 @@ export default function Admin() {
   const removeUser = async (id: string) => {
     await api.delete(`/admin/users/${id}`)
     await load()
+  }
+
+  const setRowPassword = (id: string, val: string) => setRowPasswords(prev => ({ ...prev, [id]: val }))
+  const saveRowPassword = async (id: string) => {
+    const p = rowPasswords[id] || ''
+    if (p.length < 6) { alert('Şifre en az 6 karakter olmalı'); return }
+    await updateUser(id, { password: p })
+    setRowPasswords(prev => ({ ...prev, [id]: '' }))
   }
 
   return (
@@ -51,7 +63,7 @@ export default function Admin() {
 
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
-          <tr><th>E-posta</th><th>Ad Soyad</th><th>Rol</th><th>Aksiyon</th></tr>
+          <tr><th>E-posta</th><th>Ad Soyad</th><th>Rol</th><th>Şifre</th><th>Aksiyon</th></tr>
         </thead>
         <tbody>
           {users.map(u => (
@@ -66,7 +78,10 @@ export default function Admin() {
                 </select>
               </td>
               <td>
-                <button onClick={() => { const p = prompt('Yeni şifre'); if (p) updateUser(u.id, { password: p }) }}>Şifre Sıfırla</button>
+                <input type="password" placeholder="Yeni şifre" value={rowPasswords[u.id] || ''} onChange={(e) => setRowPassword(u.id, e.target.value)} />
+                <button onClick={() => saveRowPassword(u.id)}>Kaydet</button>
+              </td>
+              <td>
                 <button onClick={() => removeUser(u.id)}>Sil</button>
               </td>
             </tr>

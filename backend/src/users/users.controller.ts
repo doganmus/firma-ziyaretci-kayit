@@ -6,6 +6,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Controller('admin/users')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -19,7 +20,7 @@ export class UsersController {
   }
 
   @Post()
-  async create(@Body() body: { email: string; password: string; full_name: string; role: UserRole }): Promise<User> {
+  async create(@Body() body: CreateUserDto): Promise<User> {
     const password_hash = await bcrypt.hash(body.password, 10);
     return this.users.create({ email: body.email, password_hash, full_name: body.full_name, role: body.role });
   }
