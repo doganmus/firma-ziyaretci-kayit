@@ -2,7 +2,7 @@
 
 Tüm endpointler JSON döner. Kimlik doğrulama gerektiren uçlarda `Authorization: Bearer <token>` başlığı zorunludur. Swagger: `/docs`.
 
-RBAC: `visits` → `ADMIN|OPERATOR`, `admin/users` → `ADMIN`.
+RBAC: `visits` → `ADMIN|OPERATOR`, `admin/users` → `ADMIN`, `reports` → `ADMIN|OPERATOR|VIEWER`.
 
 Plaka kuralı: TR formatı — `^(0[1-9]|[1-7][0-9]|80|81)[A-Z]{1,3}[0-9]{2,4}$` (boşluklar yok sayılır, büyük harfe çevrilir).
 
@@ -23,7 +23,7 @@ Plaka kuralı: TR formatı — `^(0[1-9]|[1-7][0-9]|80|81)[A-Z]{1,3}[0-9]{2,4}$`
 
 ### Ziyaretler (JWT + RBAC)
 - GET `/visits`
-  - Sorgu: `dateFrom,dateTo,company,hasVehicle,plate,visitedPerson,page,pageSize,sort`
+  - Sorgu: `dateFrom,dateTo,company,hasVehicle,plate,visitedPerson`
   - 200
     ```json
     { "items": [ { "id": "uuid", "visitor_full_name": "...", "company_name": "...", "entry_at": "2025-01-01T08:30:00Z", "exit_at": null, "has_vehicle": true, "vehicle_plate": "34ABC123" } ], "total": 1 }
@@ -46,17 +46,11 @@ Plaka kuralı: TR formatı — `^(0[1-9]|[1-7][0-9]|80|81)[A-Z]{1,3}[0-9]{2,4}$`
 - POST `/visits/:id/exit`
   - Body: boş; sunucu `exit_at = now()` atar
 
-### Raporlar
+### Raporlar (JWT)
 - GET `/reports/summary?dateFrom&dateTo`
-  - 200
-    ```json
-    { "total": 120, "withVehicle": 70, "withoutVehicle": 50, "active": 12, "exited": 108 }
-    ```
+  - Ör: `{ "total": 120, "withVehicle": 70, "withoutVehicle": 50, "active": 12, "exited": 108 }`
 - GET `/reports/by-company?dateFrom&dateTo`
-  - 200
-    ```json
-    [ { "company": "Şirket A", "count": 30 }, { "company": "Şirket B", "count": 20 } ]
-    ```
+  - Ör: `[ { "company": "Şirket A", "count": 30 } ]`
 
 ### Admin (JWT + ADMIN)
 - GET `/admin/users` — kullanıcı listesi

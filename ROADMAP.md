@@ -22,13 +22,13 @@ Her aşama sonunda proje Docker Compose ile çalışır. Temel özellikler Aşam
 
 ### Aşama 2 - Filtreler ve Temel Raporlar
 - Kabul Kriterleri
-  - Ziyaret listesinde tarih aralığı, firma, araç var/yok, plaka filtreleri
-  - Raporlar: `GET /reports/summary` ve `GET /reports/by-company`
-  - CSV export ile ziyaret listesini indirme
+  - Ziyaret listesinde tarih aralığı, firma, araç var/yok, plaka filtreleri ✓
+  - Raporlar: `GET /reports/summary` ve `GET /reports/by-company` ✓
+  - CSV export ile ziyaret listesini indirme ✓
 - Teslimatlar
-  - Backend filtreli sorgular ve rapor endpointleri
-  - Frontend filtre alanları ve rapor ekranı
-  - CSV export (frontend)
+  - [x] Backend filtreli sorgular ve rapor endpointleri
+  - [x] Frontend filtre alanları ve Raporlar sayfası
+  - [x] CSV export (frontend)
 - Görevler
   - [ ] Visits: filtre parametreleri için backend sorguları
   - [ ] Reports: summary ve by-company endpointleri
