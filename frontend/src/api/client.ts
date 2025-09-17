@@ -15,6 +15,21 @@ api.interceptors.request.use((config) => {
   return config
 })
 
+api.interceptors.response.use(
+  (res) => res,
+  (error) => {
+    const status = error?.response?.status
+    if (status === 401 || status === 403) {
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('user')
+      if (location.pathname !== '/login') {
+        location.href = '/login'
+      }
+    }
+    return Promise.reject(error)
+  }
+)
+
 export type LoginResponse = {
   accessToken: string
   user: { id: string; email: string; full_name: string; role: string }

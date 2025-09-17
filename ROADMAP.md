@@ -50,15 +50,18 @@ Her aşama sonunda proje Docker Compose ile çalışır. Temel özellikler Aşam
   - HTTPS (geliştirme için self-signed, üretimde gerçek sertifika)
   - Loglama, hata takibi ve basit rate limiting
   - PDF export çalışır
+  - Dark Mode toggle ile tema değiştirme
 - Teslimatlar
   - Nginx konfigürasyonu (frontend + api proxy)
   - PDF export (sunucu veya istemci tarafı)
   - Temel observability (isteğe bağlı: pino, prometheus/grafana)
+  - Dark Mode (global tema sağlayıcı + kalıcı tercih)
 - Görevler
   - [ ] Nginx reverse proxy ve prod dockerfile'lar
   - [ ] Rate limiting ve güvenlik başlıkları (helmet)
   - [ ] PDF export
   - [ ] (Opsiyonel) Monitoring/metrikler
+  - [ ] Dark Mode: tema toggle, localStorage kalıcılığı
 
 ### Aşama 5 - Opsiyonel Gelişmiş Özellikler
 - Öneriler

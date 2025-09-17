@@ -20,17 +20,23 @@ export default function VisitList() {
   const [hasVehicle, setHasVehicle] = useState<string>('') // '', 'true', 'false'
   const [plate, setPlate] = useState('')
   const [visitedPerson, setVisitedPerson] = useState('')
+  const [loading, setLoading] = useState(false)
 
   const load = async () => {
-    const params: any = {}
-    if (dateFrom) params.dateFrom = new Date(dateFrom).toISOString()
-    if (dateTo) params.dateTo = new Date(dateTo).toISOString()
-    if (company) params.company = company
-    if (hasVehicle) params.hasVehicle = hasVehicle
-    if (plate) params.plate = plate
-    if (visitedPerson) params.visitedPerson = visitedPerson
-    const res = await api.get<Visit[]>('/visits', { params })
-    setItems(res.data)
+    setLoading(true)
+    try {
+      const params: any = {}
+      if (dateFrom) params.dateFrom = new Date(dateFrom).toISOString()
+      if (dateTo) params.dateTo = new Date(dateTo).toISOString()
+      if (company) params.company = company
+      if (hasVehicle) params.hasVehicle = hasVehicle
+      if (plate) params.plate = plate
+      if (visitedPerson) params.visitedPerson = visitedPerson
+      const res = await api.get<Visit[]>('/visits', { params })
+      setItems(res.data)
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
@@ -99,38 +105,40 @@ export default function VisitList() {
       </div>
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-        <button onClick={load}>Filtrele</button>
-        <button onClick={exportCsv}>CSV İndir</button>
+        <button onClick={load} disabled={loading}>{loading ? 'Yükleniyor...' : 'Filtrele'}</button>
+        <button onClick={exportCsv} disabled={loading}>CSV İndir</button>
       </div>
 
-      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-        <thead>
-          <tr>
-            <th>Ad Soyad</th>
-            <th>Ziyaret Edilen</th>
-            <th>Firma</th>
-            <th>Giriş</th>
-            <th>Çıkış</th>
-            <th>Araç/Plaka</th>
-            <th>Aksiyon</th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((v) => (
-            <tr key={v.id}>
-              <td>{v.visitor_full_name}</td>
-              <td>{v.visited_person_full_name}</td>
-              <td>{v.company_name}</td>
-              <td>{new Date(v.entry_at).toLocaleString()}</td>
-              <td>{v.exit_at ? new Date(v.exit_at).toLocaleString() : '-'}</td>
-              <td>{v.has_vehicle ? v.vehicle_plate : 'PASİF'}</td>
-              <td>
-                {!v.exit_at && <button onClick={() => exitVisit(v.id)}>Çıkış Ver</button>}
-              </td>
+      {loading ? <div>Yükleniyor...</div> : (
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr>
+              <th>Ad Soyad</th>
+              <th>Ziyaret Edilen</th>
+              <th>Firma</th>
+              <th>Giriş</th>
+              <th>Çıkış</th>
+              <th>Araç/Plaka</th>
+              <th>Aksiyon</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {items.map((v) => (
+              <tr key={v.id}>
+                <td>{v.visitor_full_name}</td>
+                <td>{v.visited_person_full_name}</td>
+                <td>{v.company_name}</td>
+                <td>{new Date(v.entry_at).toLocaleString()}</td>
+                <td>{v.exit_at ? new Date(v.exit_at).toLocaleString() : '-'}</td>
+                <td>{v.has_vehicle ? v.vehicle_plate : 'PASİF'}</td>
+                <td>
+                  {!v.exit_at && <button onClick={() => exitVisit(v.id)}>Çıkış Ver</button>}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   )
 }

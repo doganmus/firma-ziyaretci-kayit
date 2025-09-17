@@ -10,11 +10,17 @@ export default function VisitForm() {
   const [hasVehicle, setHasVehicle] = useState(false)
   const [vehiclePlate, setVehiclePlate] = useState('')
   const [message, setMessage] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
     setMessage(null)
+    if (!visitorFullName || !visitedPersonFullName || !companyName) {
+      setMessage('Zorunlu alanlar eksik')
+      return
+    }
     try {
+      setLoading(true)
       const now = new Date().toISOString()
       const normalizedPlate = vehiclePlate.replace(/\s+/g, '').toUpperCase()
       if (hasVehicle && !TR_PLATE_REGEX.test(normalizedPlate)) {
@@ -37,6 +43,8 @@ export default function VisitForm() {
       setVehiclePlate('')
     } catch (err) {
       setMessage('Hata oluştu')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -64,7 +72,7 @@ export default function VisitForm() {
           <label>Plaka</label>
           <input value={vehiclePlate} onChange={(e) => setVehiclePlate(e.target.value)} disabled={!hasVehicle} placeholder={!hasVehicle ? 'PASİF' : ''} />
         </div>
-        <button type="submit">Kaydet</button>
+        <button type="submit" disabled={loading}>{loading ? 'Kaydediliyor...' : 'Kaydet'}</button>
       </form>
       {message && <div style={{ marginTop: 8 }}>{message}</div>}
     </div>
