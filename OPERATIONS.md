@@ -59,6 +59,15 @@ $login = @{ email = 'operator@example.com'; password = 'operator123' } | Convert
 Invoke-RestMethod -Method Post -Uri 'http://localhost:3000/auth/login' -ContentType 'application/json' -Body $login
 ```
 
+### HTTPS (Geliştirme için self-signed)
+- Sertifika oluşturma (PowerShell, OpenSSL):
+```powershell
+mkdir certs
+openssl req -x509 -newkey rsa:2048 -nodes -keyout certs/server.key -out certs/server.crt -days 365 -subj "/CN=localhost"
+```
+- Compose ile frontend 443 portu 5443’e map edilmiştir: `https://localhost:5443`
+- Sertifikayı tarayıcıya güvenilir olarak eklemeniz gerekebilir (geliştirme ortamı).
+
 ### Sorun Giderme
 - Backend API açılmıyor
   - log: `compose logs -f backend`
