@@ -21,6 +21,14 @@ export default function Reports() {
     setByCompany(c.data)
   }
 
+  const downloadPdf = () => {
+    const params = new URLSearchParams()
+    if (dateFrom) params.set('dateFrom', new Date(dateFrom).toISOString())
+    if (dateTo) params.set('dateTo', new Date(dateTo).toISOString())
+    const url = `/api/reports/export/pdf${params.toString() ? `?${params.toString()}` : ''}`
+    window.open(url, '_blank')
+  }
+
   useEffect(() => {
     load()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -40,6 +48,7 @@ export default function Reports() {
           <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
         </div>
         <button onClick={load}>Uygula</button>
+        <button onClick={downloadPdf}>PDF İndir</button>
       </div>
 
       {summary && (
