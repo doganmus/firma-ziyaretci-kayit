@@ -56,6 +56,12 @@ Her aşama sonunda proje Docker Compose ile çalışır. Temel özellikler Aşam
   - PDF export (sunucu veya istemci tarafı)
   - Temel observability (isteğe bağlı: pino, prometheus/grafana)
   - Dark Mode (global tema sağlayıcı + kalıcı tercih)
+  - Frontend Modernizasyon (Ant Design):
+    - Phase A: Layout + Tema (tamamlandı)
+    - Phase B: Login + Ziyaret Formu (tamamlandı)
+    - Phase C: Ziyaret Listesi (tamamlandı)
+    - Phase D: Admin (beklemede)
+    - Phase E: Polishing & A11y (beklemede)
 - Görevler
   - [ ] Nginx reverse proxy ve prod dockerfile'lar
   - [ ] Rate limiting ve güvenlik başlıkları (helmet)
