@@ -21,12 +21,18 @@ export default function Reports() {
     setByCompany(c.data)
   }
 
-  const downloadPdf = () => {
-    const params = new URLSearchParams()
-    if (dateFrom) params.set('dateFrom', new Date(dateFrom).toISOString())
-    if (dateTo) params.set('dateTo', new Date(dateTo).toISOString())
-    const url = `/api/reports/export/pdf${params.toString() ? `?${params.toString()}` : ''}`
-    window.open(url, '_blank')
+  const downloadPdf = async () => {
+    const params: any = {}
+    if (dateFrom) params.dateFrom = new Date(dateFrom).toISOString()
+    if (dateTo) params.dateTo = new Date(dateTo).toISOString()
+    const res = await api.get('/reports/export/pdf', { params, responseType: 'blob' })
+    const blob = new Blob([res.data], { type: 'application/pdf' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'summary.pdf'
+    a.click()
+    URL.revokeObjectURL(url)
   }
 
   useEffect(() => {
