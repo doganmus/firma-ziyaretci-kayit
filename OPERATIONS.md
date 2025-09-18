@@ -15,6 +15,14 @@
 & "C:\Program Files\Docker\Docker\resources\bin\docker.exe" compose down
 ```
 
+### Reverse Proxy
+- Frontend Nginx, `/api` yolunu otomatik olarak `backend:3000` servisine proxy'ler.
+- Frontend kodu `VITE_API_URL` yoksa otomatik `/api` tabanını kullanır.
+
+### PDF Export ve Dark Mode
+- PDF indir: Raporlar sayfasındaki “PDF İndir” butonu veya doğrudan `/api/reports/export/pdf?dateFrom=...&dateTo=...`
+- Dark Mode: Navbar sağındaki seçim ile tema değiştir; tercih `localStorage`'da saklanır.
+
 ### Ortam Değişkenleri (.env)
 - `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`: PostgreSQL ayarları
 - `PGADMIN_EMAIL`, `PGADMIN_PASSWORD`: pgAdmin giriş bilgileri

@@ -6,6 +6,8 @@ RBAC: `visits` → `ADMIN|OPERATOR`, `admin/users` → `ADMIN`, `reports` → `A
 
 Plaka kuralı: TR formatı — `^(0[1-9]|[1-7][0-9]|80|81)[A-Z]{1,3}[0-9]{2,4}$` (boşluklar yok sayılır, büyük harfe çevrilir).
 
+Not: Frontend prod ortamda Nginx üzerinden `/api` yolunu backend'e proxy'ler.
+
 ### Kimlik Doğrulama
 - POST `/auth/login`
   - Body
@@ -51,6 +53,7 @@ Plaka kuralı: TR formatı — `^(0[1-9]|[1-7][0-9]|80|81)[A-Z]{1,3}[0-9]{2,4}$`
   - Ör: `{ "total": 120, "withVehicle": 70, "withoutVehicle": 50, "active": 12, "exited": 108 }`
 - GET `/reports/by-company?dateFrom&dateTo`
   - Ör: `[ { "company": "Şirket A", "count": 30 } ]`
+- GET `/reports/export/pdf?dateFrom&dateTo` — içerik: `application/pdf` (indirme)
 
 ### Admin (JWT + ADMIN)
 - GET `/admin/users` — kullanıcı listesi
