@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { api, LoginResponse } from '../api/client'
-import { Form, Input, Button, Typography, Card, Alert } from 'antd'
-import { MailOutlined, LockOutlined } from '@ant-design/icons'
+import { Form, Input, Button, Typography, Card, Alert, Space, Tooltip } from 'antd'
+import { MailOutlined, LockOutlined, SunOutlined, MoonOutlined } from '@ant-design/icons'
 
-export default function Login() {
+export default function Login({ themeName = 'light', onToggleTheme }: { themeName?: 'light' | 'dark'; onToggleTheme?: () => void }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -24,8 +24,18 @@ export default function Login() {
 
   return (
     <div style={{ maxWidth: 400, margin: '80px auto' }}>
-      <Card>
-        <Typography.Title level={3} style={{ textAlign: 'center', marginBottom: 24 }}>Giriş Yap</Typography.Title>
+      <Card
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Typography.Title level={4} style={{ margin: 0 }}>Giriş Yap</Typography.Title>
+            <Space>
+              <Tooltip title={themeName === 'dark' ? 'Açık moda geç' : 'Koyu moda geç'}>
+                <Button type="text" shape="circle" aria-label="Tema" onClick={onToggleTheme} icon={themeName === 'dark' ? <SunOutlined /> : <MoonOutlined />} />
+              </Tooltip>
+            </Space>
+          </div>
+        }
+      >
         {error && <Alert type="error" message={error} style={{ marginBottom: 16 }} />}
         <Form layout="vertical" onFinish={onFinish} autoComplete="off" initialValues={{ email: '', password: '' }}>
           <Form.Item label="E-posta" name="email" rules={[{ required: true, message: 'E-posta gerekli' }, { type: 'email', message: 'Geçerli bir e-posta girin' }]}>

@@ -5,7 +5,8 @@ import VisitList from './pages/VisitList'
 import Reports from './pages/Reports'
 import Admin from './pages/Admin'
 import { useEffect, useMemo, useState } from 'react'
-import { ConfigProvider, theme, Layout, Menu, Space, Select, Button } from 'antd'
+import { ConfigProvider, theme, Layout, Menu, Space, Button, Tooltip } from 'antd'
+import { SunOutlined, MoonOutlined } from '@ant-design/icons'
 
 const { Header, Content } = Layout
 
@@ -52,13 +53,17 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
     window.location.href = '/login'
   }
 
+  const toggleTheme = () => setThemeName(themeName === 'dark' ? 'light' : 'dark')
+
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Header style={{ display: 'flex', alignItems: 'center' }}>
         <div style={{ color: '#fff', fontWeight: 600, marginRight: 16 }}>Firma Ziyaret</div>
         <Menu theme="dark" mode="horizontal" selectedKeys={selectedKeys} items={items} style={{ flex: 1 }} />
         <Space>
-          <Select size="small" value={themeName} onChange={setThemeName} style={{ width: 100 }} options={[{ value: 'light', label: 'Açık' }, { value: 'dark', label: 'Koyu' }]} />
+          <Tooltip title={themeName === 'dark' ? 'Açık moda geç' : 'Koyu moda geç'}>
+            <Button type="text" shape="circle" aria-label="Tema" onClick={toggleTheme} icon={themeName === 'dark' ? <SunOutlined /> : <MoonOutlined />} />
+          </Tooltip>
           <Button size="small" onClick={logout}>Çıkış</Button>
         </Space>
       </Header>
@@ -77,6 +82,8 @@ export default function App() {
 
   const role = getRole()
 
+  const toggleTheme = () => setThemeName(themeName === 'dark' ? 'light' : 'dark')
+
   return (
     <ConfigProvider theme={{ algorithm }}>
       <BrowserRouter>
@@ -92,7 +99,7 @@ export default function App() {
           </Shell>
         ) : (
           <Routes>
-            <Route path="/login" element={<Login />} />
+            <Route path="/login" element={<Login themeName={themeName} onToggleTheme={toggleTheme} />} />
             <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
         )}
