@@ -4,6 +4,7 @@ import VisitForm from './pages/VisitForm'
 import VisitList from './pages/VisitList'
 import Reports from './pages/Reports'
 import Admin from './pages/Admin'
+import { useEffect, useState } from 'react'
 
 function isAuthed() {
   return !!localStorage.getItem('accessToken')
@@ -31,16 +32,25 @@ export default function App() {
   }
 
   const role = getRole()
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light')
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    localStorage.setItem('theme', theme)
+  }, [theme])
 
   return (
     <BrowserRouter>
       {isAuthed() && (
-        <nav style={{ display: 'flex', gap: 12, padding: 12, borderBottom: '1px solid #eee' }}>
+        <nav style={{ display: 'flex', gap: 12, padding: 12, borderBottom: '1px solid var(--border-color)' }}>
           <Link to="/">Ziyaretler</Link>
           {(role === 'ADMIN' || role === 'OPERATOR') && <Link to="/new">Ziyaret Ekle</Link>}
           <Link to="/reports">Raporlar</Link>
           {role === 'ADMIN' && <Link to="/admin">Admin</Link>}
           <span style={{ marginLeft: 'auto' }} />
+          <select value={theme} onChange={(e) => setTheme(e.target.value)}>
+            <option value="light">Açık</option>
+            <option value="dark">Koyu</option>
+          </select>
           <button onClick={logout}>Çıkış</button>
         </nav>
       )}
@@ -52,6 +62,14 @@ export default function App() {
         <Route path="/admin" element={role === 'ADMIN' ? <RequireAuth><Admin /></RequireAuth> : <Navigate to="/" replace />} />
         <Route path="*" element={isAuthed() ? <Navigate to="/" replace /> : <Navigate to="/login" replace />} />
       </Routes>
+      <style>{`
+        :root { --bg: #ffffff; --fg: #111111; --border-color: #e5e5e5; }
+        [data-theme="dark"] { --bg: #0f172a; --fg: #e5e7eb; --border-color: #334155; }
+        body, html, #root { background: var(--bg); color: var(--fg); }
+        a { color: inherit; }
+        input, select, button { background: var(--bg); color: var(--fg); border: 1px solid var(--border-color); }
+        table { border-color: var(--border-color); }
+      `}</style>
     </BrowserRouter>
   )
 }

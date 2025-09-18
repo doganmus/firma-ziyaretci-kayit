@@ -1,6 +1,7 @@
 import axios from 'axios'
 
-const apiBase = (import.meta.env.VITE_API_URL as string) || 'http://localhost:3000'
+const fallbackBase = '/api'
+const apiBase = (import.meta.env.VITE_API_URL as string) || fallbackBase
 
 export const api = axios.create({
   baseURL: apiBase,
