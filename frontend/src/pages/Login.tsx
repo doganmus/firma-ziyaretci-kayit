@@ -23,19 +23,25 @@ export default function Login({ themeName = 'light', onToggleTheme }: { themeNam
   }
 
   return (
-    <div style={{ maxWidth: 400, margin: '80px auto' }}>
-      <Card
-        title={
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Typography.Title level={4} style={{ margin: 0 }}>Giriş Yap</Typography.Title>
-            <Space>
-              <Tooltip title={themeName === 'dark' ? 'Açık moda geç' : 'Koyu moda geç'}>
-                <Button type="text" shape="circle" aria-label="Tema" onClick={onToggleTheme} icon={themeName === 'dark' ? <SunOutlined /> : <MoonOutlined />} />
-              </Tooltip>
-            </Space>
-          </div>
-        }
-      >
+    <div style={{ maxWidth: 440, margin: '80px auto', position: 'relative' }}>
+      <div style={{ position: 'fixed', top: 16, right: 16, zIndex: 10 }}>
+        <Tooltip title={themeName === 'dark' ? 'Açık moda geç' : 'Koyu moda geç'}>
+          <Button
+            shape="circle"
+            size="large"
+            aria-label="Tema"
+            onClick={onToggleTheme}
+            style={{
+              backgroundColor: themeName === 'dark' ? '#fff' : '#000',
+              color: themeName === 'dark' ? '#000' : '#fff',
+              border: 'none'
+            }}
+            icon={themeName === 'dark' ? <SunOutlined style={{ fontSize: 20 }} /> : <MoonOutlined style={{ fontSize: 20 }} />}
+          />
+        </Tooltip>
+      </div>
+      <Card>
+        <Typography.Title level={3} style={{ textAlign: 'center', marginBottom: 24 }}>Giriş Yap</Typography.Title>
         {error && <Alert type="error" message={error} style={{ marginBottom: 16 }} />}
         <Form layout="vertical" onFinish={onFinish} autoComplete="off" initialValues={{ email: '', password: '' }}>
           <Form.Item label="E-posta" name="email" rules={[{ required: true, message: 'E-posta gerekli' }, { type: 'email', message: 'Geçerli bir e-posta girin' }]}>

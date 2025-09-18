@@ -33,7 +33,7 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
   const location = useLocation()
   const items = useMemo(() => {
     const base = [
-      { key: '/', label: <Link to="/">Ziyaretler</Link> },
+      { key: '/', label: <Link to="/">Kayıt</Link> },
       ...(role === 'ADMIN' || role === 'OPERATOR' ? [{ key: '/new', label: <Link to="/new">Ziyaret Ekle</Link> }] : []),
       { key: '/reports', label: <Link to="/reports">Raporlar</Link> },
       ...(role === 'ADMIN' ? [{ key: '/admin', label: <Link to="/admin">Admin</Link> }] : []),
@@ -62,7 +62,18 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
         <Menu theme="dark" mode="horizontal" selectedKeys={selectedKeys} items={items} style={{ flex: 1 }} />
         <Space>
           <Tooltip title={themeName === 'dark' ? 'Açık moda geç' : 'Koyu moda geç'}>
-            <Button type="text" shape="circle" aria-label="Tema" onClick={toggleTheme} icon={themeName === 'dark' ? <SunOutlined /> : <MoonOutlined />} />
+            <Button
+              shape="circle"
+              size="large"
+              aria-label="Tema"
+              onClick={toggleTheme}
+              style={{
+                backgroundColor: themeName === 'dark' ? '#fff' : '#000',
+                color: themeName === 'dark' ? '#000' : '#fff',
+                border: 'none'
+              }}
+              icon={themeName === 'dark' ? <SunOutlined style={{ fontSize: 18 }} /> : <MoonOutlined style={{ fontSize: 18 }} />}
+            />
           </Tooltip>
           <Button size="small" onClick={logout}>Çıkış</Button>
         </Space>
@@ -99,7 +110,7 @@ export default function App() {
           </Shell>
         ) : (
           <Routes>
-            <Route path="/login" element={<Login themeName={themeName} onToggleTheme={toggleTheme} />} />
+            <Route path="/login" element={<Login themeName={themeName as 'light' | 'dark'} onToggleTheme={toggleTheme} />} />
             <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
         )}

@@ -1,29 +1,43 @@
 import { useEffect, useMemo, useState } from 'react'
 import { api } from '../api/client'
-import { Card, Typography, Form, Input, Select, Button, Table, Space, Popconfirm, message } from 'antd'
+import { Card, Typography, Form, Input, Select, Button, Table, Space, Popconfirm, message, Row, Col } from 'antd'
 
 type User = { id: string; email: string; full_name: string; role: string }
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export default function Admin() {
   const [users, setUsers] = useState<User[]>([])
+  const [filtered, setFiltered] = useState<User[]>([])
   const [loading, setLoading] = useState(false)
   const [creating, setCreating] = useState(false)
   const [rowPasswords, setRowPasswords] = useState<Record<string, string>>({})
+  const [searchEmail, setSearchEmail] = useState('')
+  const [searchName, setSearchName] = useState('')
 
   const [form] = Form.useForm()
+
+  const applyFilters = (list: User[], email: string, name: string) => {
+    const e = email.trim().toLowerCase()
+    const n = name.trim().toLowerCase()
+    return list.filter(u => (
+      (!e || u.email.toLowerCase().includes(e)) &&
+      (!n || (u.full_name || '').toLowerCase().includes(n))
+    ))
+  }
 
   const load = async () => {
     setLoading(true)
     try {
       const res = await api.get<User[]>('/admin/users')
       setUsers(res.data)
+      setFiltered(applyFilters(res.data, searchEmail, searchName))
     } finally {
       setLoading(false)
     }
   }
 
   useEffect(() => { load() }, [])
+  useEffect(() => { setFiltered(applyFilters(users, searchEmail, searchName)) }, [users, searchEmail, searchName])
 
   const createUser = async (values: { email: string; full_name: string; password: string; role: string }) => {
     if (!EMAIL_RE.test(values.email)) { message.error('Geçersiz e-posta'); return }
@@ -60,10 +74,10 @@ export default function Admin() {
   }
 
   const columns = useMemo(() => [
-    { title: 'E-posta', dataIndex: 'email', key: 'email' },
-    { title: 'Ad Soyad', dataIndex: 'full_name', key: 'full_name' },
+    { title: 'E-posta', dataIndex: 'email', key: 'email', sorter: (a: User, b: User) => a.email.localeCompare(b.email) },
+    { title: 'Ad Soyad', dataIndex: 'full_name', key: 'full_name', sorter: (a: User, b: User) => (a.full_name || '').localeCompare(b.full_name || '') },
     {
-      title: 'Rol', dataIndex: 'role', key: 'role', render: (v: string, r: User) => (
+      title: 'Rol', dataIndex: 'role', key: 'role', sorter: (a: User, b: User) => a.role.localeCompare(b.role), render: (v: string, r: User) => (
         <Select
           value={v}
           onChange={(val) => updateUser(r.id, { role: val })}
@@ -125,12 +139,20 @@ export default function Admin() {
         </Card>
 
         <Card title="Kullanıcılar">
+          <Row gutter={8} style={{ marginBottom: 8 }}>
+            <Col xs={24} md={8}>
+              <Input allowClear placeholder="E-posta ara" value={searchEmail} onChange={(e) => setSearchEmail(e.target.value)} />
+            </Col>
+            <Col xs={24} md={8}>
+              <Input allowClear placeholder="Ad Soyad ara" value={searchName} onChange={(e) => setSearchName(e.target.value)} />
+            </Col>
+          </Row>
           <Table
             rowKey="id"
-            dataSource={users}
+            dataSource={filtered}
             columns={columns as any}
             loading={loading}
-            pagination={{ pageSize: 10 }}
+            pagination={{ pageSize: 10, showSizeChanger: true, pageSizeOptions: [10, 20, 50] }}
           />
         </Card>
       </Space>
