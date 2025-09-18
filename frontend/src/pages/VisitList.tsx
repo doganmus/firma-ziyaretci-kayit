@@ -1,5 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { api } from '../api/client'
+import { Table, Form, Input, Select, DatePicker, Button, Space, Typography, Popconfirm } from 'antd'
+import dayjs, { Dayjs } from 'dayjs'
+
+const { RangePicker } = DatePicker
 
 type Visit = {
   id: string
@@ -14,20 +18,20 @@ type Visit = {
 
 export default function VisitList() {
   const [items, setItems] = useState<Visit[]>([])
-  const [dateFrom, setDateFrom] = useState('')
-  const [dateTo, setDateTo] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null] | null>(null)
   const [company, setCompany] = useState('')
-  const [hasVehicle, setHasVehicle] = useState<string>('') // '', 'true', 'false'
+  const [hasVehicle, setHasVehicle] = useState<string>('')
   const [plate, setPlate] = useState('')
   const [visitedPerson, setVisitedPerson] = useState('')
-  const [loading, setLoading] = useState(false)
 
   const load = async () => {
     setLoading(true)
     try {
       const params: any = {}
-      if (dateFrom) params.dateFrom = new Date(dateFrom).toISOString()
-      if (dateTo) params.dateTo = new Date(dateTo).toISOString()
+      if (dateRange && dateRange[0]) params.dateFrom = dateRange[0].toDate().toISOString()
+      if (dateRange && dateRange[1]) params.dateTo = dateRange[1].toDate().toISOString()
       if (company) params.company = company
       if (hasVehicle) params.hasVehicle = hasVehicle
       if (plate) params.plate = plate
@@ -55,8 +59,8 @@ export default function VisitList() {
       v.visitor_full_name,
       v.visited_person_full_name,
       v.company_name,
-      new Date(v.entry_at).toLocaleString(),
-      v.exit_at ? new Date(v.exit_at).toLocaleString() : '-',
+      dayjs(v.entry_at).format('YYYY-MM-DD HH:mm'),
+      v.exit_at ? dayjs(v.exit_at).format('YYYY-MM-DD HH:mm') : '-',
       v.has_vehicle ? (v.vehicle_plate ?? '') : 'PASİF',
     ])
     const csv = [headers, ...rows].map(r => r.map(x => `"${(x ?? '').toString().replace(/"/g,'""')}"`).join(',')).join('\n')
@@ -69,76 +73,63 @@ export default function VisitList() {
     URL.revokeObjectURL(url)
   }
 
+  const columns = useMemo(() => [
+    { title: 'Ad Soyad', dataIndex: 'visitor_full_name', key: 'visitor_full_name' },
+    { title: 'Ziyaret Edilen', dataIndex: 'visited_person_full_name', key: 'visited_person_full_name' },
+    { title: 'Firma', dataIndex: 'company_name', key: 'company_name' },
+    { title: 'Giriş', dataIndex: 'entry_at', key: 'entry_at', render: (v: string) => dayjs(v).format('YYYY-MM-DD HH:mm') },
+    { title: 'Çıkış', dataIndex: 'exit_at', key: 'exit_at', render: (v: string | null) => v ? dayjs(v).format('YYYY-MM-DD HH:mm') : '-' },
+    { title: 'Araç/Plaka', key: 'vehicle', render: (_: any, r: Visit) => r.has_vehicle ? (r.vehicle_plate ?? '') : 'PASİF' },
+    {
+      title: 'Aksiyon', key: 'action', render: (_: any, r: Visit) => (
+        r.exit_at ? null : (
+          <Popconfirm title="Çıkış verilsin mi?" onConfirm={() => exitVisit(r.id)}>
+            <Button type="link">Çıkış Ver</Button>
+          </Popconfirm>
+        )
+      )
+    }
+  ], [])
+
   return (
-    <div style={{ padding: 24 }}>
-      <h2>Ziyaretler</h2>
+    <div style={{ padding: 16 }}>
+      <Typography.Title level={3} style={{ marginBottom: 16 }}>Ziyaretler</Typography.Title>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 8, marginBottom: 12 }}>
-        <div>
-          <label>Başlangıç</label>
-          <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
-        </div>
-        <div>
-          <label>Bitiş</label>
-          <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
-        </div>
-        <div>
-          <label>Firma</label>
-          <input value={company} onChange={(e) => setCompany(e.target.value)} />
-        </div>
-        <div>
-          <label>Araç</label>
-          <select value={hasVehicle} onChange={(e) => setHasVehicle(e.target.value)}>
-            <option value="">Tümü</option>
-            <option value="true">Var</option>
-            <option value="false">Yok</option>
-          </select>
-        </div>
-        <div>
-          <label>Plaka</label>
-          <input value={plate} onChange={(e) => setPlate(e.target.value)} />
-        </div>
-        <div>
-          <label>Ziyaret Edilen</label>
-          <input value={visitedPerson} onChange={(e) => setVisitedPerson(e.target.value)} />
-        </div>
-      </div>
+      <Form layout="inline" style={{ marginBottom: 12 }}>
+        <Form.Item label="Tarih">
+          <RangePicker allowEmpty={[true, true]} value={dateRange as any} onChange={(v) => setDateRange(v as any)} showTime={false} />
+        </Form.Item>
+        <Form.Item label="Firma">
+          <Input value={company} onChange={(e) => setCompany(e.target.value)} allowClear placeholder="Firma" />
+        </Form.Item>
+        <Form.Item label="Araç">
+          <Select value={hasVehicle} onChange={setHasVehicle} style={{ width: 120 }} options={[
+            { value: '', label: 'Tümü' },
+            { value: 'true', label: 'Var' },
+            { value: 'false', label: 'Yok' },
+          ]} />
+        </Form.Item>
+        <Form.Item label="Plaka">
+          <Input value={plate} onChange={(e) => setPlate(e.target.value)} allowClear placeholder="Plaka" />
+        </Form.Item>
+        <Form.Item label="Ziyaret Edilen">
+          <Input value={visitedPerson} onChange={(e) => setVisitedPerson(e.target.value)} allowClear placeholder="Ad Soyad" />
+        </Form.Item>
+        <Form.Item>
+          <Space>
+            <Button type="primary" onClick={load} loading={loading}>Filtrele</Button>
+            <Button onClick={exportCsv} disabled={loading}>CSV İndir</Button>
+          </Space>
+        </Form.Item>
+      </Form>
 
-      <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-        <button onClick={load} disabled={loading}>{loading ? 'Yükleniyor...' : 'Filtrele'}</button>
-        <button onClick={exportCsv} disabled={loading}>CSV İndir</button>
-      </div>
-
-      {loading ? <div>Yükleniyor...</div> : (
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr>
-              <th>Ad Soyad</th>
-              <th>Ziyaret Edilen</th>
-              <th>Firma</th>
-              <th>Giriş</th>
-              <th>Çıkış</th>
-              <th>Araç/Plaka</th>
-              <th>Aksiyon</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((v) => (
-              <tr key={v.id}>
-                <td>{v.visitor_full_name}</td>
-                <td>{v.visited_person_full_name}</td>
-                <td>{v.company_name}</td>
-                <td>{new Date(v.entry_at).toLocaleString()}</td>
-                <td>{v.exit_at ? new Date(v.exit_at).toLocaleString() : '-'}</td>
-                <td>{v.has_vehicle ? v.vehicle_plate : 'PASİF'}</td>
-                <td>
-                  {!v.exit_at && <button onClick={() => exitVisit(v.id)}>Çıkış Ver</button>}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+      <Table
+        rowKey="id"
+        columns={columns as any}
+        dataSource={items}
+        loading={loading}
+        pagination={{ pageSize: 10 }}
+      />
     </div>
   )
 }
