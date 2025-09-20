@@ -4,7 +4,9 @@ import Login from './pages/Login'
 import VisitForm from './pages/VisitForm'
 import VisitList from './pages/VisitList'
 import Reports from './pages/Reports'
-import Admin from './pages/Admin'
+import AdminLayout from './pages/admin/AdminLayout'
+import AdminUsers from './pages/admin/AdminUsers'
+import AdminBrand from './pages/admin/AdminBrand'
 import { useEffect, useMemo, useState } from 'react'
 import { ConfigProvider, theme, Layout, Menu, Space, Button, Tooltip, Image } from 'antd'
 import { SunOutlined, MoonOutlined } from '@ant-design/icons'
@@ -159,7 +161,11 @@ export default function App() {
               <Route path="/list" element={<RequireAuth><VisitList /></RequireAuth>} />
               <Route path="/new" element={<Navigate to="/" replace />} />
               <Route path="/reports" element={<RequireAuth><Reports /></RequireAuth>} />
-              <Route path="/admin" element={role === 'ADMIN' ? <RequireAuth><Admin /></RequireAuth> : <Navigate to="/list" replace />} />
+              <Route path="/admin" element={role === 'ADMIN' ? <RequireAuth><AdminLayout /></RequireAuth> : <Navigate to="/list" replace />}>
+                <Route index element={<Navigate to="/admin/users" replace />} />
+                <Route path="users" element={<AdminUsers />} />
+                <Route path="branding" element={<AdminBrand />} />
+              </Route>
               <Route path="*" element={<Navigate to={canCreate ? '/' : '/list'} replace />} />
             </Routes>
           </Shell>
