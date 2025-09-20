@@ -4,7 +4,7 @@ import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, Update
 @Check('vehicle_check', '(has_vehicle = false AND vehicle_plate IS NULL) OR (has_vehicle = true AND vehicle_plate IS NOT NULL)')
 @Check(
   'vehicle_plate_format',
-  "(has_vehicle = false AND vehicle_plate IS NULL) OR (has_vehicle = true AND vehicle_plate ~ '^(0[1-9]|[1-7][0-9]|80|81)[A-Z]{1,3}[0-9]{2,4}$')",
+  "(has_vehicle = false AND vehicle_plate IS NULL) OR (has_vehicle = true AND vehicle_plate ~ '^(0[1-9]|[1-7][0-9]|80|81)(?:[A-Z][0-9]{4,5}|[A-Z]{2}[0-9]{3,4}|[A-Z]{3}[0-9]{2,3})$')",
 )
 export class Visit {
   @PrimaryGeneratedColumn('uuid')

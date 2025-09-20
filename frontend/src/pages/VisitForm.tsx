@@ -34,7 +34,7 @@ export default function VisitForm() {
   const [form] = Form.useForm<FormValues>()
 
   const loadActiveVehicles = async () => {
-    const res = await api.get<Visit[]>('/visits', { params: { hasVehicle: 'true' } })
+    const res = await api.get<Visit[]>('/visits')
     setActiveVehicles((res.data || []).filter(v => !v.exit_at))
   }
 
@@ -50,9 +50,9 @@ export default function VisitForm() {
       const normalizedPlate = (values.vehicle_plate ?? '').replace(/\s+/g, '').toUpperCase()
       await api.post('/visits', {
         entry_at: now,
-        visitor_full_name: values.visitor_full_name,
-        visited_person_full_name: values.visited_person_full_name,
-        company_name: values.company_name,
+        visitor_full_name: values.visitor_full_name.toLocaleUpperCase('tr-TR'),
+        visited_person_full_name: values.visited_person_full_name.toLocaleUpperCase('tr-TR'),
+        company_name: values.company_name.toLocaleUpperCase('tr-TR'),
         has_vehicle: values.has_vehicle,
         vehicle_plate: values.has_vehicle ? normalizedPlate : undefined,
       })
@@ -85,12 +85,12 @@ export default function VisitForm() {
         >
           <Row gutter={[16, 8]}>
             <Col xs={24} md={12}>
-              <Form.Item label="Adı Soyadı" name="visitor_full_name" rules={[{ required: true, message: 'Adı Soyadı gerekli' }]}> 
+              <Form.Item label="Adı Soyadı" name="visitor_full_name" rules={[{ required: true, message: 'Adı Soyadı gerekli' }]} getValueFromEvent={(e) => (e?.target?.value ?? '').toLocaleUpperCase('tr-TR')}> 
                 <Input placeholder="Ziyaretçi adı soyadı" />
               </Form.Item>
             </Col>
             <Col xs={24} md={12}>
-              <Form.Item label="Ziyaret edilen Adı Soyadı" name="visited_person_full_name" rules={[{ required: true, message: 'Ziyaret edilen kişi gerekli' }]}> 
+              <Form.Item label="Ziyaret edilen Adı Soyadı" name="visited_person_full_name" rules={[{ required: true, message: 'Ziyaret edilen kişi gerekli' }]} getValueFromEvent={(e) => (e?.target?.value ?? '').toLocaleUpperCase('tr-TR')}> 
                 <Input placeholder="Ziyaret edilen kişi" />
               </Form.Item>
             </Col>
@@ -98,7 +98,7 @@ export default function VisitForm() {
 
           <Row gutter={[16, 8]}>
             <Col xs={24} md={12}>
-              <Form.Item label="Firma" name="company_name" rules={[{ required: true, message: 'Firma gerekli' }]}> 
+              <Form.Item label="Firma" name="company_name" rules={[{ required: true, message: 'Firma gerekli' }]} getValueFromEvent={(e) => (e?.target?.value ?? '').toLocaleUpperCase('tr-TR')}> 
                 <Input placeholder="Firma adı" />
               </Form.Item>
             </Col>
@@ -131,6 +131,7 @@ export default function VisitForm() {
                           },
                         },
                       ]}
+                      getValueFromEvent={(e) => (e?.target?.value ?? '').toLocaleUpperCase('tr-TR')}
                     >
                       <Input placeholder={hasVehicle ? 'Örn: 34 ABC 1234' : ''} disabled={!hasVehicle} />
                     </Form.Item>
@@ -153,6 +154,7 @@ export default function VisitForm() {
           columns={[
             { title: 'Plaka', dataIndex: 'vehicle_plate' },
             { title: 'Ad Soyad', dataIndex: 'visitor_full_name' },
+            { title: 'Ziyaret Edilen', dataIndex: 'visited_person_full_name' },
             { title: 'Firma', dataIndex: 'company_name' },
             { title: 'Giriş', dataIndex: 'entry_at', render: (v: string) => dayjs(v).format('YYYY-MM-DD HH:mm') },
             {

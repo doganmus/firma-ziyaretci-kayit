@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Visit } from './visit.entity';
 
-const TR_PLATE_REGEX = /^(0[1-9]|[1-7][0-9]|80|81)[A-Z]{1,3}[0-9]{2,4}$/;
+const TR_PLATE_REGEX = /^(0[1-9]|[1-7][0-9]|80|81)(?:[A-Z][0-9]{4,5}|[A-Z]{2}[0-9]{3,4}|[A-Z]{3}[0-9]{2,3})$/;
 
 @Injectable()
 export class VisitsService {
@@ -56,9 +56,9 @@ export class VisitsService {
       date,
       entry_at: entryAt,
       exit_at: payload.exit_at ? new Date(payload.exit_at) : null,
-      visitor_full_name: payload.visitor_full_name,
-      visited_person_full_name: payload.visited_person_full_name,
-      company_name: payload.company_name,
+      visitor_full_name: payload.visitor_full_name.toLocaleUpperCase('tr-TR'),
+      visited_person_full_name: payload.visited_person_full_name.toLocaleUpperCase('tr-TR'),
+      company_name: payload.company_name.toLocaleUpperCase('tr-TR'),
       has_vehicle: payload.has_vehicle,
       vehicle_plate: payload.has_vehicle ? normalizedPlate : null,
     });
