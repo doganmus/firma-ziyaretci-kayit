@@ -127,7 +127,9 @@ export default function Admin() {
           <Form layout="vertical" onFinish={async (vals: any) => {
             setSavingBrand(true)
             try {
-              let logoUrl: string | null = brand.brandLogoUrl ?? null
+              const finalBrandName = (vals.brandName || '').trim()
+              let payload: Partial<Settings> = { brandName: null, brandLogoUrl: null }
+
               if (logoFile) {
                 const formData = new FormData()
                 formData.append('file', logoFile)
@@ -141,10 +143,10 @@ export default function Admin() {
                   throw new Error(text || 'Logo yüklenemedi (yalnızca PNG, max 2MB)')
                 }
                 const uploaded = await resUpload.json()
-                logoUrl = uploaded.url || null
+                payload = { brandName: null, brandLogoUrl: uploaded.url || null }
+              } else if (finalBrandName) {
+                payload = { brandName: finalBrandName, brandLogoUrl: null }
               }
-              const finalBrandName = (vals.brandName || '').trim()
-              const payload: Partial<Settings> = logoUrl ? { brandName: null, brandLogoUrl: logoUrl } : (finalBrandName ? { brandName: finalBrandName, brandLogoUrl: null } : { brandName: null, brandLogoUrl: null })
               const res = await api.patch<Settings>('/admin/settings', payload)
               setBrand(res.data)
               localStorage.setItem('brandSettings', JSON.stringify(res.data))
