@@ -1,18 +1,24 @@
-## Kanban ve Backlog
+﻿## Kanban ve Backlog
 
-Bu dosya günlük/haftalık çalışmayı izlemek için kullanılır. Aşamalar `ROADMAP.md` ile uyumludur.
+Bu dosya günlük/haftalık çalışmayı izlemek için kullanılır. Aşamalar ROADMAP.md ile uyumludur.
 
 ### In Progress
-- [ ] Aşama 4: Prod hazırlığı planlama
-- [ ] Frontend modernizasyon: Dokümantasyon güncelleme (ROADMAP/TASKS)
+- [ ] Aşama 4: Prod hazırlığı (PDF export, güvenlik başlıkları)
+- [ ] Frontend modernizasyon: Polishing & A11y
 
 ### Done
 - [x] Aşama 1 tüm başlıklar
-- [x] Aşama 2: Visits filtreleri, rapor uçları, Raporlar sayfası, CSV export
+- [x] Aşama 2: Visits filtreleri, rapor uçları, Raporlar sayfası, CSV/Excel export
 - [x] Aşama 3: Admin CRUD backend + Admin sayfası (RBAC)
- - [x] Frontend Modernizasyon Phase A: AntD entegrasyon + Layout/Theme
- - [x] Frontend Modernizasyon Phase B: Login ve Ziyaret Formu AntD Form
- - [x] Frontend Modernizasyon Phase C: Ziyaret Listesi AntD Table + filtreler
+- [x] Frontend Modernizasyon Phase A: AntD entegrasyon + Layout/Theme
+- [x] Frontend Modernizasyon Phase B: Login ve Kayıt (VisitForm) AntD Form
+- [x] Frontend Modernizasyon Phase C: Kayıtlar (VisitList) AntD Table + filtreler
+- [x] Dark Mode toggle (kalıcılık)
+- [x] Navbar: "Kayıt" solda, "Kayıtlar" sağında; varsayılan rota /  Kayıt, Kayıtlar /list
+- [x] Reports: CSV indirme (geçici), PDF sonraki aşamaya taşındı
+- [x] Ziyaret Formu: içerideki (çıkışsız) kayıtlar listesi + tek tıkla çıkış
+- [x] Plaka gösterimi: Araç yoksa UI'da boş ("PASİF" kaldırıldı)
+- [x] TR plaka regex sıkılaştırma ve isim/şirket uppercase normalize
 
 ### Backlog (Aşama 4)
 - [ ] Nginx reverse proxy + prod dockerizasyon
