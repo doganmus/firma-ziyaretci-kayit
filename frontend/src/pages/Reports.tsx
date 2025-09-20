@@ -30,34 +30,6 @@ export default function Reports() {
     }
   }
 
-  const downloadExcel = async () => {
-    const params: any = {}
-    if (dateRange && dateRange[0]) params.dateFrom = dateRange[0].toDate().toISOString()
-    if (dateRange && dateRange[1]) params.dateTo = dateRange[1].toDate().toISOString()
-    const res = await api.get('/reports/export/excel', { params, responseType: 'blob' })
-    const blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = 'reports.xlsx'
-    a.click()
-    URL.revokeObjectURL(url)
-  }
-
-  const downloadPdf = async () => {
-    const params: any = {}
-    if (dateRange && dateRange[0]) params.dateFrom = dateRange[0].toDate().toISOString()
-    if (dateRange && dateRange[1]) params.dateTo = dateRange[1].toDate().toISOString()
-    const res = await api.get('/reports/export/pdf', { params, responseType: 'blob' })
-    const blob = new Blob([res.data], { type: 'application/pdf' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = 'reports.pdf'
-    a.click()
-    URL.revokeObjectURL(url)
-  }
-
   useEffect(() => {
     load()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -65,15 +37,9 @@ export default function Reports() {
 
   return (
     <div style={{ padding: 16 }}>
-      <Space align="center" style={{ width: '100%', justifyContent: 'space-between', marginBottom: 12 }}>
-        <Space>
-          <RangePicker value={dateRange as any} onChange={(v) => setDateRange(v as any)} />
-          <Button type="primary" onClick={load} loading={loading}>Uygula</Button>
-        </Space>
-        <Space>
-          <Button onClick={downloadExcel}>Excel</Button>
-          <Button onClick={downloadPdf}>PDF</Button>
-        </Space>
+      <Space align="center" style={{ width: '100%', justifyContent: 'flex-start', marginBottom: 12 }}>
+        <RangePicker value={dateRange as any} onChange={(v) => setDateRange(v as any)} />
+        <Button type="primary" onClick={load} loading={loading}>Uygula</Button>
       </Space>
 
       {summary && (
