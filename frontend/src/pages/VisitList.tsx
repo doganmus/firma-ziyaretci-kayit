@@ -61,7 +61,7 @@ export default function VisitList() {
       v.company_name,
       dayjs(v.entry_at).format('YYYY-MM-DD HH:mm'),
       v.exit_at ? dayjs(v.exit_at).format('YYYY-MM-DD HH:mm') : '-',
-      v.has_vehicle ? (v.vehicle_plate ?? '') : 'PASİF',
+      v.has_vehicle ? (v.vehicle_plate ?? '') : '',
     ])
 
     const worksheet = `<?xml version="1.0"?>\n<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="Ziyaretler"><Table>${[headers, ...rows]
@@ -83,7 +83,7 @@ export default function VisitList() {
     { title: 'Firma', dataIndex: 'company_name', key: 'company_name' },
     { title: 'Giriş', dataIndex: 'entry_at', key: 'entry_at', render: (v: string) => dayjs(v).format('YYYY-MM-DD HH:mm') },
     { title: 'Çıkış', dataIndex: 'exit_at', key: 'exit_at', render: (v: string | null) => v ? dayjs(v).format('YYYY-MM-DD HH:mm') : '-' },
-    { title: 'Araç/Plaka', key: 'vehicle', render: (_: any, r: Visit) => r.has_vehicle ? (r.vehicle_plate ?? '') : 'PASİF' },
+    { title: 'Araç/Plaka', key: 'vehicle', render: (_: any, r: Visit) => r.has_vehicle ? (r.vehicle_plate ?? '') : '' },
     {
       title: 'Aksiyon', key: 'action', render: (_: any, r: Visit) => (
         r.exit_at ? null : (
