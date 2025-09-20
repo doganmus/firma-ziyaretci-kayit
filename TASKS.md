@@ -19,6 +19,10 @@ Bu dosya günlük/haftalık çalışmayı izlemek için kullanılır. Aşamalar 
 - [x] Ziyaret Formu: içerideki (çıkışsız) kayıtlar listesi + tek tıkla çıkış
 - [x] Plaka gösterimi: Araç yoksa UI'da boş ("PASİF" kaldırıldı)
 - [x] TR plaka regex sıkılaştırma ve isim/şirket uppercase normalize
+- [x] VIEWER rolü için GET /visits izni; exit/create gizleme (UI)
+- [x] Login sayfası: başlık ve tam sayfa tema
+- [x] Raporlar: "İçeride"/"Çıkış Yapan" metinleri
+- [x] Admin: Marka Ayarları (firma adı veya PNG logo), /uploads kalıcı
 
 ### Backlog (Aşama 4)
 - [ ] Nginx reverse proxy + prod dockerizasyon

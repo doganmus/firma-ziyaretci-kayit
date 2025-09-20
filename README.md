@@ -6,9 +6,11 @@ Ziyaretçi giriş-çıkışlarının kayıt altına alındığı, raporlanabildi
 - **Giriş/Çıkış Kaydı**: Tarih, ziyaretçi adı soyadı, şirketi, ziyaret edilen kişi, giriş/çıkış saati
 - **Araç Bilgisi**: Araç var/yok, plaka; araç yoksa plaka devre dışı ve veritabanında NULL
 - **Kimlik Doğrulama**: JWT tabanlı login ve RBAC
-- **Raporlar**: Tarih aralığı ve filtrelerle temel raporlar, CSV indirme (geçici), ileride PDF
+- **Raporlar**: Tarih aralığı ve filtrelerle özet ve firma bazlı tablo (UI'da indirme devre dışı)
 - **Kayıtlar Export**: Ziyaret listesi için Excel (.xls) indirme
 - **Tema**: Dark/Light mode toggle (kalıcı tercih)
+- **Marka Ayarları**: Admin panelinden firma adı veya PNG logo yükleme (tek tercih)
+- **Kalıcılık**: Logo yüklemeleri Docker volume ile kalıcıdır (/uploads)
 
 ### Teknolojiler
 - **Backend**: NestJS (TypeScript), TypeORM, PostgreSQL, JWT, class-validator
@@ -43,6 +45,7 @@ JWT_SECRET=super-secret-change-me
 - Kayıtlar: http://localhost:5173/list
 - Raporlar: http://localhost:5173/reports
 - Backend API: http://localhost:3000
+- Yüklenen dosyalar: http://localhost:5173/uploads/... (Nginx backend'e proxy eder)
 - pgAdmin: http://localhost:5050
 
 > Admin/Operator seed ve login örnekleri için OPERATIONS.md dosyasına bakın.
@@ -57,3 +60,5 @@ JWT_SECRET=super-secret-change-me
 ## Notlar
 - TR plaka doğrulaması katmanlıdır (DTO + Service + DB CHECK) ve boşluklar kaldırıldıktan sonra büyük harfle kontrol edilir.
 - UI'da araç yoksa plaka alanı boş gösterilir; "PASİF" metni kullanılmaz.
+- Ziyaretçi ve ziyaret edilen adları aynı olamaz (form doğrulaması).
+- RBAC: VIEWER rolü ziyaretleri görüntüleyebilir (GET /visits), ancak oluşturamaz/çıkış veremez.

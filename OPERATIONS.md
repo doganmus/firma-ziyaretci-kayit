@@ -16,7 +16,8 @@
 `
 
 ### Reverse Proxy
-- Frontend Nginx, /api yolunu otomatik olarak ackend:3000 servisine proxy'ler.
+- Frontend Nginx, /api yolunu otomatik olarak backend:3000 servisine proxy'ler.
+- /uploads yolu backend'in statik dosya servisine (http://backend:3000/uploads) proxy edilir.
 - Frontend kodu VITE_API_URL yoksa otomatik /api tabanını kullanır.
 
 ### Rotalar
@@ -28,6 +29,11 @@
 - Rapor CSV indirme: Raporlar sayfasındaki CSV İndir butonu veya doğrudan /api/reports/export/pdf?dateFrom=...&dateTo=... (geçici olarak CSV döner)
 - Ziyaretler listesi Excel: "Excel" butonu .xls (XML Spreadsheet) indirir
 - Dark Mode: Navbar sağındaki seçim ile tema değiştir; tercih localStorage'da saklanır.
+
+### Marka Ayarları ve Yüklemeler
+- Admin → Marka Ayarları: Firma adı veya PNG logo yükleyin (tek tercih). Logo yüklenirse firma adı saklanmaz.
+- Yüklenen logolar backend konteynerindeki /app/uploads altında saklanır ve Docker volume (uploads_data) ile kalıcıdır.
+- Dosya URL'leri /uploads/... şeklinde yayınlanır; Nginx bunları backend'e proxy eder.
 
 ### Ortam Değişkenleri (.env)
 - POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD: PostgreSQL ayarları

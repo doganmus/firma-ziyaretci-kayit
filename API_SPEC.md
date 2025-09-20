@@ -2,9 +2,9 @@
 
 Tüm endpointler JSON döner. Kimlik doğrulama gerektiren uçlarda Authorization: Bearer <token> başlığı zorunludur. Swagger: /docs.
 
-RBAC: isits  ADMIN|OPERATOR, dmin/users  ADMIN, eports  ADMIN|OPERATOR|VIEWER.
+RBAC: visits ADMIN|OPERATOR (GET aynı zamanda VIEWER), admin/users ADMIN, reports ADMIN|OPERATOR|VIEWER.
 
-Plaka kuralı: TR formatı  ^(0[1-9]|[1-7][0-9]|80|81)(?:[A-Z][0-9]{4,5}|[A-Z]{2}[0-9]{3,4}|[A-Z]{3}[0-9]{2,3})$ (boşluklar kaldırılır, büyük harfe çevrilir). Araç yoksa ehicle_plate = null gönderilmeli/gönderilir.
+Plaka kuralı: TR formatı  ^(0[1-9]|[1-7][0-9]|80|81)(?:[A-Z][0-9]{4,5}|[A-Z]{2}[0-9]{3,4}|[A-Z]{3}[0-9]{2,3})$ (boşluklar kaldırılır, büyük harfe çevrilir). Araç yoksa vehicle_plate = null gönderilmeli/gönderilir.
 
 Not: Frontend prod ortamda Nginx üzerinden /api yolunu backend'e proxy'ler.
 
@@ -62,8 +62,7 @@ Not: Frontend prod ortamda Nginx üzerinden /api yolunu backend'e proxy'ler.
   - Ör: { "total": 120, "withVehicle": 70, "withoutVehicle": 50, "active": 12, "exited": 108 }
 - GET /reports/by-company?dateFrom&dateTo
   - Ör: [ { "company": "Şirket A", "count": 30 } ]
-- GET /reports/export/pdf?dateFrom&dateTo
-  - Geçici olarak 	ext/csv döner ve eports.csv indirilir.
+// UI'dan rapor indirme kaldırıldı; backend PDF/Excel uçları ileride tekrar açılabilir
 
 ### Admin (JWT + ADMIN)
 - GET /admin/users  kullanıcı listesi
@@ -72,8 +71,17 @@ Not: Frontend prod ortamda Nginx üzerinden /api yolunu backend'e proxy'ler.
     `json
     { "email": "op@example.com", "password": "secret", "full_name": "OPERATÖR", "role": "OPERATOR" }
     `
-- PATCH /admin/users/:id  ull_name?, password?, ole?
+- PATCH /admin/users/:id  full_name?, password?, role?
 - DELETE /admin/users/:id  kullanıcı sil
+
+### Ayarlar (Admin)
+- GET /admin/settings → { brandName: string|null, brandLogoUrl: string|null }
+- PATCH /admin/settings (ADMIN)
+  - Body: { brandName?: string|null, brandLogoUrl?: string|null }
+  - Not: brandName varsa brandLogoUrl null olmalıdır ve tersi
+- POST /admin/settings/logo (ADMIN)
+  - Form-Data: file: PNG (<=2MB)
+  - 200: { url: "/uploads/logo-...png" }
 
 ### Hata Formatı
 `json
@@ -81,5 +89,5 @@ Not: Frontend prod ortamda Nginx üzerinden /api yolunu backend'e proxy'ler.
 `
 
 ### Notlar
-- Ziyaret kuralı: has_vehicle = false ise ehicle_plate gönderilmemeli; gönderilirse yoksayılır veya reddedilebilir
+- Ziyaret kuralı: has_vehicle = false ise vehicle_plate gönderilmemeli; gönderilirse yoksayılır veya reddedilebilir
 - Tarihler ISO 8601 formatında UTC olarak gönderilmelidir

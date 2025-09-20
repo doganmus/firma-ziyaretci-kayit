@@ -63,6 +63,7 @@ Her aşama sonunda proje Docker Compose ile çalışır. Temel özellikler Aşam
   - Navbar: "Kayıt" solda, "Kayıtlar" sağında.
   - Ziyaret Formu altında içerideki (çıkış yapmamış) kayıtlar listelenir ve tek tıkla çıkış yapılır.
   - UI'da plaka alanı araç yoksa boş, araç varsa TR regex ile doğrulama.
+  - Admin → Marka Ayarları: Firma adı VEYA PNG logo yükleme (tek tercih), yüklemeler kalıcı volume'da saklanır.
 
 ### Aşama 5 - Opsiyonel Gelişmiş Özellikler
 - Öneriler
