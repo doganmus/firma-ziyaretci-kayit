@@ -9,7 +9,7 @@ import AdminUsers from './pages/admin/AdminUsers'
 import AdminBrand from './pages/admin/AdminBrand'
 import { useEffect, useMemo, useState } from 'react'
 import { ConfigProvider, theme, Layout, Menu, Space, Button, Tooltip } from 'antd'
-import { SunOutlined, MoonOutlined } from '@ant-design/icons'
+import { SunOutlined, MoonOutlined, MenuOutlined, FormOutlined, UnorderedListOutlined, BarChartOutlined, SettingOutlined, TeamOutlined, PictureOutlined } from '@ant-design/icons'
 
 const { Header, Content, Sider } = Layout
 
@@ -34,6 +34,7 @@ function RequireAuth({ children }: { children: JSX.Element }) {
 function Shell({ children, themeName, setThemeName }: { children: JSX.Element; themeName: string; setThemeName: (v: string) => void }) {
   const role = getRole()
   const location = useLocation()
+  const [siderCollapsed, setSiderCollapsed] = useState(false)
   const [brand, setBrand] = useState<{ name: string | null; logoUrl: string | null }>(() => {
     try {
       const cached = localStorage.getItem('brandSettings')
@@ -62,17 +63,18 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
   const menuItems = useMemo(() => {
     const items: any[] = []
     if (role === 'ADMIN' || role === 'OPERATOR') {
-      items.push({ key: '/', label: <Link to="/">Kayıt</Link> })
+      items.push({ key: '/', icon: <FormOutlined />, label: <Link to="/">Kayıt</Link>, title: 'Kayıt' })
     }
-    items.push({ key: '/list', label: <Link to="/list">Kayıtlar</Link> })
-    items.push({ key: '/reports', label: <Link to="/reports">Rapor</Link> })
+    items.push({ key: '/list', icon: <UnorderedListOutlined />, label: <Link to="/list">Kayıtlar</Link>, title: 'Kayıtlar' })
+    items.push({ key: '/reports', icon: <BarChartOutlined />, label: <Link to="/reports">Rapor</Link>, title: 'Rapor' })
     if (role === 'ADMIN') {
       items.push({
         key: 'admin',
+        icon: <SettingOutlined />,
         label: 'Admin',
         children: [
-          { key: '/admin/users', label: <Link to="/admin/users">Kullanıcı İşlemleri</Link> },
-          { key: '/admin/branding', label: <Link to="/admin/branding">Marka Ayarları</Link> },
+          { key: '/admin/users', icon: <TeamOutlined />, label: <Link to="/admin/users">Kullanıcı İşlemleri</Link>, title: 'Kullanıcı İşlemleri' },
+          { key: '/admin/branding', icon: <PictureOutlined />, label: <Link to="/admin/branding">Marka Ayarları</Link>, title: 'Marka Ayarları' },
         ],
       })
     }
@@ -88,9 +90,10 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
     return found ? [found] : []
   }, [location.pathname])
 
-  const openKeys = useMemo(() => {
-    return location.pathname.startsWith('/admin') ? ['admin'] : []
-  }, [location.pathname])
+  const [openKeys, setOpenKeys] = useState<string[]>(location.pathname.startsWith('/admin') ? ['admin'] : [])
+  useEffect(() => {
+    setOpenKeys(!siderCollapsed && location.pathname.startsWith('/admin') ? ['admin'] : [])
+  }, [location.pathname, siderCollapsed])
 
   const logout = () => {
     localStorage.removeItem('accessToken')
@@ -100,27 +103,39 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
 
   const toggleTheme = () => setThemeName(themeName === 'dark' ? 'light' : 'dark')
 
+  const headerBg = themeName === 'dark' ? '#001529' : '#fff'
+
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider collapsible theme={themeName === 'dark' ? 'dark' : 'light'}>
-        <div style={{ height: 64, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          {brand.logoUrl ? (
-            <img src={brand.logoUrl} alt="Logo" style={{ height: 28 }} />
-          ) : (
-            <div style={{ fontWeight: 600, color: themeName === 'dark' ? '#fff' : '#000' }}>{brand.name || 'Firma'}</div>
-          )}
+      <Sider collapsible collapsed={siderCollapsed} onCollapse={setSiderCollapsed} trigger={null} width={240} theme={themeName === 'dark' ? 'dark' : 'light'}>
+        <div style={{ height: 64, background: headerBg, display: 'flex', alignItems: 'center', paddingLeft: 8 }}>
+          <Button
+            type="text"
+            onClick={() => setSiderCollapsed((c) => !c)}
+            icon={<MenuOutlined style={{ fontSize: 20, color: '#fff' }} />}
+            style={{ height: 48, width: 48 }}
+          />
         </div>
         <Menu
           mode="inline"
           theme={themeName === 'dark' ? 'dark' : 'light'}
           selectedKeys={selectedKeys}
-          defaultOpenKeys={openKeys}
+          openKeys={openKeys}
+          onOpenChange={(keys) => setOpenKeys(keys as string[])}
+          inlineCollapsed={siderCollapsed}
           items={menuItems}
           style={{ borderRight: 0 }}
         />
       </Sider>
       <Layout>
-        <Header style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+        <Header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: headerBg }}>
+          <Space>
+            {brand.logoUrl ? (
+              <img src={brand.logoUrl} alt="Logo" style={{ height: 28 }} />
+            ) : (
+              <div style={{ fontWeight: 600, color: themeName === 'dark' ? '#fff' : '#000' }}>{brand.name || 'Firma'}</div>
+            )}
+          </Space>
           <Space>
             <Tooltip title={themeName === 'dark' ? 'Açık moda geç' : 'Koyu moda geç'}>
               <Button

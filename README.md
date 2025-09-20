@@ -62,3 +62,4 @@ JWT_SECRET=super-secret-change-me
 - UI'da araç yoksa plaka alanı boş gösterilir; "PASİF" metni kullanılmaz.
 - Ziyaretçi ve ziyaret edilen adları aynı olamaz (form doğrulaması).
 - RBAC: VIEWER rolü ziyaretleri görüntüleyebilir (GET /visits), ancak oluşturamaz/çıkış veremez.
+ - Navigasyon: Tüm sayfalar sol tarafta daralabilir Sider (hamburger) menü ile gezilir. Admin altında "Kullanıcı İşlemleri" ve "Marka Ayarları" alt menüleri bulunur. Tema ile uyumlu çalışır.

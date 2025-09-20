@@ -60,7 +60,7 @@ Her aşama sonunda proje Docker Compose ile çalışır. Temel özellikler Aşam
     - Phase E: Polishing & A11y (devam)
 - Ek Notlar
   - Varsayılan rota: /  Kayıt; Kayıtlar: /list. VIEWER role / isterse /list'e yönlendirilir.
-  - Navbar: "Kayıt" solda, "Kayıtlar" sağında.
+  - Navigasyon: Sol daralabilir Sider (hamburger) ile tüm sayfalar; Admin altında Kullanıcı İşlemleri ve Marka Ayarları.
   - Ziyaret Formu altında içerideki (çıkış yapmamış) kayıtlar listelenir ve tek tıkla çıkış yapılır.
   - UI'da plaka alanı araç yoksa boş, araç varsa TR regex ile doğrulama.
   - Admin → Marka Ayarları: Firma adı VEYA PNG logo yükleme (tek tercih), yüklemeler kalıcı volume'da saklanır.

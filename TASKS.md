@@ -23,6 +23,7 @@ Bu dosya günlük/haftalık çalışmayı izlemek için kullanılır. Aşamalar 
 - [x] Login sayfası: başlık ve tam sayfa tema
 - [x] Raporlar: "İçeride"/"Çıkış Yapan" metinleri
 - [x] Admin: Marka Ayarları (firma adı veya PNG logo), /uploads kalıcı
+- [x] Global navigasyon: Sol daralabilir Sider (hamburger) ve Admin alt menüleri
 
 ### Backlog (Aşama 4)
 - [ ] Nginx reverse proxy + prod dockerizasyon

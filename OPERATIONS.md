@@ -25,6 +25,10 @@
 - Kayıtlar listesi: /list
 - VIEWER rolü /'e giderse otomatik /list'e yönlendirilir.
 
+### Navigasyon
+- Sol daralabilir Sider (hamburger) menü: Kayıt, Kayıtlar, Rapor ve Admin altındaki alt menüler.
+- Admin alt menüleri: Kullanıcı İşlemleri, Marka Ayarları.
+
 ### Rapor Dışa Aktarım ve Tema
 - Rapor CSV indirme: Raporlar sayfasındaki CSV İndir butonu veya doğrudan /api/reports/export/pdf?dateFrom=...&dateTo=... (geçici olarak CSV döner)
 - Ziyaretler listesi Excel: "Excel" butonu .xls (XML Spreadsheet) indirir
