@@ -34,8 +34,8 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
   const location = useLocation()
   const items = useMemo(() => {
     const base = [
-      { key: '/', label: <Link to="/">Kayıtlar</Link> },
       ...(role === 'ADMIN' || role === 'OPERATOR' ? [{ key: '/new', label: <Link to="/new">Kayıt</Link> }] : []),
+      { key: '/', label: <Link to="/">Kayıtlar</Link> },
       { key: '/reports', label: <Link to="/reports">Raporlar</Link> },
       ...(role === 'ADMIN' ? [{ key: '/admin', label: <Link to="/admin">Admin</Link> }] : []),
     ]
