@@ -1,3 +1,4 @@
+import React from 'react'
 import { BrowserRouter, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom'
 import Login from './pages/Login'
 import VisitForm from './pages/VisitForm'
@@ -33,8 +34,8 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
   const location = useLocation()
   const items = useMemo(() => {
     const base = [
-      { key: '/', label: <Link to="/">Kayıt</Link> },
-      ...(role === 'ADMIN' || role === 'OPERATOR' ? [{ key: '/new', label: <Link to="/new">Ziyaret Ekle</Link> }] : []),
+      { key: '/', label: <Link to="/">Kayıtlar</Link> },
+      ...(role === 'ADMIN' || role === 'OPERATOR' ? [{ key: '/new', label: <Link to="/new">Kayıt</Link> }] : []),
       { key: '/reports', label: <Link to="/reports">Raporlar</Link> },
       ...(role === 'ADMIN' ? [{ key: '/admin', label: <Link to="/admin">Admin</Link> }] : []),
     ]
@@ -43,7 +44,8 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
 
   const selectedKeys = useMemo(() => {
     const path = location.pathname
-    const match = items.find((i) => path.startsWith(i.key))
+    if (path === '/') return ['/']
+    const match = items.find((i) => i.key !== '/' && path.startsWith(i.key))
     return match ? [match.key] : []
   }, [location.pathname, items])
 
@@ -87,6 +89,9 @@ export default function App() {
   const [themeName, setThemeName] = useState(localStorage.getItem('theme') || 'light')
   useEffect(() => {
     localStorage.setItem('theme', themeName)
+    try {
+      document.documentElement.setAttribute('data-theme', themeName)
+    } catch {}
   }, [themeName])
 
   const algorithm = themeName === 'dark' ? theme.darkAlgorithm : theme.defaultAlgorithm
