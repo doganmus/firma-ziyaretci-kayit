@@ -41,13 +41,14 @@ export default function Login({ themeName = 'light', onToggleTheme }: { themeNam
         </Tooltip>
       </div>
       <Card>
-        <Typography.Title level={3} style={{ textAlign: 'center', marginBottom: 24 }}>Giriş Yap</Typography.Title>
+      <Typography.Title level={4} style={{ textAlign: 'center', marginBottom: 16 }}>Firma Giriş Kayıt Sistemin Hoş Geldiniz</Typography.Title>
+        <Typography.Title level={3} style={{ textAlign: 'center', marginBottom: 16 }}>Giriş Yap</Typography.Title>
         {error && <Alert type="error" message={error} style={{ marginBottom: 16 }} />}
         <Form layout="vertical" onFinish={onFinish} autoComplete="off" initialValues={{ email: '', password: '' }}>
-          <Form.Item label="E-posta" name="email" rules={[{ required: true, message: 'E-posta gerekli' }, { type: 'email', message: 'Geçerli bir e-posta girin' }]}>
+          <Form.Item label="E-posta" name="email" rules={[{ required: true, message: 'E-posta gerekli' }, { type: 'email', message: 'Geçerli bir e-posta girin' }]}> 
             <Input prefix={<MailOutlined />} placeholder="admin@example.com" type="email" autoComplete="email" size="large" />
           </Form.Item>
-          <Form.Item label="Şifre" name="password" rules={[{ required: true, message: 'Şifre gerekli' }, { min: 6, message: 'En az 6 karakter' }]}>
+          <Form.Item label="Şifre" name="password" rules={[{ required: true, message: 'Şifre gerekli' }, { min: 6, message: 'En az 6 karakter' }]}> 
             <Input.Password prefix={<LockOutlined />} placeholder="Şifreniz" autoComplete="current-password" size="large" />
           </Form.Item>
           <Form.Item>

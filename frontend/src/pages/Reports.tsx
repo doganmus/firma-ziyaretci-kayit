@@ -48,8 +48,8 @@ export default function Reports() {
             <Statistic title="Toplam" value={summary.total} />
             <Statistic title="Araçlı" value={summary.withVehicle} />
             <Statistic title="Araçsız" value={summary.withoutVehicle} />
-            <Statistic title="Aktif" value={summary.active} />
-            <Statistic title="Çıkışlı" value={summary.exited} />
+            <Statistic title="İçeride" value={summary.active} />
+            <Statistic title="Çıkış Yapan" value={summary.exited} />
           </Space>
         </Card>
       )}

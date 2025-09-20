@@ -20,7 +20,7 @@ api.interceptors.response.use(
   (res) => res,
   (error) => {
     const status = error?.response?.status
-    if (status === 401 || status === 403) {
+    if (status === 401) {
       localStorage.removeItem('accessToken')
       localStorage.removeItem('user')
       if (location.pathname !== '/login') {
