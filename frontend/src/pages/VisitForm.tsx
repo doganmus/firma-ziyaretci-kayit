@@ -104,7 +104,7 @@ export default function VisitForm() {
             </Col>
             <Col xs={24} md={12}>
               <Form.Item label="Araç var mı?" name="has_vehicle" valuePropName="checked">
-                <Switch />
+                <Switch onChange={(checked) => { if (!checked) { form.setFieldsValue({ vehicle_plate: undefined }); form.resetFields(['vehicle_plate']); } }} />
               </Form.Item>
             </Col>
           </Row>

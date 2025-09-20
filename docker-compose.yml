@@ -46,11 +46,6 @@ services:
     ports:
       - "5173:80"
       - "5443:443"
-    volumes:
-      - type: bind
-        source: ./certs
-        target: /etc/nginx/certs
-        consistency: delegated
     depends_on:
       - backend
 
