@@ -6,7 +6,7 @@ import VisitList from './pages/VisitList'
 import Reports from './pages/Reports'
 import Admin from './pages/Admin'
 import { useEffect, useMemo, useState } from 'react'
-import { ConfigProvider, theme, Layout, Menu, Space, Button, Tooltip } from 'antd'
+import { ConfigProvider, theme, Layout, Menu, Space, Button, Tooltip, Image } from 'antd'
 import { SunOutlined, MoonOutlined } from '@ant-design/icons'
 
 const { Header, Content } = Layout
@@ -32,6 +32,18 @@ function RequireAuth({ children }: { children: JSX.Element }) {
 function Shell({ children, themeName, setThemeName }: { children: JSX.Element; themeName: string; setThemeName: (v: string) => void }) {
   const role = getRole()
   const location = useLocation()
+  const [brand, setBrand] = useState<{ name: string | null; logoUrl: string | null }>({ name: null, logoUrl: null })
+
+  useEffect(() => {
+    // Load settings if authed; admin endpoint requires ADMIN but we can cache brand in localStorage when Admin updates.
+    try {
+      const cached = localStorage.getItem('brandSettings')
+      if (cached) {
+        const s = JSON.parse(cached)
+        setBrand({ name: s.brandName ?? null, logoUrl: s.brandLogoUrl ?? null })
+      }
+    } catch {}
+  }, [])
   const items = useMemo(() => {
     const base = [
       ...(role === 'ADMIN' || role === 'OPERATOR' ? [{ key: '/', label: <Link to="/">Kayıt</Link> }] : []),
@@ -60,7 +72,12 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Header style={{ display: 'flex', alignItems: 'center' }}>
-        <div style={{ color: '#fff', fontWeight: 600, marginRight: 16 }}>Firma Ziyaret</div>
+        <div style={{ display: 'flex', alignItems: 'center', marginRight: 16 }}>
+          {brand.logoUrl ? (
+            <img src={brand.logoUrl} alt="Logo" style={{ height: 28, marginRight: 8 }} />
+          ) : null}
+          <div style={{ color: '#fff', fontWeight: 600 }}>{brand.name || 'Firma'}</div>
+        </div>
         <Menu theme="dark" mode="horizontal" selectedKeys={selectedKeys} items={items} style={{ flex: 1 }} />
         <Space>
           <Tooltip title={themeName === 'dark' ? 'Açık moda geç' : 'Koyu moda geç'}>

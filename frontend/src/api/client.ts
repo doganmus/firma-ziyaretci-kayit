@@ -35,3 +35,8 @@ export type LoginResponse = {
   accessToken: string
   user: { id: string; email: string; full_name: string; role: string }
 }
+
+export type Settings = {
+  brandName: string | null
+  brandLogoUrl: string | null
+}

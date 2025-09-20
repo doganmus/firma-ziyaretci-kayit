@@ -7,6 +7,7 @@ import { VisitsModule } from './visits/visits.module';
 import { ReportsModule } from './reports/reports.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { RequestLoggerMiddleware } from './common/request-logger.middleware';
+import { SettingsModule } from './settings/settings.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { RequestLoggerMiddleware } from './common/request-logger.middleware';
     AuthModule,
     VisitsModule,
     ReportsModule,
+    SettingsModule,
   ],
   controllers: [HealthController],
 })

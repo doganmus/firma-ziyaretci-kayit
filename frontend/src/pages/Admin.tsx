@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { api } from '../api/client'
-import { Card, Typography, Form, Input, Select, Button, Table, Space, Popconfirm, message, Row, Col } from 'antd'
+import { Card, Typography, Form, Input, Select, Button, Table, Space, Popconfirm, message, Row, Col, Divider } from 'antd'
+import { Settings } from '../api/client'
 
 type User = { id: string; email: string; full_name: string; role: string }
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -13,6 +14,8 @@ export default function Admin() {
   const [rowPasswords, setRowPasswords] = useState<Record<string, string>>({})
   const [searchEmail, setSearchEmail] = useState('')
   const [searchName, setSearchName] = useState('')
+  const [brand, setBrand] = useState<Settings>({ brandName: null, brandLogoUrl: null })
+  const [savingBrand, setSavingBrand] = useState(false)
 
   const [form] = Form.useForm()
 
@@ -31,6 +34,11 @@ export default function Admin() {
       const res = await api.get<User[]>('/admin/users')
       setUsers(res.data)
       setFiltered(applyFilters(res.data, searchEmail, searchName))
+      try {
+        const s = await api.get<Settings>('/admin/settings')
+        setBrand(s.data)
+        localStorage.setItem('brandSettings', JSON.stringify(s.data))
+      } catch {}
     } finally {
       setLoading(false)
     }
@@ -112,6 +120,42 @@ export default function Admin() {
       <Space direction="vertical" size={16} style={{ width: '100%' }}>
         <Card>
           <Typography.Title level={3} style={{ margin: 0 }}>Admin - Kullanıcı Yönetimi</Typography.Title>
+        </Card>
+
+        <Card title="Marka Ayarları">
+          <Form layout="vertical" onFinish={async (vals: any) => {
+            setSavingBrand(true)
+            try {
+              const payload: Partial<Settings> = { brandName: vals.brandName ?? null, brandLogoUrl: vals.brandLogoUrl ?? null }
+              const res = await api.patch<Settings>('/admin/settings', payload)
+              setBrand(res.data)
+              localStorage.setItem('brandSettings', JSON.stringify(res.data))
+              message.success('Kaydedildi')
+            } finally {
+              setSavingBrand(false)
+            }
+          }} initialValues={{ brandName: brand.brandName ?? '', brandLogoUrl: brand.brandLogoUrl ?? '' }}>
+            <Row gutter={8}>
+              <Col xs={24} md={8}>
+                <Form.Item label="Firma Adı" name="brandName">
+                  <Input allowClear placeholder="Firma" />
+                </Form.Item>
+              </Col>
+              <Col xs={24} md={10}>
+                <Form.Item label="Logo URL" name="brandLogoUrl">
+                  <Input allowClear placeholder="https://...logo.png" />
+                </Form.Item>
+              </Col>
+              <Col xs={24} md={6} style={{ display: 'flex', alignItems: 'end' }}>
+                <Button type="primary" htmlType="submit" loading={savingBrand}>Kaydet</Button>
+              </Col>
+            </Row>
+            {brand.brandLogoUrl ? (
+              <div style={{ marginTop: 8 }}>
+                <img src={brand.brandLogoUrl} alt="Logo" style={{ height: 40 }} />
+              </div>
+            ) : null}
+          </Form>
         </Card>
 
         <Card title="Kullanıcı Ekle">
