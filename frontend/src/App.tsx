@@ -8,10 +8,10 @@ import AdminLayout from './pages/admin/AdminLayout'
 import AdminUsers from './pages/admin/AdminUsers'
 import AdminBrand from './pages/admin/AdminBrand'
 import { useEffect, useMemo, useState } from 'react'
-import { ConfigProvider, theme, Layout, Menu, Space, Button, Tooltip, Image } from 'antd'
+import { ConfigProvider, theme, Layout, Menu, Space, Button, Tooltip } from 'antd'
 import { SunOutlined, MoonOutlined } from '@ant-design/icons'
 
-const { Header, Content } = Layout
+const { Header, Content, Sider } = Layout
 
 function isAuthed() {
   return !!localStorage.getItem('accessToken')
@@ -59,22 +59,38 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
     window.addEventListener('brandSettingsChanged', handler as any)
     return () => window.removeEventListener('brandSettingsChanged', handler as any)
   }, [])
-  const items = useMemo(() => {
-    const base = [
-      ...(role === 'ADMIN' || role === 'OPERATOR' ? [{ key: '/', label: <Link to="/">Kayıt</Link> }] : []),
-      { key: '/list', label: <Link to="/list">Kayıtlar</Link> },
-      { key: '/reports', label: <Link to="/reports">Rapor</Link> },
-      ...(role === 'ADMIN' ? [{ key: '/admin', label: <Link to="/admin">Admin</Link> }] : []),
-    ]
-    return base
+  const menuItems = useMemo(() => {
+    const items: any[] = []
+    if (role === 'ADMIN' || role === 'OPERATOR') {
+      items.push({ key: '/', label: <Link to="/">Kayıt</Link> })
+    }
+    items.push({ key: '/list', label: <Link to="/list">Kayıtlar</Link> })
+    items.push({ key: '/reports', label: <Link to="/reports">Rapor</Link> })
+    if (role === 'ADMIN') {
+      items.push({
+        key: 'admin',
+        label: 'Admin',
+        children: [
+          { key: '/admin/users', label: <Link to="/admin/users">Kullanıcı İşlemleri</Link> },
+          { key: '/admin/branding', label: <Link to="/admin/branding">Marka Ayarları</Link> },
+        ],
+      })
+    }
+    return items
   }, [role])
 
   const selectedKeys = useMemo(() => {
     const path = location.pathname
+    if (path.startsWith('/admin/')) return [path]
     if (path === '/') return ['/']
-    const match = items.find((i) => i.key !== '/' && path.startsWith(i.key))
-    return match ? [match.key] : []
-  }, [location.pathname, items])
+    const keys = ['/', '/list', '/reports']
+    const found = keys.find((k) => k !== '/' && path.startsWith(k))
+    return found ? [found] : []
+  }, [location.pathname])
+
+  const openKeys = useMemo(() => {
+    return location.pathname.startsWith('/admin') ? ['admin'] : []
+  }, [location.pathname])
 
   const logout = () => {
     localStorage.removeItem('accessToken')
@@ -86,34 +102,45 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Header style={{ display: 'flex', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', marginRight: 16 }}>
+      <Sider collapsible theme={themeName === 'dark' ? 'dark' : 'light'}>
+        <div style={{ height: 64, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {brand.logoUrl ? (
             <img src={brand.logoUrl} alt="Logo" style={{ height: 28 }} />
           ) : (
-            <div style={{ color: '#fff', fontWeight: 600 }}>{brand.name || 'Firma'}</div>
+            <div style={{ fontWeight: 600, color: themeName === 'dark' ? '#fff' : '#000' }}>{brand.name || 'Firma'}</div>
           )}
         </div>
-        <Menu theme="dark" mode="horizontal" selectedKeys={selectedKeys} items={items} style={{ flex: 1 }} />
-        <Space>
-          <Tooltip title={themeName === 'dark' ? 'Açık moda geç' : 'Koyu moda geç'}>
-            <Button
-              shape="circle"
-              size="large"
-              aria-label="Tema"
-              onClick={toggleTheme}
-              style={{
-                backgroundColor: themeName === 'dark' ? '#fff' : '#000',
-                color: themeName === 'dark' ? '#000' : '#fff',
-                border: 'none'
-              }}
-              icon={themeName === 'dark' ? <SunOutlined style={{ fontSize: 18 }} /> : <MoonOutlined style={{ fontSize: 18 }} />}
-            />
-          </Tooltip>
-          <Button size="small" onClick={logout}>Çıkış</Button>
-        </Space>
-      </Header>
-      <Content style={{ padding: 16 }}>{children}</Content>
+        <Menu
+          mode="inline"
+          theme={themeName === 'dark' ? 'dark' : 'light'}
+          selectedKeys={selectedKeys}
+          defaultOpenKeys={openKeys}
+          items={menuItems}
+          style={{ borderRight: 0 }}
+        />
+      </Sider>
+      <Layout>
+        <Header style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+          <Space>
+            <Tooltip title={themeName === 'dark' ? 'Açık moda geç' : 'Koyu moda geç'}>
+              <Button
+                shape="circle"
+                size="large"
+                aria-label="Tema"
+                onClick={toggleTheme}
+                style={{
+                  backgroundColor: themeName === 'dark' ? '#fff' : '#000',
+                  color: themeName === 'dark' ? '#000' : '#fff',
+                  border: 'none'
+                }}
+                icon={themeName === 'dark' ? <SunOutlined style={{ fontSize: 18 }} /> : <MoonOutlined style={{ fontSize: 18 }} />}
+              />
+            </Tooltip>
+            <Button size="small" onClick={logout}>Çıkış</Button>
+          </Space>
+        </Header>
+        <Content style={{ padding: 16 }}>{children}</Content>
+      </Layout>
     </Layout>
   )
 }
