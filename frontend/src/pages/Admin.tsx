@@ -16,6 +16,7 @@ export default function Admin() {
   const [searchName, setSearchName] = useState('')
   const [brand, setBrand] = useState<Settings>({ brandName: null, brandLogoUrl: null })
   const [savingBrand, setSavingBrand] = useState(false)
+  const [logoFile, setLogoFile] = useState<File | null>(null)
 
   const [form] = Form.useForm()
 
@@ -127,10 +128,9 @@ export default function Admin() {
             setSavingBrand(true)
             try {
               let logoUrl: string | null = brand.brandLogoUrl ?? null
-              const file: File | undefined = vals.logoFile as File | undefined
-              if (file) {
+              if (logoFile) {
                 const formData = new FormData()
-                formData.append('file', file)
+                formData.append('file', logoFile)
                 const resUpload = await fetch('/api/admin/settings/logo', {
                   method: 'POST',
                   headers: { Authorization: `Bearer ${localStorage.getItem('accessToken') || ''}` },
@@ -150,6 +150,7 @@ export default function Admin() {
               localStorage.setItem('brandSettings', JSON.stringify(res.data))
               window.dispatchEvent(new CustomEvent('brandSettingsChanged'))
               message.success('Kaydedildi')
+              setLogoFile(null)
             } catch (e: any) {
               message.error(e?.message || 'İşlem başarısız')
             } finally {
@@ -163,9 +164,10 @@ export default function Admin() {
                 </Form.Item>
               </Col>
               <Col xs={24} md={10}>
-                <Form.Item label="Logo (PNG)" name="logoFile" getValueFromEvent={(e) => (e?.target?.files?.[0] || null)}>
-                  <input type="file" accept="image/png" />
-                </Form.Item>
+                <div style={{ marginBottom: 8 }}>
+                  <label style={{ display: 'block', marginBottom: 4 }}>Logo (PNG)</label>
+                  <input type="file" accept="image/png" onChange={(e) => setLogoFile(e.target.files?.[0] || null)} />
+                </div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary, #888)' }}>
                   Önerilen boyut: 28px yükseklik, genişlik orantılı. Maks 2MB PNG.
                 </div>

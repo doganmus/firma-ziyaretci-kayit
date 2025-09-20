@@ -119,7 +119,7 @@ export default function App() {
         const cached = localStorage.getItem('brandSettings')
         if (cached) {
           const s = JSON.parse(cached)
-          // Force rerender by toggling themeName to same value
+          // Nothing else required; Shell reads from localStorage on mount. Force a rerender:
           setThemeName((prev) => prev)
         }
       } catch {}
