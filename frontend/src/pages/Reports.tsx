@@ -30,16 +30,30 @@ export default function Reports() {
     }
   }
 
-  const downloadCsv = async () => {
+  const downloadExcel = async () => {
+    const params: any = {}
+    if (dateRange && dateRange[0]) params.dateFrom = dateRange[0].toDate().toISOString()
+    if (dateRange && dateRange[1]) params.dateTo = dateRange[1].toDate().toISOString()
+    const res = await api.get('/reports/export/excel', { params, responseType: 'blob' })
+    const blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'reports.xlsx'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  const downloadPdf = async () => {
     const params: any = {}
     if (dateRange && dateRange[0]) params.dateFrom = dateRange[0].toDate().toISOString()
     if (dateRange && dateRange[1]) params.dateTo = dateRange[1].toDate().toISOString()
     const res = await api.get('/reports/export/pdf', { params, responseType: 'blob' })
-    const blob = new Blob([res.data], { type: 'text/csv;charset=utf-8;' })
+    const blob = new Blob([res.data], { type: 'application/pdf' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = 'reports.csv'
+    a.download = 'reports.pdf'
     a.click()
     URL.revokeObjectURL(url)
   }
@@ -58,7 +72,8 @@ export default function Reports() {
             <Space>
               <RangePicker value={dateRange as any} onChange={(v) => setDateRange(v as any)} />
               <Button type="primary" onClick={load} loading={loading}>Uygula</Button>
-              <Button onClick={downloadCsv}>CSV İndir</Button>
+              <Button onClick={downloadExcel}>Excel</Button>
+              <Button onClick={downloadPdf}>PDF</Button>
             </Space>
           </Space>
         </Card>
