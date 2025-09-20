@@ -8,11 +8,11 @@ import { QueryVisitsDto } from './dto/query-visits.dto';
 
 @Controller('visits')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles('ADMIN', 'OPERATOR')
 export class VisitsController {
   constructor(private readonly visits: VisitsService) {}
 
   @Get()
+  @Roles('ADMIN', 'OPERATOR', 'VIEWER')
   list(@Query() q: QueryVisitsDto) {
     const filters = {
       dateFrom: q.dateFrom,
@@ -26,11 +26,13 @@ export class VisitsController {
   }
 
   @Post()
+  @Roles('ADMIN', 'OPERATOR')
   create(@Body() body: CreateVisitDto) {
     return this.visits.create(body);
   }
 
   @Post(':id/exit')
+  @Roles('ADMIN', 'OPERATOR')
   exit(@Param('id') id: string) {
     return this.visits.exit(id);
   }

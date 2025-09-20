@@ -71,6 +71,36 @@ export default function VisitForm() {
     await loadActiveVehicles()
   }
 
+  // Determine role to hide actions for VIEWER
+  const role = (() => {
+    try {
+      const u = localStorage.getItem('user')
+      return u ? (JSON.parse(u).role as string) : null
+    } catch {
+      return null
+    }
+  })()
+  const isViewer = role === 'VIEWER'
+
+  const activeColumns: any[] = [
+    { title: 'Plaka', dataIndex: 'vehicle_plate' },
+    { title: 'Ad Soyad', dataIndex: 'visitor_full_name' },
+    { title: 'Ziyaret Edilen', dataIndex: 'visited_person_full_name' },
+    { title: 'Firma', dataIndex: 'company_name' },
+    { title: 'Giriş', dataIndex: 'entry_at', render: (v: string) => dayjs(v).format('YYYY-MM-DD HH:mm') },
+  ]
+  if (!isViewer) {
+    activeColumns.push({
+      title: 'Aksiyon', key: 'action', render: (_: any, r: Visit) => (
+        <Space>
+          <Popconfirm title="Çıkış verilsin mi?" onConfirm={() => exitVisit(r.id)}>
+            <Button type="link">Çıkış Yap</Button>
+          </Popconfirm>
+        </Space>
+      )
+    })
+  }
+
   return (
     <div style={{ maxWidth: 960, margin: '24px auto' }}>
       <Card>
@@ -151,22 +181,7 @@ export default function VisitForm() {
         <Table
           rowKey="id"
           dataSource={activeVehicles}
-          columns={[
-            { title: 'Plaka', dataIndex: 'vehicle_plate' },
-            { title: 'Ad Soyad', dataIndex: 'visitor_full_name' },
-            { title: 'Ziyaret Edilen', dataIndex: 'visited_person_full_name' },
-            { title: 'Firma', dataIndex: 'company_name' },
-            { title: 'Giriş', dataIndex: 'entry_at', render: (v: string) => dayjs(v).format('YYYY-MM-DD HH:mm') },
-            {
-              title: 'Aksiyon', key: 'action', render: (_: any, r: Visit) => (
-                <Space>
-                  <Popconfirm title="Çıkış verilsin mi?" onConfirm={() => exitVisit(r.id)}>
-                    <Button type="link">Çıkış Yap</Button>
-                  </Popconfirm>
-                </Space>
-              )
-            }
-          ]}
+          columns={activeColumns as any}
           pagination={{ pageSize: 5 }}
         />
       </Card>

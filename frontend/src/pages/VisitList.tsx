@@ -77,21 +77,36 @@ export default function VisitList() {
     URL.revokeObjectURL(url)
   }
 
-  const columns = useMemo(() => [
-    { title: 'Ad Soyad', dataIndex: 'visitor_full_name', key: 'visitor_full_name' },
-    { title: 'Ziyaret Edilen', dataIndex: 'visited_person_full_name', key: 'visited_person_full_name' },
-    { title: 'Firma', dataIndex: 'company_name', key: 'company_name' },
-    { title: 'Giriş', dataIndex: 'entry_at', key: 'entry_at', render: (v: string) => dayjs(v).format('YYYY-MM-DD HH:mm') },
-    { title: 'Çıkış', dataIndex: 'exit_at', key: 'exit_at', render: (v: string | null) => v ? dayjs(v).format('YYYY-MM-DD HH:mm') : '-' },
-    { title: 'Araç/Plaka', key: 'vehicle', render: (_: any, r: Visit) => r.has_vehicle ? (r.vehicle_plate ?? '') : '' },
-    {
-      title: 'Aksiyon', key: 'action', render: (_: any, r: Visit) => (
-        r.exit_at ? null : (
-          <Button type="link" onClick={() => exitVisit(r.id)}>Çıkış Ver</Button>
-        )
-      )
+  const role = (() => {
+    try {
+      const u = localStorage.getItem('user')
+      return u ? (JSON.parse(u).role as string) : null
+    } catch {
+      return null
     }
-  ], [])
+  })()
+  const isViewer = role === 'VIEWER'
+
+  const columns = useMemo(() => {
+    const base: any[] = [
+      { title: 'Ad Soyad', dataIndex: 'visitor_full_name', key: 'visitor_full_name' },
+      { title: 'Ziyaret Edilen', dataIndex: 'visited_person_full_name', key: 'visited_person_full_name' },
+      { title: 'Firma', dataIndex: 'company_name', key: 'company_name' },
+      { title: 'Giriş', dataIndex: 'entry_at', key: 'entry_at', render: (v: string) => dayjs(v).format('YYYY-MM-DD HH:mm') },
+      { title: 'Çıkış', dataIndex: 'exit_at', key: 'exit_at', render: (v: string | null) => v ? dayjs(v).format('YYYY-MM-DD HH:mm') : '-' },
+      { title: 'Araç/Plaka', key: 'vehicle', render: (_: any, r: Visit) => r.has_vehicle ? (r.vehicle_plate ?? '') : '' },
+    ]
+    if (!isViewer) {
+      base.push({
+        title: 'Aksiyon', key: 'action', render: (_: any, r: Visit) => (
+          r.exit_at ? null : (
+            <Button type="link" onClick={() => exitVisit(r.id)}>Çıkış Ver</Button>
+          )
+        )
+      })
+    }
+    return base
+  }, [isViewer])
 
   return (
     <div style={{ padding: 16 }}>
