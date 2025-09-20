@@ -34,8 +34,8 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
   const location = useLocation()
   const items = useMemo(() => {
     const base = [
-      ...(role === 'ADMIN' || role === 'OPERATOR' ? [{ key: '/new', label: <Link to="/new">Kayıt</Link> }] : []),
-      { key: '/', label: <Link to="/">Kayıtlar</Link> },
+      ...(role === 'ADMIN' || role === 'OPERATOR' ? [{ key: '/', label: <Link to="/">Kayıt</Link> }] : []),
+      { key: '/list', label: <Link to="/list">Kayıtlar</Link> },
       { key: '/reports', label: <Link to="/reports">Raporlar</Link> },
       ...(role === 'ADMIN' ? [{ key: '/admin', label: <Link to="/admin">Admin</Link> }] : []),
     ]
@@ -100,17 +100,20 @@ export default function App() {
 
   const toggleTheme = () => setThemeName(themeName === 'dark' ? 'light' : 'dark')
 
+  const canCreate = role === 'ADMIN' || role === 'OPERATOR'
+
   return (
     <ConfigProvider theme={{ algorithm }}>
       <BrowserRouter>
         {isAuthed() ? (
           <Shell themeName={themeName} setThemeName={setThemeName}>
             <Routes>
-              <Route path="/" element={<RequireAuth><VisitList /></RequireAuth>} />
-              <Route path="/new" element={<RequireAuth><VisitForm /></RequireAuth>} />
+              <Route path="/" element={canCreate ? <RequireAuth><VisitForm /></RequireAuth> : <Navigate to="/list" replace />} />
+              <Route path="/list" element={<RequireAuth><VisitList /></RequireAuth>} />
+              <Route path="/new" element={<Navigate to="/" replace />} />
               <Route path="/reports" element={<RequireAuth><Reports /></RequireAuth>} />
-              <Route path="/admin" element={role === 'ADMIN' ? <RequireAuth><Admin /></RequireAuth> : <Navigate to="/" replace />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
+              <Route path="/admin" element={role === 'ADMIN' ? <RequireAuth><Admin /></RequireAuth> : <Navigate to="/list" replace />} />
+              <Route path="*" element={<Navigate to={canCreate ? '/' : '/list'} replace />} />
             </Routes>
           </Shell>
         ) : (
