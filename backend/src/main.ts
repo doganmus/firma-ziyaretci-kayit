@@ -4,12 +4,17 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
+import * as express from 'express';
+import { join } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.use(helmet());
   app.enableCors({ origin: [/localhost:5173$/], credentials: true });
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }));
+
+  // Serve uploaded assets
+  app.use('/uploads', express.static(join(process.cwd(), 'uploads')));
 
   const config = new DocumentBuilder()
     .setTitle('Firma Ziyaretçi Kayıt API')

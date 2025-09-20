@@ -126,7 +126,23 @@ export default function Admin() {
           <Form layout="vertical" onFinish={async (vals: any) => {
             setSavingBrand(true)
             try {
-              const payload: Partial<Settings> = { brandName: vals.brandName ?? null, brandLogoUrl: vals.brandLogoUrl ?? null }
+              let logoUrl: string | null = brand.brandLogoUrl ?? null
+              const file: File | undefined = (vals.logoFile && vals.logoFile.file?.originFileObj) || (vals.logoFile?.originFileObj)
+              if (file) {
+                const formData = new FormData()
+                formData.append('file', file)
+                const resUpload = await fetch('/api/admin/settings/logo', {
+                  method: 'POST',
+                  headers: { Authorization: `Bearer ${localStorage.getItem('accessToken') || ''}` },
+                  body: formData,
+                })
+                if (!resUpload.ok) throw new Error('Logo yüklenemedi')
+                const uploaded = await resUpload.json()
+                logoUrl = uploaded.url || null
+              }
+              // If brandName is provided, clear logo; if logo uploaded, clear brandName
+              const finalBrandName = (vals.brandName || '').trim()
+              const payload: Partial<Settings> = logoUrl ? { brandName: null, brandLogoUrl: logoUrl } : (finalBrandName ? { brandName: finalBrandName, brandLogoUrl: null } : { brandName: null, brandLogoUrl: null })
               const res = await api.patch<Settings>('/admin/settings', payload)
               setBrand(res.data)
               localStorage.setItem('brandSettings', JSON.stringify(res.data))
@@ -134,7 +150,7 @@ export default function Admin() {
             } finally {
               setSavingBrand(false)
             }
-          }} initialValues={{ brandName: brand.brandName ?? '', brandLogoUrl: brand.brandLogoUrl ?? '' }}>
+          }} initialValues={{ brandName: brand.brandName ?? '' }}>
             <Row gutter={8}>
               <Col xs={24} md={8}>
                 <Form.Item label="Firma Adı" name="brandName">
@@ -142,15 +158,18 @@ export default function Admin() {
                 </Form.Item>
               </Col>
               <Col xs={24} md={10}>
-                <Form.Item label="Logo URL" name="brandLogoUrl">
-                  <Input allowClear placeholder="https://...logo.png" />
+                <Form.Item label="Logo (PNG)" name="logoFile" valuePropName="file" getValueFromEvent={(e) => (Array.isArray(e) ? e[0] : e)}>
+                  <input type="file" accept="image/png" />
                 </Form.Item>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary, #888)' }}>
+                  Önerilen boyut: 28px yükseklik, genişlik orantılı. Maks 2MB PNG.
+                </div>
               </Col>
               <Col xs={24} md={6} style={{ display: 'flex', alignItems: 'end' }}>
                 <Button type="primary" htmlType="submit" loading={savingBrand}>Kaydet</Button>
               </Col>
             </Row>
-            {brand.brandLogoUrl ? (
+            {(!brand.brandName && brand.brandLogoUrl) ? (
               <div style={{ marginTop: 8 }}>
                 <img src={brand.brandLogoUrl} alt="Logo" style={{ height: 40 }} />
               </div>

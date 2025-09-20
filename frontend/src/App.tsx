@@ -74,9 +74,10 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
       <Header style={{ display: 'flex', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', marginRight: 16 }}>
           {brand.logoUrl ? (
-            <img src={brand.logoUrl} alt="Logo" style={{ height: 28, marginRight: 8 }} />
-          ) : null}
-          <div style={{ color: '#fff', fontWeight: 600 }}>{brand.name || 'Firma'}</div>
+            <img src={brand.logoUrl} alt="Logo" style={{ height: 28 }} />
+          ) : (
+            <div style={{ color: '#fff', fontWeight: 600 }}>{brand.name || 'Firma'}</div>
+          )}
         </div>
         <Menu theme="dark" mode="horizontal" selectedKeys={selectedKeys} items={items} style={{ flex: 1 }} />
         <Space>

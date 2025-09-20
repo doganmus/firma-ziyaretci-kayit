@@ -8,7 +8,7 @@ export class Setting {
   @Column({ name: 'brand_name', type: 'varchar', length: 120, nullable: true })
   brandName!: string | null;
 
-  @Column({ name: 'brand_logo_url', type: 'varchar', length: 500, nullable: true })
+  @Column({ name: 'brand_logo_url', type: 'text', nullable: true })
   brandLogoUrl!: string | null;
 
   @CreateDateColumn({ name: 'created_at' })
