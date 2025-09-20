@@ -30,16 +30,16 @@ export default function Reports() {
     }
   }
 
-  const downloadPdf = async () => {
+  const downloadCsv = async () => {
     const params: any = {}
     if (dateRange && dateRange[0]) params.dateFrom = dateRange[0].toDate().toISOString()
     if (dateRange && dateRange[1]) params.dateTo = dateRange[1].toDate().toISOString()
     const res = await api.get('/reports/export/pdf', { params, responseType: 'blob' })
-    const blob = new Blob([res.data], { type: 'application/pdf' })
+    const blob = new Blob([res.data], { type: 'text/csv;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = 'summary.pdf'
+    a.download = 'reports.csv'
     a.click()
     URL.revokeObjectURL(url)
   }
@@ -58,7 +58,7 @@ export default function Reports() {
             <Space>
               <RangePicker value={dateRange as any} onChange={(v) => setDateRange(v as any)} />
               <Button type="primary" onClick={load} loading={loading}>Uygula</Button>
-              <Button onClick={downloadPdf}>PDF İndir</Button>
+              <Button onClick={downloadCsv}>CSV İndir</Button>
             </Space>
           </Space>
         </Card>

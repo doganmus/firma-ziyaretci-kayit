@@ -1,8 +1,11 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { api } from '../api/client'
-import { Form, Input, Switch, Button, Card, Typography, Alert, Row, Col } from 'antd'
+import { Form, Input, Switch, Button, Card, Typography, Alert, Row, Col, Table, Space, Popconfirm } from 'antd'
+import dayjs from 'dayjs'
 
-const TR_PLATE_REGEX = /^(0[1-9]|[1-7][0-9]|80|81)[A-Z]{1,3}[0-9]{2,4}$/
+// Normalized TR plate formats (no spaces):
+// 99X9999 or 99X99999 | 99XX999 or 99XX9999 | 99XXX99 or 99XXX999
+const TR_PLATE_REGEX = /^(0[1-9]|[1-7][0-9]|80|81)(?:[A-Z][0-9]{4,5}|[A-Z]{2}[0-9]{3,4}|[A-Z]{3}[0-9]{2,3})$/
 
 type FormValues = {
   visitor_full_name: string
@@ -12,11 +15,32 @@ type FormValues = {
   vehicle_plate?: string
 }
 
+type Visit = {
+  id: string
+  visitor_full_name: string
+  visited_person_full_name: string
+  company_name: string
+  entry_at: string
+  exit_at: string | null
+  has_vehicle: boolean
+  vehicle_plate: string | null
+}
+
 export default function VisitForm() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [activeVehicles, setActiveVehicles] = useState<Visit[]>([])
 
   const [form] = Form.useForm<FormValues>()
+
+  const loadActiveVehicles = async () => {
+    const res = await api.get<Visit[]>('/visits', { params: { hasVehicle: 'true' } })
+    setActiveVehicles((res.data || []).filter(v => !v.exit_at))
+  }
+
+  useEffect(() => {
+    loadActiveVehicles()
+  }, [])
 
   const onFinish = async (values: FormValues) => {
     setMessage(null)
@@ -34,6 +58,7 @@ export default function VisitForm() {
       })
       setMessage({ type: 'success', text: 'Kayıt oluşturuldu' })
       form.resetFields()
+      await loadActiveVehicles()
     } catch {
       setMessage({ type: 'error', text: 'Hata oluştu' })
     } finally {
@@ -41,10 +66,14 @@ export default function VisitForm() {
     }
   }
 
+  const exitVisit = async (id: string) => {
+    await api.post(`/visits/${id}/exit`)
+    await loadActiveVehicles()
+  }
+
   return (
     <div style={{ maxWidth: 960, margin: '24px auto' }}>
       <Card>
-        <Typography.Title level={3} style={{ marginBottom: 16 }}>Kayıt</Typography.Title>
         {message && <Alert type={message.type} message={message.text} style={{ marginBottom: 16 }} />}        
         <Form<FormValues>
           form={form}
@@ -98,12 +127,12 @@ export default function VisitForm() {
                             if (!v) return Promise.reject(new Error('Plaka gerekli'))
                             return TR_PLATE_REGEX.test(v)
                               ? Promise.resolve()
-                              : Promise.reject(new Error('Plaka formatı geçersiz (örn. 34ABC1234)'))
+                              : Promise.reject(new Error('Geçersiz plaka. Örnekler: 34 A 1234, 34 A 12345, 34 AB 123, 34 AB 1234, 34 ABC 12, 34 ABC 123'))
                           },
                         },
                       ]}
                     >
-                      <Input placeholder={hasVehicle ? 'Örn: 34ABC1234' : 'PASİF'} disabled={!hasVehicle} />
+                      <Input placeholder={hasVehicle ? 'Örn: 34 ABC 1234' : ''} disabled={!hasVehicle} />
                     </Form.Item>
                   )
                 }}
@@ -115,6 +144,29 @@ export default function VisitForm() {
             <Button type="primary" htmlType="submit" loading={loading}>Kaydet</Button>
           </div>
         </Form>
+      </Card>
+
+      <Card style={{ marginTop: 16 }} title="İçerideki Araçlar (Çıkış Yapılmamış)">
+        <Table
+          rowKey="id"
+          dataSource={activeVehicles}
+          columns={[
+            { title: 'Plaka', dataIndex: 'vehicle_plate' },
+            { title: 'Ad Soyad', dataIndex: 'visitor_full_name' },
+            { title: 'Firma', dataIndex: 'company_name' },
+            { title: 'Giriş', dataIndex: 'entry_at', render: (v: string) => dayjs(v).format('YYYY-MM-DD HH:mm') },
+            {
+              title: 'Aksiyon', key: 'action', render: (_: any, r: Visit) => (
+                <Space>
+                  <Popconfirm title="Çıkış verilsin mi?" onConfirm={() => exitVisit(r.id)}>
+                    <Button type="link">Çıkış Yap</Button>
+                  </Popconfirm>
+                </Space>
+              )
+            }
+          ]}
+          pagination={{ pageSize: 5 }}
+        />
       </Card>
     </div>
   )

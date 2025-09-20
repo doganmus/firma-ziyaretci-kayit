@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { api } from '../api/client'
-import { Table, Form, Input, Select, DatePicker, Button, Space, Typography, Popconfirm } from 'antd'
+import { Table, Form, Input, Select, DatePicker, Button, Space } from 'antd'
 import dayjs, { Dayjs } from 'dayjs'
 
 const { RangePicker } = DatePicker
@@ -53,7 +53,7 @@ export default function VisitList() {
     await load()
   }
 
-  const exportCsv = () => {
+  const exportExcel = () => {
     const headers = ['Ad Soyad','Ziyaret Edilen','Firma','Giriş','Çıkış','Araç/Plaka']
     const rows = items.map(v => [
       v.visitor_full_name,
@@ -63,12 +63,16 @@ export default function VisitList() {
       v.exit_at ? dayjs(v.exit_at).format('YYYY-MM-DD HH:mm') : '-',
       v.has_vehicle ? (v.vehicle_plate ?? '') : 'PASİF',
     ])
-    const csv = [headers, ...rows].map(r => r.map(x => `"${(x ?? '').toString().replace(/"/g,'""')}"`).join(',')).join('\n')
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+
+    const worksheet = `<?xml version="1.0"?>\n<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="Ziyaretler"><Table>${[headers, ...rows]
+      .map(r => `<Row>${r.map(c => `<Cell><Data ss:Type="String">${(c ?? '').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</Data></Cell>`).join('')}</Row>`)
+      .join('')}</Table></Worksheet></Workbook>`
+
+    const blob = new Blob([worksheet], { type: 'application/vnd.ms-excel' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `ziyaretler_${Date.now()}.csv`
+    a.download = `ziyaretler_${Date.now()}.xls`
     a.click()
     URL.revokeObjectURL(url)
   }
@@ -83,9 +87,7 @@ export default function VisitList() {
     {
       title: 'Aksiyon', key: 'action', render: (_: any, r: Visit) => (
         r.exit_at ? null : (
-          <Popconfirm title="Çıkış verilsin mi?" onConfirm={() => exitVisit(r.id)}>
-            <Button type="link">Çıkış Ver</Button>
-          </Popconfirm>
+          <Button type="link" onClick={() => exitVisit(r.id)}>Çıkış Ver</Button>
         )
       )
     }
@@ -93,8 +95,6 @@ export default function VisitList() {
 
   return (
     <div style={{ padding: 16 }}>
-      <Typography.Title level={3} style={{ marginBottom: 16 }}>Ziyaretler</Typography.Title>
-
       <Form layout="inline" style={{ marginBottom: 12 }}>
         <Form.Item label="Tarih">
           <RangePicker allowEmpty={[true, true]} value={dateRange as any} onChange={(v) => setDateRange(v as any)} showTime={false} />
@@ -118,7 +118,7 @@ export default function VisitList() {
         <Form.Item>
           <Space>
             <Button type="primary" onClick={load} loading={loading}>Filtrele</Button>
-            <Button onClick={exportCsv} disabled={loading}>CSV İndir</Button>
+            <Button onClick={exportExcel} disabled={loading}>Excel İndir</Button>
           </Space>
         </Form.Item>
       </Form>
