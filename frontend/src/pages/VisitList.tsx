@@ -118,7 +118,7 @@ export default function VisitList() {
         <Form.Item>
           <Space>
             <Button type="primary" onClick={load} loading={loading}>Filtrele</Button>
-            <Button onClick={exportExcel} disabled={loading}>Excel İndir</Button>
+            <Button onClick={exportExcel} disabled={loading}>Excel</Button>
           </Space>
         </Form.Item>
       </Form>
