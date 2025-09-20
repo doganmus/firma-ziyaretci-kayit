@@ -6,6 +6,8 @@ import { Roles } from '../auth/roles.decorator';
 import { Response } from 'express';
 import ExcelJS from 'exceljs';
 import PDFDocument from 'pdfkit';
+import fs from 'fs';
+import path from 'path';
 
 @Controller('reports')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -70,12 +72,19 @@ export class ReportsController {
     const doc = new PDFDocument({ size: 'A4', margin: 40 });
     doc.pipe(res);
 
+    // Try to load a font with Turkish glyph support if present under /app/certs/DejaVuSans.ttf
+    const candidate = path.join(process.cwd(), 'certs', 'DejaVuSans.ttf');
+    if (fs.existsSync(candidate)) {
+      doc.font(candidate);
+    } else {
+      doc.font('Helvetica');
+    }
+
     doc.fontSize(20).text('Ziyaret Raporu', { align: 'center' });
     doc.moveDown();
-    doc.fontSize(12).text(`Tarih Aralığı: ${dateFrom || '-'} → ${dateTo || '-'}`);
+    doc.fontSize(12).text(`Tarih Aralığı: ${dateFrom || 'Tamammı'} → ${dateTo || 'Tamammı'}`);
 
-    doc.moveDown();
-    doc.fontSize(14).text('Özet');
+    // Bar chart for summary
     const summaryData: [string, number][] = [
       ['Toplam', s.total],
       ['Araçlı', s.withVehicle],
@@ -91,8 +100,8 @@ export class ReportsController {
     summaryData.forEach(([label, value], idx) => {
       const barHeight = (value / maxVal) * 120;
       const x = startX + idx * (barWidth + gap);
-      doc.rect(x, y + (120 - barHeight), barWidth, barHeight).fill('#1890ff').stroke();
-      doc.fillColor('#000').fontSize(10).text(label, x - 5, y + 130, { width: barWidth + 10, align: 'center' });
+      doc.save().rect(x, y + (120 - barHeight), barWidth, barHeight).fill('#1890ff').restore();
+      doc.fontSize(10).text(label, x - 5, y + 130, { width: barWidth + 10, align: 'center' });
       doc.fontSize(10).text(String(value), x - 5, y + (120 - barHeight) - 14, { width: barWidth + 10, align: 'center' });
     });
 

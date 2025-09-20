@@ -36,7 +36,7 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
     const base = [
       ...(role === 'ADMIN' || role === 'OPERATOR' ? [{ key: '/', label: <Link to="/">Kayıt</Link> }] : []),
       { key: '/list', label: <Link to="/list">Kayıtlar</Link> },
-      { key: '/reports', label: <Link to="/reports">Raporlar</Link> },
+      { key: '/reports', label: <Link to="/reports">Rapor</Link> },
       ...(role === 'ADMIN' ? [{ key: '/admin', label: <Link to="/admin">Admin</Link> }] : []),
     ]
     return base

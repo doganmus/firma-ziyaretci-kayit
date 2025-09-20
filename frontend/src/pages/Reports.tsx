@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api/client'
-import { Card, Typography, DatePicker, Button, Space, Statistic, Table } from 'antd'
+import { Card, DatePicker, Button, Space, Statistic, Table } from 'antd'
 import dayjs from 'dayjs'
 
 const { RangePicker } = DatePicker
@@ -65,44 +65,41 @@ export default function Reports() {
 
   return (
     <div style={{ padding: 16 }}>
-      <Space direction="vertical" size={16} style={{ width: '100%' }}>
-        <Card>
-          <Space align="center" style={{ width: '100%', justifyContent: 'space-between' }}>
-            <Typography.Title level={3} style={{ margin: 0 }}>Raporlar</Typography.Title>
-            <Space>
-              <RangePicker value={dateRange as any} onChange={(v) => setDateRange(v as any)} />
-              <Button type="primary" onClick={load} loading={loading}>Uygula</Button>
-              <Button onClick={downloadExcel}>Excel</Button>
-              <Button onClick={downloadPdf}>PDF</Button>
-            </Space>
+      <Space align="center" style={{ width: '100%', justifyContent: 'space-between', marginBottom: 12 }}>
+        <Space>
+          <RangePicker value={dateRange as any} onChange={(v) => setDateRange(v as any)} />
+          <Button type="primary" onClick={load} loading={loading}>Uygula</Button>
+        </Space>
+        <Space>
+          <Button onClick={downloadExcel}>Excel</Button>
+          <Button onClick={downloadPdf}>PDF</Button>
+        </Space>
+      </Space>
+
+      {summary && (
+        <Card style={{ marginBottom: 16 }}>
+          <Space size={24} wrap>
+            <Statistic title="Toplam" value={summary.total} />
+            <Statistic title="Araçlı" value={summary.withVehicle} />
+            <Statistic title="Araçsız" value={summary.withoutVehicle} />
+            <Statistic title="Aktif" value={summary.active} />
+            <Statistic title="Çıkışlı" value={summary.exited} />
           </Space>
         </Card>
+      )}
 
-        {summary && (
-          <Card>
-            <Space size={24} wrap>
-              <Statistic title="Toplam" value={summary.total} />
-              <Statistic title="Araçlı" value={summary.withVehicle} />
-              <Statistic title="Araçsız" value={summary.withoutVehicle} />
-              <Statistic title="Aktif" value={summary.active} />
-              <Statistic title="Çıkışlı" value={summary.exited} />
-            </Space>
-          </Card>
-        )}
-
-        <Card title="Firma Bazlı">
-          <Table
-            rowKey={(r) => r.company}
-            dataSource={byCompany}
-            columns={[
-              { title: 'Firma', dataIndex: 'company' },
-              { title: 'Adet', dataIndex: 'count' },
-            ]}
-            pagination={{ pageSize: 10 }}
-            loading={loading}
-          />
-        </Card>
-      </Space>
+      <Card title="Firma Bazlı">
+        <Table
+          rowKey={(r) => r.company}
+          dataSource={byCompany}
+          columns={[
+            { title: 'Firma', dataIndex: 'company' },
+            { title: 'Adet', dataIndex: 'count' },
+          ]}
+          pagination={{ pageSize: 10 }}
+          loading={loading}
+        />
+      </Card>
     </div>
   )
 }
