@@ -112,6 +112,22 @@ export default function App() {
     } catch {}
   }, [themeName])
 
+  // React to brand settings change (from Admin)
+  useEffect(() => {
+    const handler = () => {
+      try {
+        const cached = localStorage.getItem('brandSettings')
+        if (cached) {
+          const s = JSON.parse(cached)
+          // Force rerender by toggling themeName to same value
+          setThemeName((prev) => prev)
+        }
+      } catch {}
+    }
+    window.addEventListener('brandSettingsChanged', handler as any)
+    return () => window.removeEventListener('brandSettingsChanged', handler as any)
+  }, [])
+
   const algorithm = themeName === 'dark' ? theme.darkAlgorithm : theme.defaultAlgorithm
 
   const role = getRole()

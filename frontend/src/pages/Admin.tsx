@@ -127,7 +127,7 @@ export default function Admin() {
             setSavingBrand(true)
             try {
               let logoUrl: string | null = brand.brandLogoUrl ?? null
-              const file: File | undefined = (vals.logoFile && vals.logoFile.file?.originFileObj) || (vals.logoFile?.originFileObj)
+              const file: File | undefined = vals.logoFile as File | undefined
               if (file) {
                 const formData = new FormData()
                 formData.append('file', file)
@@ -136,17 +136,22 @@ export default function Admin() {
                   headers: { Authorization: `Bearer ${localStorage.getItem('accessToken') || ''}` },
                   body: formData,
                 })
-                if (!resUpload.ok) throw new Error('Logo yüklenemedi')
+                if (!resUpload.ok) {
+                  const text = await resUpload.text().catch(() => '')
+                  throw new Error(text || 'Logo yüklenemedi (yalnızca PNG, max 2MB)')
+                }
                 const uploaded = await resUpload.json()
                 logoUrl = uploaded.url || null
               }
-              // If brandName is provided, clear logo; if logo uploaded, clear brandName
               const finalBrandName = (vals.brandName || '').trim()
               const payload: Partial<Settings> = logoUrl ? { brandName: null, brandLogoUrl: logoUrl } : (finalBrandName ? { brandName: finalBrandName, brandLogoUrl: null } : { brandName: null, brandLogoUrl: null })
               const res = await api.patch<Settings>('/admin/settings', payload)
               setBrand(res.data)
               localStorage.setItem('brandSettings', JSON.stringify(res.data))
+              window.dispatchEvent(new CustomEvent('brandSettingsChanged'))
               message.success('Kaydedildi')
+            } catch (e: any) {
+              message.error(e?.message || 'İşlem başarısız')
             } finally {
               setSavingBrand(false)
             }
@@ -158,7 +163,7 @@ export default function Admin() {
                 </Form.Item>
               </Col>
               <Col xs={24} md={10}>
-                <Form.Item label="Logo (PNG)" name="logoFile" valuePropName="file" getValueFromEvent={(e) => (Array.isArray(e) ? e[0] : e)}>
+                <Form.Item label="Logo (PNG)" name="logoFile" getValueFromEvent={(e) => (e?.target?.files?.[0] || null)}>
                   <input type="file" accept="image/png" />
                 </Form.Item>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary, #888)' }}>
