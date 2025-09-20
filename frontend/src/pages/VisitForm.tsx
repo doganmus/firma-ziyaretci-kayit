@@ -115,12 +115,48 @@ export default function VisitForm() {
         >
           <Row gutter={[16, 8]}>
             <Col xs={24} md={12}>
-              <Form.Item label="Adı Soyadı" name="visitor_full_name" rules={[{ required: true, message: 'Adı Soyadı gerekli' }]} getValueFromEvent={(e) => (e?.target?.value ?? '').toLocaleUpperCase('tr-TR')}> 
+              <Form.Item
+                label="Adı Soyadı"
+                name="visitor_full_name"
+                dependencies={['visited_person_full_name']}
+                rules={[
+                  { required: true, message: 'Adı Soyadı gerekli' },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      const other = getFieldValue('visited_person_full_name')
+                      const a = (value ?? '').toString().trim()
+                      const b = (other ?? '').toString().trim()
+                      return !a || !b || a !== b
+                        ? Promise.resolve()
+                        : Promise.reject(new Error('Ziyaretçi ve Ziyaret edilen aynı olamaz'))
+                    },
+                  }),
+                ]}
+                getValueFromEvent={(e) => (e?.target?.value ?? '').toLocaleUpperCase('tr-TR')}
+              > 
                 <Input placeholder="Ziyaretçi adı soyadı" />
               </Form.Item>
             </Col>
             <Col xs={24} md={12}>
-              <Form.Item label="Ziyaret edilen Adı Soyadı" name="visited_person_full_name" rules={[{ required: true, message: 'Ziyaret edilen kişi gerekli' }]} getValueFromEvent={(e) => (e?.target?.value ?? '').toLocaleUpperCase('tr-TR')}> 
+              <Form.Item
+                label="Ziyaret edilen Adı Soyadı"
+                name="visited_person_full_name"
+                dependencies={['visitor_full_name']}
+                rules={[
+                  { required: true, message: 'Ziyaret edilen kişi gerekli' },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      const other = getFieldValue('visitor_full_name')
+                      const a = (value ?? '').toString().trim()
+                      const b = (other ?? '').toString().trim()
+                      return !a || !b || a !== b
+                        ? Promise.resolve()
+                        : Promise.reject(new Error('Ziyaretçi ve Ziyaret edilen aynı olamaz'))
+                    },
+                  }),
+                ]}
+                getValueFromEvent={(e) => (e?.target?.value ?? '').toLocaleUpperCase('tr-TR')}
+              > 
                 <Input placeholder="Ziyaret edilen kişi" />
               </Form.Item>
             </Col>
