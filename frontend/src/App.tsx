@@ -32,17 +32,30 @@ function RequireAuth({ children }: { children: JSX.Element }) {
 function Shell({ children, themeName, setThemeName }: { children: JSX.Element; themeName: string; setThemeName: (v: string) => void }) {
   const role = getRole()
   const location = useLocation()
-  const [brand, setBrand] = useState<{ name: string | null; logoUrl: string | null }>({ name: null, logoUrl: null })
-
-  useEffect(() => {
-    // Load settings if authed; admin endpoint requires ADMIN but we can cache brand in localStorage when Admin updates.
+  const [brand, setBrand] = useState<{ name: string | null; logoUrl: string | null }>(() => {
     try {
       const cached = localStorage.getItem('brandSettings')
       if (cached) {
         const s = JSON.parse(cached)
-        setBrand({ name: s.brandName ?? null, logoUrl: s.brandLogoUrl ?? null })
+        return { name: s.brandName ?? null, logoUrl: s.brandLogoUrl ?? null }
       }
     } catch {}
+    return { name: null, logoUrl: null }
+  })
+  useEffect(() => {
+    const handler = () => {
+      try {
+        const cached = localStorage.getItem('brandSettings')
+        if (cached) {
+          const s = JSON.parse(cached)
+          setBrand({ name: s.brandName ?? null, logoUrl: s.brandLogoUrl ?? null })
+        } else {
+          setBrand({ name: null, logoUrl: null })
+        }
+      } catch {}
+    }
+    window.addEventListener('brandSettingsChanged', handler as any)
+    return () => window.removeEventListener('brandSettingsChanged', handler as any)
   }, [])
   const items = useMemo(() => {
     const base = [
