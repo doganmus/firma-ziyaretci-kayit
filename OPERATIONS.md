@@ -15,6 +15,18 @@
 & "C:\Program Files\Docker\Docker\resources\bin\docker.exe" compose down
 `
 
+#### Linux/Unix
+- İlk kurulum ve çalıştırma
+`bash
+cp .env.example .env
+docker compose up -d --build
+`
+- Durdurma ve volume’ları sıfırlama (temiz başlangıç)
+`bash
+docker compose down -v
+docker compose up -d
+`
+
 ### Reverse Proxy
 - Frontend Nginx, /api yolunu otomatik olarak backend:3000 servisine proxy'ler.
 - /uploads yolu backend'in statik dosya servisine (http://backend:3000/uploads) proxy edilir.
@@ -88,6 +100,8 @@ openssl req -x509 -newkey rsa:2048 -nodes -keyout certs/server.key -out certs/se
 - Backend API açılmıyor
   - log: compose logs -f backend
   - .env değerlerini doğrulayın
+- Postgres env değişkenleri boş uyarısı
+  - `.env` eksik olabilir. `.env.example` içeriğiyle `.env` oluşturun ve yeniden başlatın.
 - Frontend 5173 portu dolu
   - compose port eşlemelerini değiştirin
 - pgAdmin bağlanamıyor

@@ -40,6 +40,12 @@ JWT_SECRET=super-secret-change-me
 & "C:\Program Files\Docker\Docker\resources\bin\docker.exe" compose up -d --build
 `
 
+### 2a) Çalıştırma (Linux/Unix)
+`bash
+cp .env.example .env
+docker compose up -d --build
+`
+
 ### 3) Erişim
 - Kayıt (varsayılan): http://localhost:5173/
 - Kayıtlar: http://localhost:5173/list
@@ -63,3 +69,9 @@ JWT_SECRET=super-secret-change-me
 - Ziyaretçi ve ziyaret edilen adları aynı olamaz (form doğrulaması).
 - RBAC: VIEWER rolü ziyaretleri görüntüleyebilir (GET /visits), ancak oluşturamaz/çıkış veremez.
  - Navigasyon: Tüm sayfalar sol tarafta daralabilir Sider (hamburger) menü ile gezilir. Admin altında "Kullanıcı İşlemleri" ve "Marka Ayarları" alt menüleri bulunur. Tema ile uyumlu çalışır.
+
+## Sorun Giderme
+- docker compose env uyarıları (POSTGRES_* vb.)
+  - Çözüm: `.env` oluşturun (bkz. `.env.example`) ve `docker compose up -d --build`.
+- Temiz başlangıç (veri/volume sıfırlama)
+  - `docker compose down -v && docker compose up -d`
