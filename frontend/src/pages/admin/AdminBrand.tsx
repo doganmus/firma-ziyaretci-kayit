@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react'
 import { api, Settings } from '../../api/client'
 import { Card, Form, Input, Button, Row, Col, message, Typography } from 'antd'
 
+// Admin page to set brand name or upload a PNG logo for the header
 export default function AdminBrand() {
   const [brand, setBrand] = useState<Settings>({ brandName: null, brandLogoUrl: null })
   const [saving, setSaving] = useState(false)
   const [logoFile, setLogoFile] = useState<File | null>(null)
 
+  // Load current settings on mount
   useEffect(() => {
     const load = async () => {
       try {
@@ -24,6 +26,7 @@ export default function AdminBrand() {
         <Typography.Title level={3} style={{ margin: 0 }}>Marka Ayarları</Typography.Title>
       </Card>
 
+      {/* Either type a brand name or upload a PNG logo (only one will be kept) */}
       <Card style={{ marginTop: 16 }}>
         <Form layout="vertical" onFinish={async (vals: any) => {
           setSaving(true)
@@ -32,6 +35,7 @@ export default function AdminBrand() {
             let payload: Partial<Settings> = { brandName: null, brandLogoUrl: null }
 
             if (logoFile) {
+              // Upload the PNG logo file to the backend and use its URL
               const formData = new FormData()
               formData.append('file', logoFile)
               const resUpload = await fetch('/api/admin/settings/logo', {
@@ -46,8 +50,10 @@ export default function AdminBrand() {
               const uploaded = await resUpload.json()
               payload = { brandName: null, brandLogoUrl: uploaded.url || null }
             } else if (finalBrandName) {
+              // Use brand name if provided and no logo uploaded
               payload = { brandName: finalBrandName, brandLogoUrl: null }
             }
+            // Save settings and store in localStorage for App header
             const res = await api.patch<Settings>('/admin/settings', payload)
             setBrand(res.data)
             localStorage.setItem('brandSettings', JSON.stringify(res.data))

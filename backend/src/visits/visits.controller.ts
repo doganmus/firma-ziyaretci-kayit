@@ -11,6 +11,7 @@ import { QueryVisitsDto } from './dto/query-visits.dto';
 export class VisitsController {
   constructor(private readonly visits: VisitsService) {}
 
+  // Lists visits with optional filters; all roles can view
   @Get()
   @Roles('ADMIN', 'OPERATOR', 'VIEWER')
   list(@Query() q: QueryVisitsDto) {
@@ -25,12 +26,14 @@ export class VisitsController {
     return this.visits.list(filters);
   }
 
+  // Creates a new visit (ADMIN and OPERATOR only)
   @Post()
   @Roles('ADMIN', 'OPERATOR')
   create(@Body() body: CreateVisitDto) {
     return this.visits.create(body);
   }
 
+  // Marks a visit as exited by setting exit time to now
   @Post(':id/exit')
   @Roles('ADMIN', 'OPERATOR')
   exit(@Param('id') id: string) {

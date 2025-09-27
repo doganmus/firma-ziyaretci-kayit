@@ -5,6 +5,7 @@ import dayjs, { Dayjs } from 'dayjs'
 
 const { RangePicker } = DatePicker
 
+// Type for a visit item as returned by the API
 type Visit = {
   id: string
   visitor_full_name: string
@@ -20,12 +21,14 @@ export default function VisitList() {
   const [items, setItems] = useState<Visit[]>([])
   const [loading, setLoading] = useState(false)
 
+  // Filter states bound to the form controls
   const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null] | null>(null)
   const [company, setCompany] = useState('')
   const [hasVehicle, setHasVehicle] = useState<string>('')
   const [plate, setPlate] = useState('')
   const [visitedPerson, setVisitedPerson] = useState('')
 
+  // Loads visit data from the API using filters
   const load = async () => {
     setLoading(true)
     try {
@@ -48,11 +51,13 @@ export default function VisitList() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // Calls the API to set exit time for a visit
   const exitVisit = async (id: string) => {
     await api.post(`/visits/${id}/exit`)
     await load()
   }
 
+  // Export the table to a simple Excel-compatible XML format
   const exportExcel = () => {
     const headers = ['Ad Soyad','Ziyaret Edilen','Firma','Giriş','Çıkış','Araç/Plaka']
     const rows = items.map(v => [
@@ -77,6 +82,7 @@ export default function VisitList() {
     URL.revokeObjectURL(url)
   }
 
+  // Role-based UI: viewers cannot exit visits
   const role = (() => {
     try {
       const u = localStorage.getItem('user')
@@ -87,6 +93,7 @@ export default function VisitList() {
   })()
   const isViewer = role === 'VIEWER'
 
+  // Table columns with optional exit action
   const columns = useMemo(() => {
     const base: any[] = [
       { title: 'Ad Soyad', dataIndex: 'visitor_full_name', key: 'visitor_full_name' },
@@ -110,6 +117,8 @@ export default function VisitList() {
 
   return (
     <div style={{ padding: 16 }}>
+      <div style={{ marginBottom: 8, fontSize: 18, fontWeight: 600 }}>Kayıtlar</div>
+      {/* Filter form */}
       <Form layout="inline" style={{ marginBottom: 12 }}>
         <Form.Item label="Tarih">
           <RangePicker allowEmpty={[true, true]} value={dateRange as any} onChange={(v) => setDateRange(v as any)} showTime={false} />

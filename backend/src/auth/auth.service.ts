@@ -7,6 +7,7 @@ import { JwtService } from '@nestjs/jwt';
 export class AuthService {
   constructor(private readonly users: UsersService, private readonly jwt: JwtService) {}
 
+  // Checks email and password against the database
   async validateUser(email: string, password: string) {
     const user = await this.users.findByEmail(email);
     if (!user) {
@@ -19,6 +20,7 @@ export class AuthService {
     return user;
   }
 
+  // Creates a signed JWT token for the user to authenticate future requests
   async login(email: string, password: string) {
     const user = await this.validateUser(email, password);
     const payload = { sub: user.id, role: user.role, email: user.email };

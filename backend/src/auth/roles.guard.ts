@@ -6,6 +6,7 @@ import { ROLES_KEY } from './roles.decorator';
 export class RolesGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
+  // Checks if the logged-in user's role is allowed for this route
   canActivate(context: ExecutionContext): boolean {
     const required = this.reflector.getAllAndOverride<string[]>(ROLES_KEY, [
       context.getHandler(),

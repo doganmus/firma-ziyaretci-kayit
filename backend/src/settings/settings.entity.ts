@@ -1,5 +1,6 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
+// Stores brand display name or a logo URL for the application header
 @Entity({ name: 'settings' })
 export class Setting {
   @PrimaryGeneratedColumn('uuid')

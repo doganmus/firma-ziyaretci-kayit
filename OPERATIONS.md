@@ -42,8 +42,8 @@ docker compose up -d
 - Admin alt menüleri: Kullanıcı İşlemleri, Marka Ayarları.
 
 ### Rapor Dışa Aktarım ve Tema
-- Rapor CSV indirme: Raporlar sayfasındaki CSV İndir butonu veya doğrudan /api/reports/export/pdf?dateFrom=...&dateTo=... (geçici olarak CSV döner)
-- Ziyaretler listesi Excel: "Excel" butonu .xls (XML Spreadsheet) indirir
+- Raporlar: /api/reports/export/excel?dateFrom=...&dateTo=... → Excel (xlsx), /api/reports/export/pdf?dateFrom=...&dateTo=... → PDF
+- Ziyaretler listesi Excel: "Excel" butonu .xls (XML Spreadsheet) indirir (istemci tarafı)
 - Dark Mode: Navbar sağındaki seçim ile tema değiştir; tercih localStorage'da saklanır.
 
 ### Marka Ayarları ve Yüklemeler

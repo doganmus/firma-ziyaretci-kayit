@@ -14,16 +14,19 @@ import { existsSync, mkdirSync } from 'fs';
 export class SettingsController {
   constructor(private readonly settings: SettingsService) {}
 
+  // Returns brand settings (name or logo url)
   @Get()
   get() {
     return this.settings.get();
   }
 
+  // Updates brand settings; only the provided fields are changed
   @Patch()
   update(@Body() body: { brandName?: string | null; brandLogoUrl?: string | null }) {
     return this.settings.update(body);
   }
 
+  // Uploads a PNG logo file to /uploads and returns its URL
   @Post('logo')
   @UseInterceptors(
     FileInterceptor('file', {

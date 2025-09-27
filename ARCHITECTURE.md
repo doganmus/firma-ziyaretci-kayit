@@ -47,6 +47,9 @@ Uygulama iki ana bileşenden oluşur: NestJS tabanlı REST API (backend) ve Reac
 - JWT access token (kısa ömür), opsiyonel refresh token ileri aşama
 - RBAC: route guard'ları ile rol denetimi
 - Giriş doğrulama: `class-validator` ve global `ValidationPipe`
+ - HTTP güvenliği: `helmet` varsayılan başlıkları etkin; Nginx üzerinden ek güvenlik başlıkları (HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy)
+ - Basit rate limiting: `@nestjs/throttler` (örn. 120 req/dakika)
+ - Statik yüklemeler: `/uploads` dizininden servis edilir; Nginx `/uploads` proxy'si ile sunulur
 
 ### Frontend Mimarisi
 - Sayfalar: Login, Ziyaret Formu, Ziyaret Listesi, Raporlar, Admin
@@ -57,7 +60,7 @@ Uygulama iki ana bileşenden oluşur: NestJS tabanlı REST API (backend) ve Reac
 ### Docker Topolojisi
 - Servisler: `db(PostgreSQL)`, `pgadmin`, `backend`, `frontend`
 - Dahili network ile iletişim; `backend` → `db` bağlantısı `postgres://...@db:5432/...`
-- `frontend` Nginx ile statik servis; API çağrıları `http://backend:3000` (prod proxy) veya `http://localhost:3000` (dev)
+- `frontend` Nginx ile statik servis; API çağrıları prod'da Nginx `/api` → `http://backend:3000` proxy'si, geliştirmede Vite `VITE_API_URL` yoksa `/api` tabanı
 
 ### Gözlemlenebilirlik ve Loglama (opsiyonel)
 - API logları (pino/winston), istek-id korelasyonu

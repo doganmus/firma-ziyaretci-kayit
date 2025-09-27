@@ -3,7 +3,6 @@
 Bu dosya günlük/haftalık çalışmayı izlemek için kullanılır. Aşamalar ROADMAP.md ile uyumludur.
 
 ### In Progress
-- [ ] Aşama 4: Prod hazırlığı (PDF export, güvenlik başlıkları)
 - [ ] Frontend modernizasyon: Polishing & A11y
 
 ### Done
@@ -24,11 +23,11 @@ Bu dosya günlük/haftalık çalışmayı izlemek için kullanılır. Aşamalar 
 - [x] Raporlar: "İçeride"/"Çıkış Yapan" metinleri
 - [x] Admin: Marka Ayarları (firma adı veya PNG logo), /uploads kalıcı
 - [x] Global navigasyon: Sol daralabilir Sider (hamburger) ve Admin alt menüleri
+- [x] Aşama 4: Prod hazırlığı (PDF export, güvenlik başlıkları)
 
 ### Backlog (Aşama 4)
-- [ ] Nginx reverse proxy + prod dockerizasyon
-- [ ] Güvenlik sertifikaları (HTTPS)
-- [ ] PDF export
+- [x] Nginx reverse proxy + prod dockerizasyon
+- [x] Güvenlik sertifikaları (HTTPS)
 - [ ] (Opsiyonel) Monitoring/metrics
 
 ### Backlog (Aşama 5 - Opsiyonel)

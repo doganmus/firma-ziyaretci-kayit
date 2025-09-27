@@ -9,6 +9,7 @@ const TR_PLATE_REGEX = /^(0[1-9]|[1-7][0-9]|80|81)(?:[A-Z][0-9]{4,5}|[A-Z]{2}[0-
 export class VisitsService {
   constructor(@InjectRepository(Visit) private readonly repo: Repository<Visit>) {}
 
+  // Returns visits filtered by optional parameters
   async list(filters?: {
     dateFrom?: string;
     dateTo?: string;
@@ -29,6 +30,7 @@ export class VisitsService {
     return qb.getMany();
   }
 
+  // Creates a new visit, normalizing and validating the plate when needed
   async create(payload: {
     entry_at: string;
     exit_at?: string | null;
@@ -65,6 +67,7 @@ export class VisitsService {
     return this.repo.save(visit);
   }
 
+  // Sets the exit time for a visit to now
   async exit(id: string): Promise<Visit> {
     const visit = await this.repo.findOne({ where: { id } });
     if (!visit) throw new BadRequestException('Visit not found');

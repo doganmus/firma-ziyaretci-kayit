@@ -6,7 +6,7 @@ Ziyaretçi giriş-çıkışlarının kayıt altına alındığı, raporlanabildi
 - **Giriş/Çıkış Kaydı**: Tarih, ziyaretçi adı soyadı, şirketi, ziyaret edilen kişi, giriş/çıkış saati
 - **Araç Bilgisi**: Araç var/yok, plaka; araç yoksa plaka devre dışı ve veritabanında NULL
 - **Kimlik Doğrulama**: JWT tabanlı login ve RBAC
-- **Raporlar**: Tarih aralığı ve filtrelerle özet ve firma bazlı tablo (UI'da indirme devre dışı)
+- **Raporlar**: Tarih aralığı ve filtrelerle özet ve firma bazlı tablo; Excel/PDF dışa aktarma uçları
 - **Kayıtlar Export**: Ziyaret listesi için Excel (.xls) indirme
 - **Tema**: Dark/Light mode toggle (kalıcı tercih)
 - **Marka Ayarları**: Admin panelinden firma adı veya PNG logo yükleme (tek tercih)

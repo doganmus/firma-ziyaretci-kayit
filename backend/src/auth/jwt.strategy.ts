@@ -12,6 +12,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
+  // Runs for each authenticated request to attach basic user info to req.user
   async validate(payload: any) {
     return { userId: payload.sub, role: payload.role, email: payload.email };
   }

@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateCol
 
 export type UserRole = 'ADMIN' | 'OPERATOR' | 'VIEWER';
 
+// User table definition with unique email and role
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn('uuid')

@@ -12,14 +12,17 @@ import { UsersService } from './users/users.service';
 import { UserRole } from './users/user.entity';
 import * as bcrypt from 'bcrypt';
 
+// Root module that wires up database, rate limiting, and feature modules
 @Module({
   imports: [
+    // Connect to PostgreSQL using DATABASE_URL; auto loads entity metadata
     TypeOrmModule.forRoot({
       type: 'postgres',
       url: process.env.DATABASE_URL,
       autoLoadEntities: true,
       synchronize: true,
     }),
+    // Basic rate limiting: up to 120 requests per minute per client
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 120 }]),
     UsersModule,
     AuthModule,
@@ -33,11 +36,12 @@ export class AppModule implements OnApplicationBootstrap {
   constructor(private readonly usersService: UsersService) {}
 
   configure(consumer: MiddlewareConsumer) {
+    // Log each request with a unique request id and timing
     consumer.apply(RequestLoggerMiddleware).forRoutes('*');
   }
 
   async onApplicationBootstrap() {
-    // Bootstrap default ADMIN user if database is empty
+    // Create a default ADMIN user on first run if the database is empty
     try {
       const users = await this.usersService.findAll();
       if (users.length === 0) {

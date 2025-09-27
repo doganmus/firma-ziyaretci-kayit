@@ -7,6 +7,7 @@ import { Visit } from '../visits/visit.entity';
 export class ReportsService {
   constructor(@InjectRepository(Visit) private readonly repo: Repository<Visit>) {}
 
+  // Builds a quick statistics object for the given date range
   async summary(dateFrom?: string, dateTo?: string) {
     const qb = this.repo.createQueryBuilder('v');
     if (dateFrom) qb.andWhere('v.entry_at >= :df', { df: new Date(dateFrom) });
@@ -21,6 +22,7 @@ export class ReportsService {
     return { total, withVehicle, withoutVehicle, active, exited };
   }
 
+  // Returns number of visits per company name for the given date range
   async byCompany(dateFrom?: string, dateTo?: string) {
     const qb = this.repo.createQueryBuilder('v')
       .select('v.company_name', 'company')

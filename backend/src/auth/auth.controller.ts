@@ -6,6 +6,7 @@ import { LoginDto } from './dto/login.dto';
 export class AuthController {
   constructor(private readonly auth: AuthService) {}
 
+  // Receives email and password, returns a JWT and basic user info
   @Post('login')
   login(@Body() body: LoginDto) {
     return this.auth.login(body.email, body.password);

@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn, Check } from 'typeorm';
 
+// Visit table with checks ensuring plate is present/valid only when a vehicle exists
 @Entity('visits')
 @Check('vehicle_check', '(has_vehicle = false AND vehicle_plate IS NULL) OR (has_vehicle = true AND vehicle_plate IS NOT NULL)')
 @Check(

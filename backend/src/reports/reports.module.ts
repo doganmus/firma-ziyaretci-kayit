@@ -4,6 +4,7 @@ import { Visit } from '../visits/visit.entity';
 import { ReportsService } from './reports.service';
 import { ReportsController } from './reports.controller';
 
+// Reports module provides summary, company breakdown, and export endpoints
 @Module({
   imports: [TypeOrmModule.forFeature([Visit])],
   controllers: [ReportsController],

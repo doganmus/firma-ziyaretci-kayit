@@ -8,15 +8,17 @@ import AdminLayout from './pages/admin/AdminLayout'
 import AdminUsers from './pages/admin/AdminUsers'
 import AdminBrand from './pages/admin/AdminBrand'
 import { useEffect, useMemo, useState } from 'react'
-import { ConfigProvider, theme, Layout, Menu, Space, Button, Tooltip } from 'antd'
-import { SunOutlined, MoonOutlined, MenuOutlined, FormOutlined, UnorderedListOutlined, BarChartOutlined, SettingOutlined, TeamOutlined, PictureOutlined } from '@ant-design/icons'
+import { ConfigProvider, theme, Layout, Menu, Space, Button, Tooltip, Dropdown, Modal, Form as AntForm, Input as AntInput, message, Divider, Switch as AntSwitch } from 'antd'
+import { SunOutlined, MoonOutlined, MenuOutlined, LogoutOutlined, UserOutlined, FormOutlined, UnorderedListOutlined, BarChartOutlined, SettingOutlined, TeamOutlined, PictureOutlined } from '@ant-design/icons'
 
 const { Header, Content, Sider } = Layout
 
+// Checks if a JWT token exists (meaning user is logged in)
 function isAuthed() {
   return !!localStorage.getItem('accessToken')
 }
 
+// Reads the current user's role from localStorage (if present)
 function getRole(): string | null {
   try {
     const u = localStorage.getItem('user')
@@ -26,11 +28,13 @@ function getRole(): string | null {
   }
 }
 
+// Wrapper that redirects to login if user is not authenticated
 function RequireAuth({ children }: { children: JSX.Element }) {
   if (!isAuthed()) return <Navigate to="/login" replace />
   return children
 }
 
+// App shell with sidebar navigation, header, theme toggle, and branding
 function Shell({ children, themeName, setThemeName }: { children: JSX.Element; themeName: string; setThemeName: (v: string) => void }) {
   const role = getRole()
   const location = useLocation()
@@ -45,6 +49,7 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
     } catch {}
     return { name: null, logoUrl: null }
   })
+  // React to brand changes fired from AdminBrand
   useEffect(() => {
     const handler = () => {
       try {
@@ -60,6 +65,7 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
     window.addEventListener('brandSettingsChanged', handler as any)
     return () => window.removeEventListener('brandSettingsChanged', handler as any)
   }, [])
+  // Build sidebar items based on user role
   const menuItems = useMemo(() => {
     const items: any[] = []
     if (role === 'ADMIN' || role === 'OPERATOR') {
@@ -81,6 +87,7 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
     return items
   }, [role])
 
+  // Keep menu selection in sync with current route
   const selectedKeys = useMemo(() => {
     const path = location.pathname
     if (path.startsWith('/admin/')) return [path]
@@ -90,29 +97,86 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
     return found ? [found] : []
   }, [location.pathname])
 
+  // Open the Admin submenu only when on admin routes and not collapsed
   const [openKeys, setOpenKeys] = useState<string[]>(location.pathname.startsWith('/admin') ? ['admin'] : [])
   useEffect(() => {
     setOpenKeys(!siderCollapsed && location.pathname.startsWith('/admin') ? ['admin'] : [])
   }, [location.pathname, siderCollapsed])
 
+  // Logout clears session and redirects to login
   const logout = () => {
     localStorage.removeItem('accessToken')
     localStorage.removeItem('user')
     window.location.href = '/login'
   }
 
+  // Toggle between light and dark theme
   const toggleTheme = () => setThemeName(themeName === 'dark' ? 'light' : 'dark')
 
   const headerBg = themeName === 'dark' ? '#001529' : '#fff'
 
+  // Profile dropdown and modals state
+  const [pwdOpen, setPwdOpen] = useState(false)
+  const [pwdLoading, setPwdLoading] = useState(false)
+  const [sessionOpen, setSessionOpen] = useState(false)
+  const [pwdForm] = AntForm.useForm<{ currentPassword: string; newPassword: string; confirm: string }>()
+
+  const onPasswordSubmit = async () => {
+    try {
+      const vals = await pwdForm.validateFields()
+      if ((vals.newPassword || '').length < 6) {
+        message.error('Yeni şifre en az 6 karakter olmalı');
+        return
+      }
+      if (vals.newPassword !== vals.confirm) {
+        message.error('Yeni şifre ve tekrar aynı olmalı');
+        return
+      }
+      setPwdLoading(true)
+      const res = await fetch('/api/users/me/password', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken') || ''}`,
+        },
+        body: JSON.stringify({ currentPassword: vals.currentPassword, newPassword: vals.newPassword }),
+      })
+      if (!res.ok) {
+        const txt = await res.text().catch(() => '')
+        throw new Error(txt || 'Şifre değiştirilemedi')
+      }
+      message.success('Şifre güncellendi')
+      setPwdOpen(false)
+      pwdForm.resetFields()
+    } catch (e: any) {
+      if (e?.errorFields) return // form validation error
+      message.error(e?.message || 'İşlem başarısız')
+    } finally {
+      setPwdLoading(false)
+    }
+  }
+
+  const profileMenu = {
+    items: [
+      { key: 'pwd', label: 'Şifre Değiştir' },
+      { type: 'divider' as const },
+      { key: 'session', label: 'Oturum Ayarları' },
+    ],
+    onClick: ({ key }: { key: string }) => {
+      if (key === 'pwd') setPwdOpen(true)
+      if (key === 'session') setSessionOpen(true)
+    },
+  }
+
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider collapsible collapsed={siderCollapsed} onCollapse={setSiderCollapsed} trigger={null} width={240} theme={themeName === 'dark' ? 'dark' : 'light'}>
+      <Sider collapsible collapsed={siderCollapsed} onCollapse={setSiderCollapsed} trigger={null} width={200} theme={themeName === 'dark' ? 'dark' : 'light'}>
         <div style={{ height: 64, background: headerBg, display: 'flex', alignItems: 'center', paddingLeft: 8 }}>
           <Button
             type="text"
+            aria-label="Menü"
             onClick={() => setSiderCollapsed((c) => !c)}
-            icon={<MenuOutlined style={{ fontSize: 20, color: '#fff' }} />}
+            icon={<MenuOutlined style={{ fontSize: 20, color: themeName === 'dark' ? '#fff' : '#000' }} />}
             style={{ height: 48, width: 48 }}
           />
         </div>
@@ -128,8 +192,8 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
         />
       </Sider>
       <Layout>
-        <Header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: headerBg }}>
-          <Space>
+        <Header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: headerBg, padding: '0 8px' }}>
+          <Space size={4}>
             {brand.logoUrl ? (
               <img src={brand.logoUrl} alt="Logo" style={{ height: 28 }} />
             ) : (
@@ -151,9 +215,63 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
                 icon={themeName === 'dark' ? <SunOutlined style={{ fontSize: 18 }} /> : <MoonOutlined style={{ fontSize: 18 }} />}
               />
             </Tooltip>
-            <Button size="small" onClick={logout}>Çıkış</Button>
+            <Dropdown menu={profileMenu} placement="bottomRight" trigger={['click']}>
+              <Button type="text" icon={<UserOutlined />} style={{ color: themeName === 'dark' ? '#fff' : '#000' }}>
+                Profil
+              </Button>
+            </Dropdown>
+            <Tooltip title="Çıkış">
+              <Button
+                type="primary"
+                onClick={logout}
+                icon={<LogoutOutlined />}
+              >
+                Çıkış
+              </Button>
+            </Tooltip>
           </Space>
         </Header>
+        <Modal
+          open={pwdOpen}
+          title="Şifre Değiştir"
+          onOk={onPasswordSubmit}
+          okText="Kaydet"
+          cancelText="İptal"
+          onCancel={() => setPwdOpen(false)}
+          confirmLoading={pwdLoading}
+        >
+          <AntForm form={pwdForm} layout="vertical">
+            <AntForm.Item name="currentPassword" label="Mevcut Şifre" rules={[{ required: true, message: 'Zorunlu alan' }]}>
+              <AntInput.Password autoComplete="current-password" />
+            </AntForm.Item>
+            <AntForm.Item name="newPassword" label="Yeni Şifre" rules={[{ required: true, message: 'Zorunlu alan' }, { min: 6, message: 'En az 6 karakter' }]}>
+              <AntInput.Password autoComplete="new-password" />
+            </AntForm.Item>
+            <AntForm.Item name="confirm" label="Yeni Şifre (Tekrar)" dependencies={["newPassword"]} rules={[{ required: true, message: 'Zorunlu alan' }]}>
+              <AntInput.Password autoComplete="new-password" />
+            </AntForm.Item>
+          </AntForm>
+        </Modal>
+        <Modal
+          open={sessionOpen}
+          title="Oturum Ayarları"
+          onOk={() => setSessionOpen(false)}
+          okText="Kapat"
+          cancelButtonProps={{ style: { display: 'none' } }}
+          onCancel={() => setSessionOpen(false)}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div>Tema</div>
+            <AntSwitch
+              checked={themeName === 'dark'}
+              onChange={(checked) => setThemeName(checked ? 'dark' : 'light')}
+              checkedChildren="Koyu"
+              unCheckedChildren="Açık"
+            />
+          </div>
+          <Divider />
+          <Button danger onClick={logout} icon={<LogoutOutlined />}>Oturumu Kapat</Button>
+        </Modal>
         <Content style={{ padding: 16 }}>{children}</Content>
       </Layout>
     </Layout>
@@ -161,6 +279,7 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
 }
 
 export default function App() {
+  // Remember the selected theme in localStorage
   const [themeName, setThemeName] = useState(localStorage.getItem('theme') || 'light')
   useEffect(() => {
     localStorage.setItem('theme', themeName)
@@ -185,12 +304,14 @@ export default function App() {
     return () => window.removeEventListener('brandSettingsChanged', handler as any)
   }, [])
 
+  // Select Ant Design theme algorithm (light/dark)
   const algorithm = themeName === 'dark' ? theme.darkAlgorithm : theme.defaultAlgorithm
 
   const role = getRole()
 
   const toggleTheme = () => setThemeName(themeName === 'dark' ? 'light' : 'dark')
 
+  // Only ADMIN/OPERATOR can access the visit creation form
   const canCreate = role === 'ADMIN' || role === 'OPERATOR'
 
   return (

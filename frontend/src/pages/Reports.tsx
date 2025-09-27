@@ -5,8 +5,10 @@ import dayjs from 'dayjs'
 
 const { RangePicker } = DatePicker
 
+// Summary stats returned by the backend
 type Summary = { total: number; withVehicle: number; withoutVehicle: number; active: number; exited: number }
 
+// Company breakdown rows
 type ByCompany = { company: string; count: number }
 
 export default function Reports() {
@@ -15,6 +17,7 @@ export default function Reports() {
   const [byCompany, setByCompany] = useState<ByCompany[]>([])
   const [loading, setLoading] = useState(false)
 
+  // Loads report data for the selected date range
   const load = async () => {
     setLoading(true)
     try {
@@ -37,11 +40,14 @@ export default function Reports() {
 
   return (
     <div style={{ padding: 16 }}>
+      <div style={{ marginBottom: 8, fontSize: 18, fontWeight: 600 }}>Rapor</div>
+      {/* Date filters and refresh button */}
       <Space align="center" style={{ width: '100%', justifyContent: 'flex-start', marginBottom: 12 }}>
         <RangePicker value={dateRange as any} onChange={(v) => setDateRange(v as any)} />
         <Button type="primary" onClick={load} loading={loading}>Uygula</Button>
       </Space>
 
+      {/* Top summary cards */}
       {summary && (
         <Card style={{ marginBottom: 16 }}>
           <Space size={24} wrap>
@@ -54,6 +60,7 @@ export default function Reports() {
         </Card>
       )}
 
+      {/* Company table */}
       <Card title="Firma Bazlı">
         <Table
           rowKey={(r) => r.company}

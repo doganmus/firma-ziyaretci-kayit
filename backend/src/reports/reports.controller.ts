@@ -15,16 +15,19 @@ import path from 'path';
 export class ReportsController {
   constructor(private readonly reports: ReportsService) {}
 
+  // Returns total/with-vehicle/without-vehicle/active/exited counts for a date range
   @Get('summary')
   summary(@Query('dateFrom') dateFrom?: string, @Query('dateTo') dateTo?: string) {
     return this.reports.summary(dateFrom, dateTo);
   }
 
+  // Returns how many visits per company in a date range
   @Get('by-company')
   byCompany(@Query('dateFrom') dateFrom?: string, @Query('dateTo') dateTo?: string) {
     return this.reports.byCompany(dateFrom, dateTo);
   }
 
+  // Generates an Excel (.xlsx) file with summary and company sheets
   @Get('export/excel')
   async exportExcel(@Query('dateFrom') dateFrom: string, @Query('dateTo') dateTo: string, @Res() res: Response) {
     const [s, companies] = await Promise.all([
@@ -59,6 +62,7 @@ export class ReportsController {
     res.end();
   }
 
+  // Generates a PDF file with a simple bar chart and a company table
   @Get('export/pdf')
   async exportPdf(@Query('dateFrom') dateFrom: string, @Query('dateTo') dateTo: string, @Res() res: Response) {
     const [s, companies] = await Promise.all([

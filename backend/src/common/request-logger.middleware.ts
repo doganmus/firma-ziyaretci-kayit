@@ -3,6 +3,8 @@ import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class RequestLoggerMiddleware implements NestMiddleware {
+  // Adds a unique id to each request, measures how long it takes,
+  // and prints a simple JSON log when the response finishes.
   use(req: any, res: any, next: () => void) {
     const start = Date.now();
     const requestId = req.headers['x-request-id'] || uuidv4();

@@ -62,7 +62,14 @@ Not: Frontend prod ortamda Nginx üzerinden /api yolunu backend'e proxy'ler.
   - Ör: { "total": 120, "withVehicle": 70, "withoutVehicle": 50, "active": 12, "exited": 108 }
 - GET /reports/by-company?dateFrom&dateTo
   - Ör: [ { "company": "Şirket A", "count": 30 } ]
-// UI'dan rapor indirme kaldırıldı; backend PDF/Excel uçları ileride tekrar açılabilir
+
+- GET /reports/export/excel?dateFrom&dateTo
+  - Yanıt: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet (xlsx)
+  - İçerik: "Özet" sayfasında temel metrikler, "Firma Bazlı" sayfasında şirket/adet
+
+- GET /reports/export/pdf?dateFrom&dateTo
+  - Yanıt: application/pdf (PDF)
+  - İçerik: Özet metrikleri (mini grafik) ve firma bazlı tablo
 
 ### Admin (JWT + ADMIN)
 - GET /admin/users  kullanıcı listesi

@@ -7,6 +7,7 @@ import dayjs from 'dayjs'
 // 99X9999 or 99X99999 | 99XX999 or 99XX9999 | 99XXX99 or 99XXX999
 const TR_PLATE_REGEX = /^(0[1-9]|[1-7][0-9]|80|81)(?:[A-Z][0-9]{4,5}|[A-Z]{2}[0-9]{3,4}|[A-Z]{3}[0-9]{2,3})$/
 
+// Form values used by AntD Form
 type FormValues = {
   visitor_full_name: string
   visited_person_full_name: string
@@ -15,6 +16,7 @@ type FormValues = {
   vehicle_plate?: string
 }
 
+// Type representing a visit row from the API
 type Visit = {
   id: string
   visitor_full_name: string
@@ -33,6 +35,7 @@ export default function VisitForm() {
 
   const [form] = Form.useForm<FormValues>()
 
+  // Load current active (not exited) visits to show in the table below
   const loadActiveVehicles = async () => {
     const res = await api.get<Visit[]>('/visits')
     setActiveVehicles((res.data || []).filter(v => !v.exit_at))
@@ -42,6 +45,7 @@ export default function VisitForm() {
     loadActiveVehicles()
   }, [])
 
+  // Submit handler: creates a new visit record via API
   const onFinish = async (values: FormValues) => {
     setMessage(null)
     try {
@@ -66,6 +70,7 @@ export default function VisitForm() {
     }
   }
 
+  // Marks a visit as exited
   const exitVisit = async (id: string) => {
     await api.post(`/visits/${id}/exit`)
     await loadActiveVehicles()
@@ -82,6 +87,7 @@ export default function VisitForm() {
   })()
   const isViewer = role === 'VIEWER'
 
+  // Columns for the active vehicles table
   const activeColumns: any[] = [
     { title: 'Plaka', dataIndex: 'vehicle_plate' },
     { title: 'Ad Soyad', dataIndex: 'visitor_full_name' },
@@ -103,7 +109,8 @@ export default function VisitForm() {
 
   return (
     <div style={{ maxWidth: 960, margin: '24px auto' }}>
-      <Card>
+      <Card title="Kayıt">
+        {/* Result message after submit */}
         {message && <Alert type={message.type} message={message.text} style={{ marginBottom: 16 }} />}        
         <Form<FormValues>
           form={form}
@@ -213,6 +220,7 @@ export default function VisitForm() {
         </Form>
       </Card>
 
+      {/* List of vehicles that are still inside (no exit yet) */}
       <Card style={{ marginTop: 16 }} title="İçerideki Araçlar (Çıkış Yapılmamış)">
         <Table
           rowKey="id"

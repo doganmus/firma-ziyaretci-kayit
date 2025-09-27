@@ -7,6 +7,7 @@ import { Setting } from './settings.entity';
 export class SettingsService {
   constructor(@InjectRepository(Setting) private readonly repo: Repository<Setting>) {}
 
+  // Returns the single settings record (or empty defaults)
   async get(): Promise<{ brandName: string | null; brandLogoUrl: string | null }> {
     const s = await this.repo.find({ order: { createdAt: 'ASC' }, take: 1 });
     const first = s[0];
@@ -16,6 +17,7 @@ export class SettingsService {
     };
   }
 
+  // Creates or updates settings with provided fields only
   async update(data: { brandName?: string | null; brandLogoUrl?: string | null }) {
     const s = await this.repo.find({ order: { createdAt: 'ASC' }, take: 1 });
     let entity = s[0];

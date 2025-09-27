@@ -11,7 +11,7 @@ Her aşama sonunda proje Docker Compose ile çalışır. Temel özellikler Aşam
 - Teslimatlar
   - [x] Docker Compose iskeleti (PostgreSQL, pgAdmin, backend, frontend)
   - [x] Backend: NestJS iskeleti (health endpoint)
-  - [x] Backend: TypeORM konfigürasyonu, users ve isits entity'leri
+  - [x] Backend: TypeORM konfigürasyonu, users ve visits entity'leri
   - [x] Auth: POST /auth/login (JWT)
   - [x] Visits: POST /visits, GET /visits, POST /visits/:id/exit
   - [x] Frontend: Login, Kayıt (VisitForm), Kayıtlar (VisitList)
@@ -45,12 +45,12 @@ Her aşama sonunda proje Docker Compose ile çalışır. Temel özellikler Aşam
   - Nginx reverse proxy ile backend'e proxy ve CORS gereksinimi kalkar
   - HTTPS (geliştirme için self-signed, üretimde gerçek sertifika)
   - Loglama, hata takibi ve basit rate limiting
-  - Rapor CSV export (geçici) , PDF export (sonraki sprint)
+  - Rapor CSV/Excel export ve PDF export
   - Dark Mode toggle ile tema değiştirme  (kalıcılık ile)
   - UI/UX modernizasyon: Ant Design ile sayfaların yenilenmesi 
 - Teslimatlar
   - [x] Nginx konfigürasyonu (frontend + api proxy)
-  - [ ] PDF export (sunucu tarafı)  beklemede
+  - [x] PDF export (sunucu tarafı)
   - [x] Dark Mode (global tema sağlayıcı + kalıcı tercih)
   - [x] Frontend Modernizasyon (Ant Design):
     - Phase A: Layout + Tema (tamamlandı)
@@ -76,5 +76,5 @@ Her aşama sonunda proje Docker Compose ile çalışır. Temel özellikler Aşam
 ## Teknik Notlar
 - TR plaka regex (boşluklar kaldırılıp büyük harfe çevrildikten sonra):
   - ^(0[1-9]|[1-7][0-9]|80|81)(?:[A-Z][0-9]{4,5}|[A-Z]{2}[0-9]{3,4}|[A-Z]{3}[0-9]{2,3})$
-- Araç yoksa ehicle_plate = NULL (UI: boş gösterim; "PASİF" metni kullanılmaz)
+- Araç yoksa vehicle_plate = NULL (UI: boş gösterim; "PASİF" metni kullanılmaz)
 - İsim/şirket alanları backend ve frontend'de büyük harfe normalize edilir
