@@ -1,6 +1,7 @@
 import { Module, MiddlewareConsumer, OnApplicationBootstrap } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HealthController } from './health.controller';
+import { MetricsController } from './metrics.controller';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { VisitsModule } from './visits/visits.module';
@@ -30,7 +31,7 @@ import * as bcrypt from 'bcrypt';
     ReportsModule,
     SettingsModule,
   ],
-  controllers: [HealthController],
+  controllers: [HealthController, MetricsController],
 })
 export class AppModule implements OnApplicationBootstrap {
   constructor(private readonly usersService: UsersService) {}
