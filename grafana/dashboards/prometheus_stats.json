@@ -1,0 +1,20 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "panels": [
+    {
+      "type": "graph",
+      "title": "Prometheus Target Scrapes",
+      "targets": [
+        {"expr": "sum(rate(prometheus_target_scrapes_total[1m])) by (job)"}
+      ],
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 0}
+    }
+  ],
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["prometheus"],
+  "time": {"from": "now-15m", "to": "now"},
+  "title": "Prometheus 2.0 Stats (Lite)",
+  "version": 1
+}
