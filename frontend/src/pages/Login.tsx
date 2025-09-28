@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { api, LoginResponse } from '../api/client'
 import { Form, Input, Button, Typography, Card, Alert, Space, Tooltip } from 'antd'
 import { MailOutlined, LockOutlined, SunOutlined, MoonOutlined } from '@ant-design/icons'
@@ -7,6 +7,13 @@ import { MailOutlined, LockOutlined, SunOutlined, MoonOutlined } from '@ant-desi
 export default function Login({ themeName = 'light', onToggleTheme }: { themeName?: 'light' | 'dark'; onToggleTheme?: () => void }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const liveRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    if (error && liveRef.current) {
+      liveRef.current.focus()
+    }
+  }, [error])
 
   // Called when the form is submitted successfully
   const onFinish = async (values: { email: string; password: string }) => {
@@ -46,8 +53,10 @@ export default function Login({ themeName = 'light', onToggleTheme }: { themeNam
       <Card>
       <Typography.Title level={4} style={{ textAlign: 'center', marginBottom: 16 }}>Firma Giriş Kayıt Sistemin Hoş Geldiniz</Typography.Title>
         <Typography.Title level={3} style={{ textAlign: 'center', marginBottom: 16 }}>Giriş Yap</Typography.Title>
-        {/* Show an error if login failed */}
-        {error && <Alert type="error" message={error} style={{ marginBottom: 16 }} />}
+        {/* Live region for errors */}
+        <div aria-live="assertive" aria-atomic="true" tabIndex={-1} ref={liveRef} style={{ outline: 'none' }}>
+          {error && <Alert type="error" message={error} style={{ marginBottom: 16 }} />}
+        </div>
         <Form layout="vertical" onFinish={onFinish} autoComplete="off" initialValues={{ email: '', password: '' }}>
           <Form.Item label="E-posta" name="email" rules={[{ required: true, message: 'E-posta gerekli' }, { type: 'email', message: 'Geçerli bir e-posta girin' }]}> 
             <Input prefix={<MailOutlined />} placeholder="admin@example.com" type="email" autoComplete="email" size="large" />

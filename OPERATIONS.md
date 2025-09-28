@@ -46,6 +46,11 @@ docker compose up -d
 - Ziyaretler listesi Excel: "Excel" butonu .xls (XML Spreadsheet) indirir (istemci tarafı)
 - Dark Mode: Navbar sağındaki seçim ile tema değiştir; tercih localStorage'da saklanır.
 
+### Monitoring / Metrics
+- Prometheus: http://localhost:9090 (backend /metrics scrape)
+- Grafana: http://localhost:3001  (admin / admin)
+- Dashboardlar: NodeJS App, Prometheus 2.0 Stats (provisioned)
+
 ### Marka Ayarları ve Yüklemeler
 - Admin → Marka Ayarları: Firma adı veya PNG logo yükleyin (tek tercih). Logo yüklenirse firma adı saklanmaz.
 - Yüklenen logolar backend konteynerindeki /app/uploads altında saklanır ve Docker volume (uploads_data) ile kalıcıdır.

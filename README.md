@@ -16,6 +16,7 @@ Ziyaretçi giriş-çıkışlarının kayıt altına alındığı, raporlanabildi
 - **Backend**: NestJS (TypeScript), TypeORM, PostgreSQL, JWT, class-validator
 - **Frontend**: React (TypeScript), Vite, Ant Design, React Router, Axios
 - **Altyapı**: Docker + Docker Compose, pgAdmin, Nginx (frontend serve)
+ - **Monitoring**: Prometheus + Grafana (hazır datasource ve dashboard provisioning)
 
 ## Hızlı Başlangıç (Docker)
 
@@ -51,8 +52,11 @@ docker compose up -d --build
 - Kayıtlar: http://localhost:5173/list
 - Raporlar: http://localhost:5173/reports
 - Backend API: http://localhost:3000
+- Metrics: http://localhost:3000/metrics (Prometheus format)
 - Yüklenen dosyalar: http://localhost:5173/uploads/... (Nginx backend'e proxy eder)
 - pgAdmin: http://localhost:5050
+ - Prometheus: http://localhost:9090
+ - Grafana: http://localhost:3001 (admin/admin)
 
 > Admin/Operator seed ve login örnekleri için OPERATIONS.md dosyasına bakın.
 

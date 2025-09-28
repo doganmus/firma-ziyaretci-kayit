@@ -111,7 +111,7 @@ export default function VisitForm() {
     <div style={{ maxWidth: 960, margin: '24px auto' }}>
       <Card title="Kayıt">
         {/* Result message after submit */}
-        {message && <Alert type={message.type} message={message.text} style={{ marginBottom: 16 }} />}        
+        {message && <Alert role="status" aria-live="polite" type={message.type} message={message.text} style={{ marginBottom: 16 }} />}        
         <Form<FormValues>
           form={form}
           layout="horizontal"

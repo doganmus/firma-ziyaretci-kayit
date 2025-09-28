@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api/client'
-import { Card, DatePicker, Button, Space, Statistic, Table } from 'antd'
+import { Card, DatePicker, Button, Space, Statistic, Table, Skeleton } from 'antd'
 import dayjs from 'dayjs'
 
 const { RangePicker } = DatePicker
@@ -48,7 +48,9 @@ export default function Reports() {
       </Space>
 
       {/* Top summary cards */}
-      {summary && (
+      {loading && !summary ? (
+        <Skeleton active paragraph={{ rows: 1 }} style={{ marginBottom: 16 }} />
+      ) : summary ? (
         <Card style={{ marginBottom: 16 }}>
           <Space size={24} wrap>
             <Statistic title="Toplam" value={summary.total} />
@@ -58,7 +60,7 @@ export default function Reports() {
             <Statistic title="Çıkış Yapan" value={summary.exited} />
           </Space>
         </Card>
-      )}
+      ) : null}
 
       {/* Company table */}
       <Card title="Firma Bazlı">

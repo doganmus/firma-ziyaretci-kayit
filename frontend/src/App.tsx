@@ -121,6 +121,23 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
   const [sessionOpen, setSessionOpen] = useState(false)
   const [pwdForm] = AntForm.useForm<{ currentPassword: string; newPassword: string; confirm: string }>()
 
+  // A11y: Skip link to jump to main content
+  const [showSkip, setShowSkip] = useState(false)
+  const mainRef = React.useRef<HTMLDivElement | null>(null)
+  useEffect(() => {
+    // Focus main on route change for keyboard readers
+    if (mainRef.current) {
+      setTimeout(() => {
+        mainRef.current?.focus()
+      }, 0)
+    }
+    // Update document title by route
+    const path = location.pathname
+    const map: Record<string, string> = { '/': 'Kayıt', '/list': 'Kayıtlar', '/reports': 'Rapor' }
+    const title = path.startsWith('/admin') ? 'Admin' : (map[path] || 'Uygulama')
+    try { document.title = `${title} · Ziyaretçi Kayıt` } catch {}
+  }, [location.pathname])
+
   const onPasswordSubmit = async () => {
     try {
       const vals = await pwdForm.validateFields()
@@ -169,7 +186,16 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
   }
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <>
+      <style>{`
+        :focus-visible { outline: 3px solid #1677ff; outline-offset: 2px; }
+        a.skip-link{ position:absolute; left:-9999px; }
+        a.skip-link:focus{ left:8px; top:8px; background:#1677ff; color:#fff; padding:6px 10px; border-radius:4px; z-index:1000; text-decoration:none; }
+      `}</style>
+      <Layout style={{ minHeight: '100vh' }}>
+      <a className="skip-link" href="#mainContent">
+        İçeriğe atla
+      </a>
       <Sider collapsible collapsed={siderCollapsed} onCollapse={setSiderCollapsed} trigger={null} width={200} theme={themeName === 'dark' ? 'dark' : 'light'}>
         <div style={{ height: 64, background: headerBg, display: 'flex', alignItems: 'center', paddingLeft: 8 }}>
           <Button
@@ -272,9 +298,10 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
           <Divider />
           <Button danger onClick={logout} icon={<LogoutOutlined />}>Oturumu Kapat</Button>
         </Modal>
-        <Content style={{ padding: 16 }}>{children}</Content>
+        <Content id="mainContent" role="main" tabIndex={-1} ref={mainRef as any} aria-label="Ana içerik" style={{ padding: 16 }}>{children}</Content>
       </Layout>
     </Layout>
+    </>
   )
 }
 
