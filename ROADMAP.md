@@ -57,7 +57,7 @@ Her aşama sonunda proje Docker Compose ile çalışır. Temel özellikler Aşam
     - Phase B: Login + Kayıt (tamamlandı)
     - Phase C: Kayıtlar (tamamlandı)
     - Phase D: Admin (tamamlandı)
-    - Phase E: Polishing & A11y (devam)
+    - Phase E: Polishing & A11y (tamamlandı)
 - Ek Notlar
   - Varsayılan rota: /  Kayıt; Kayıtlar: /list. VIEWER role / isterse /list'e yönlendirilir.
   - Navigasyon: Sol daralabilir Sider (hamburger) ile tüm sayfalar; Admin altında Kullanıcı İşlemleri ve Marka Ayarları.

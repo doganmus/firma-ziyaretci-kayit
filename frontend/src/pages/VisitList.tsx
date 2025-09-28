@@ -20,6 +20,8 @@ type Visit = {
 export default function VisitList() {
   const [items, setItems] = useState<Visit[]>([])
   const [loading, setLoading] = useState(false)
+  const [sortKey, setSortKey] = useState<string | null>(null)
+  const [sortOrder, setSortOrder] = useState<'ascend' | 'descend' | null>(null)
 
   // Filter states bound to the form controls
   const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null] | null>(null)
@@ -93,14 +95,46 @@ export default function VisitList() {
   })()
   const isViewer = role === 'VIEWER'
 
-  // Table columns with optional exit action
+  // Table columns with optional exit action and dynamic sorting
   const columns = useMemo(() => {
     const base: any[] = [
-      { title: 'Ad Soyad', dataIndex: 'visitor_full_name', key: 'visitor_full_name' },
-      { title: 'Ziyaret Edilen', dataIndex: 'visited_person_full_name', key: 'visited_person_full_name' },
-      { title: 'Firma', dataIndex: 'company_name', key: 'company_name' },
-      { title: 'Giriş', dataIndex: 'entry_at', key: 'entry_at', render: (v: string) => dayjs(v).format('YYYY-MM-DD HH:mm') },
-      { title: 'Çıkış', dataIndex: 'exit_at', key: 'exit_at', render: (v: string | null) => v ? dayjs(v).format('YYYY-MM-DD HH:mm') : '-' },
+      {
+        title: <span aria-sort={sortKey === 'visitor_full_name' ? (sortOrder || 'none') : 'none'}>Ad Soyad</span>,
+        dataIndex: 'visitor_full_name',
+        key: 'visitor_full_name',
+        sorter: (a: Visit, b: Visit) => a.visitor_full_name.localeCompare(b.visitor_full_name),
+        sortOrder: sortKey === 'visitor_full_name' ? sortOrder : null,
+      },
+      {
+        title: <span aria-sort={sortKey === 'visited_person_full_name' ? (sortOrder || 'none') : 'none'}>Ziyaret Edilen</span>,
+        dataIndex: 'visited_person_full_name',
+        key: 'visited_person_full_name',
+        sorter: (a: Visit, b: Visit) => a.visited_person_full_name.localeCompare(b.visited_person_full_name),
+        sortOrder: sortKey === 'visited_person_full_name' ? sortOrder : null,
+      },
+      {
+        title: <span aria-sort={sortKey === 'company_name' ? (sortOrder || 'none') : 'none'}>Firma</span>,
+        dataIndex: 'company_name',
+        key: 'company_name',
+        sorter: (a: Visit, b: Visit) => a.company_name.localeCompare(b.company_name),
+        sortOrder: sortKey === 'company_name' ? sortOrder : null,
+      },
+      {
+        title: <span aria-sort={sortKey === 'entry_at' ? (sortOrder || 'none') : 'none'}>Giriş</span>,
+        dataIndex: 'entry_at',
+        key: 'entry_at',
+        render: (v: string) => dayjs(v).format('YYYY-MM-DD HH:mm'),
+        sorter: (a: Visit, b: Visit) => dayjs(a.entry_at).valueOf() - dayjs(b.entry_at).valueOf(),
+        sortOrder: sortKey === 'entry_at' ? sortOrder : null,
+      },
+      {
+        title: <span aria-sort={sortKey === 'exit_at' ? (sortOrder || 'none') : 'none'}>Çıkış</span>,
+        dataIndex: 'exit_at',
+        key: 'exit_at',
+        render: (v: string | null) => v ? dayjs(v).format('YYYY-MM-DD HH:mm') : '-',
+        sorter: (a: Visit, b: Visit) => (dayjs(a.exit_at || 0).valueOf() - dayjs(b.exit_at || 0).valueOf()),
+        sortOrder: sortKey === 'exit_at' ? sortOrder : null,
+      },
       { title: 'Araç/Plaka', key: 'vehicle', render: (_: any, r: Visit) => r.has_vehicle ? (r.vehicle_plate ?? '') : '' },
     ]
     if (!isViewer) {
@@ -113,7 +147,7 @@ export default function VisitList() {
       })
     }
     return base
-  }, [isViewer])
+  }, [isViewer, sortKey, sortOrder])
 
   return (
     <div style={{ padding: 16 }}>
@@ -121,23 +155,23 @@ export default function VisitList() {
       {/* Filter form */}
       <Form layout="inline" style={{ marginBottom: 12 }}>
         <Form.Item label="Tarih">
-          <RangePicker allowEmpty={[true, true]} value={dateRange as any} onChange={(v) => setDateRange(v as any)} showTime={false} />
+          <RangePicker allowEmpty={[true, true]} aria-label="Tarih aralığı" value={dateRange as any} onChange={(v) => setDateRange(v as any)} showTime={false} />
         </Form.Item>
         <Form.Item label="Firma">
-          <Input value={company} onChange={(e) => setCompany(e.target.value)} allowClear placeholder="Firma" />
+          <Input aria-label="Firma ara" value={company} onChange={(e) => setCompany(e.target.value)} allowClear placeholder="Firma" />
         </Form.Item>
         <Form.Item label="Araç">
-          <Select value={hasVehicle} onChange={setHasVehicle} style={{ width: 120 }} options={[
+          <Select aria-label="Araç durumu" value={hasVehicle} onChange={setHasVehicle} style={{ width: 120 }} options={[
             { value: '', label: 'Tümü' },
             { value: 'true', label: 'Var' },
             { value: 'false', label: 'Yok' },
           ]} />
         </Form.Item>
         <Form.Item label="Plaka">
-          <Input value={plate} onChange={(e) => setPlate(e.target.value)} allowClear placeholder="Plaka" />
+          <Input aria-label="Plaka ara" value={plate} onChange={(e) => setPlate(e.target.value)} allowClear placeholder="Plaka" />
         </Form.Item>
         <Form.Item label="Ziyaret Edilen">
-          <Input value={visitedPerson} onChange={(e) => setVisitedPerson(e.target.value)} allowClear placeholder="Ad Soyad" />
+          <Input aria-label="Ziyaret edilen kişi ara" value={visitedPerson} onChange={(e) => setVisitedPerson(e.target.value)} allowClear placeholder="Ad Soyad" />
         </Form.Item>
         <Form.Item>
           <Space>
@@ -153,6 +187,10 @@ export default function VisitList() {
         dataSource={items}
         loading={loading}
         pagination={{ pageSize: 10 }}
+        onChange={(_pagination, _filters, sorter: any) => {
+          setSortKey(sorter?.field || null)
+          setSortOrder(sorter?.order || null)
+        }}
       />
     </div>
   )

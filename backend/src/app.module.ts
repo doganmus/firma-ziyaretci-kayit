@@ -1,4 +1,6 @@
 import { Module, MiddlewareConsumer, OnApplicationBootstrap } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HealthController } from './health.controller';
 import { MetricsController } from './metrics.controller';
@@ -32,6 +34,10 @@ import * as bcrypt from 'bcrypt';
     SettingsModule,
   ],
   controllers: [HealthController, MetricsController],
+  providers: [
+    // Global rate limiting guard
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+  ],
 })
 export class AppModule implements OnApplicationBootstrap {
   constructor(private readonly usersService: UsersService) {}
