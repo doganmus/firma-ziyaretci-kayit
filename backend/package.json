@@ -6,7 +6,10 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/main.js",
-    "start:dev": "ts-node-dev --respawn --transpile-only src/main.ts"
+    "start:dev": "ts-node-dev --respawn --transpile-only src/main.ts",
+    "migration:generate": "typeorm-ts-node-commonjs migration:generate -d src/typeorm.datasource.ts src/migrations/auto",
+    "migration:run": "typeorm-ts-node-commonjs migration:run -d src/typeorm.datasource.ts",
+    "migration:revert": "typeorm-ts-node-commonjs migration:revert -d src/typeorm.datasource.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",

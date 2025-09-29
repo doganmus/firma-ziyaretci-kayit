@@ -195,7 +195,7 @@ export default function VisitList() {
         columns={columns as any}
         dataSource={items}
         loading={loading}
-        pagination={{ pageSize, current: page, total, showSizeChanger: true, pageSizeOptions: [10, 20, 50] }}
+        pagination={{ pageSize, current: page, total, showSizeChanger: true, pageSizeOptions: [10, 20, 50], showTotal: (t) => `${t} kayıt` }}
         onChange={(_pagination, _filters, sorter: any) => {
           setSortKey(sorter?.field || null)
           setSortOrder(sorter?.order || null)

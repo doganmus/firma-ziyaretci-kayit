@@ -51,6 +51,10 @@ docker compose up -d
 - Grafana: http://localhost:3001  (admin / admin)
 - Dashboardlar: NodeJS App, Prometheus 2.0 Stats (provisioned)
 
+### Performans İpuçları
+- /visits endpointi server-side sıralama ve sayfalama destekler: `sortKey, sortOrder, page, pageSize`.
+- Büyük listelerde filtre kolonlarına indeksler eklendi (ziyaretçi, ziyaret edilen, firma, giriş tarihi).
+
 ### Marka Ayarları ve Yüklemeler
 - Admin → Marka Ayarları: Firma adı veya PNG logo yükleyin (tek tercih). Logo yüklenirse firma adı saklanmaz.
 - Yüklenen logolar backend konteynerindeki /app/uploads altında saklanır ve Docker volume (uploads_data) ile kalıcıdır.

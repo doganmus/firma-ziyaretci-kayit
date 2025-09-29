@@ -22,12 +22,15 @@ export class Visit {
   exit_at: Date | null;
 
   @Column({ type: 'varchar', length: 150 })
+  @Index()
   visitor_full_name: string;
 
   @Column({ type: 'varchar', length: 150 })
+  @Index()
   visited_person_full_name: string;
 
   @Column({ type: 'varchar', length: 150 })
+  @Index()
   company_name: string;
 
   @Column({ type: 'boolean', default: false })
