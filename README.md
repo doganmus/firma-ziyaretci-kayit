@@ -17,6 +17,7 @@ Ziyaretçi giriş-çıkışlarının kayıt altına alındığı, raporlanabildi
   - Prod notu: `synchronize=false`; migration kullanımı önerilir
 - **Frontend**: React (TypeScript), Vite, Ant Design, React Router, Axios
 - **Altyapı**: Docker + Docker Compose, pgAdmin, Nginx (frontend serve)
+ - **Audit**: Global istek/yanıt meta verileri audit_logs tablosuna yazılır (kullanıcı, yol, durum kodu, süre)
  - **Monitoring**: Prometheus + Grafana (hazır datasource ve dashboard provisioning)
 
 ## Hızlı Başlangıç (Docker)

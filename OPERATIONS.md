@@ -51,6 +51,10 @@ docker compose up -d
 - Grafana: http://localhost:3001  (admin / admin)
 - Dashboardlar: NodeJS App, Prometheus 2.0 Stats (provisioned)
 
+### Audit Log
+- Otomatik olarak tüm istekler için audit_logs tablosuna meta veri yazılır (yöntem, yol, kullanıcı, durum, süre).
+- Hassas veriler payload olarak loglanmaz.
+
 ### Performans İpuçları
 - /visits endpointi server-side sıralama ve sayfalama destekler: `sortKey, sortOrder, page, pageSize`.
 - Büyük listelerde filtre kolonlarına indeksler eklendi (ziyaretçi, ziyaret edilen, firma, giriş tarihi).

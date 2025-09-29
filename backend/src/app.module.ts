@@ -9,6 +9,9 @@ import { AuthModule } from './auth/auth.module';
 import { VisitsModule } from './visits/visits.module';
 import { ReportsModule } from './reports/reports.module';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { AuditModule } from './audit/audit.module';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { AuditInterceptor } from './audit/audit.interceptor';
 import { RequestLoggerMiddleware } from './common/request-logger.middleware';
 import { SettingsModule } from './settings/settings.module';
 import { UsersService } from './users/users.service';
@@ -32,11 +35,14 @@ import * as bcrypt from 'bcrypt';
     VisitsModule,
     ReportsModule,
     SettingsModule,
+    AuditModule,
   ],
   controllers: [HealthController, MetricsController],
   providers: [
     // Global rate limiting guard
     { provide: APP_GUARD, useClass: ThrottlerGuard },
+    // Global audit interceptor (lightweight, sadece metadata)
+    { provide: APP_INTERCEPTOR, useClass: AuditInterceptor },
   ],
 })
 export class AppModule implements OnApplicationBootstrap {
