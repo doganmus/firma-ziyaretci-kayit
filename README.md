@@ -19,6 +19,7 @@ Ziyaretçi giriş-çıkışlarının kayıt altına alındığı, raporlanabildi
 - **Altyapı**: Docker + Docker Compose, pgAdmin, Nginx (frontend serve)
  - **Audit**: Global istek/yanıt meta verileri audit_logs tablosuna yazılır (kullanıcı, yol, durum kodu, süre)
  - **Monitoring**: Prometheus + Grafana (hazır datasource ve dashboard provisioning)
+ - **Admin**: Kullanıcı İşlemleri, Marka Ayarları, Audit Log ekranı
 
 ## Hızlı Başlangıç (Docker)
 
