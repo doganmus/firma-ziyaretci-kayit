@@ -72,6 +72,11 @@ docker compose up -d
 Get-Content backup.sql | & "C:\Program Files\Docker\Docker\resources\bin\docker.exe" compose exec -T db psql -U  
 `
 
+### TypeORM Migration (öneri)
+- Prod’da `synchronize=false` kullanın ve migration üretin/çalıştırın:
+  - `npm run typeorm migration:generate -n init`
+  - `npm run typeorm migration:run`
+
 ### Seed ve Test (Aşama 1)
 - Admin kullanıcı seed
 `powershell

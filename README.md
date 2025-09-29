@@ -14,6 +14,7 @@ Ziyaretçi giriş-çıkışlarının kayıt altına alındığı, raporlanabildi
 
 ### Teknolojiler
 - **Backend**: NestJS (TypeScript), TypeORM, PostgreSQL, JWT, class-validator
+  - Prod notu: `synchronize=false`; migration kullanımı önerilir
 - **Frontend**: React (TypeScript), Vite, Ant Design, React Router, Axios
 - **Altyapı**: Docker + Docker Compose, pgAdmin, Nginx (frontend serve)
  - **Monitoring**: Prometheus + Grafana (hazır datasource ve dashboard provisioning)

@@ -1,4 +1,4 @@
-import { IsBooleanString, IsOptional, IsString, IsDateString } from 'class-validator';
+import { IsBooleanString, IsOptional, IsString, IsDateString, IsIn, IsInt, Min } from 'class-validator';
 
 export class QueryVisitsDto {
   // Optional start date filter
@@ -30,4 +30,25 @@ export class QueryVisitsDto {
   @IsOptional()
   @IsString()
   visitedPerson?: string;
+
+  // Sorting and pagination
+  @IsOptional()
+  @IsString()
+  @IsIn(['entry_at','exit_at','visitor_full_name','visited_person_full_name','company_name'])
+  sortKey?: string;
+
+  @IsOptional()
+  @IsString()
+  @IsIn(['asc','desc'])
+  sortOrder?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  page?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  pageSize?: number;
 }

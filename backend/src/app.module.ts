@@ -23,7 +23,7 @@ import * as bcrypt from 'bcrypt';
       type: 'postgres',
       url: process.env.DATABASE_URL,
       autoLoadEntities: true,
-      synchronize: true,
+      synchronize: process.env.NODE_ENV !== 'production',
     }),
     // Basic rate limiting: up to 120 requests per minute per client
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 120 }]),

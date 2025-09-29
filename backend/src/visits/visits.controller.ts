@@ -22,6 +22,10 @@ export class VisitsController {
       hasVehicle: typeof q.hasVehicle === 'string' ? q.hasVehicle === 'true' : undefined,
       plate: q.plate,
       visitedPerson: q.visitedPerson,
+      sortKey: q.sortKey,
+      sortOrder: q.sortOrder,
+      page: q.page,
+      pageSize: q.pageSize,
     };
     return this.visits.list(filters);
   }

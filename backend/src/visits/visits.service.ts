@@ -17,8 +17,12 @@ export class VisitsService {
     hasVehicle?: boolean;
     plate?: string;
     visitedPerson?: string;
-  }): Promise<Visit[]> {
-    const qb = this.repo.createQueryBuilder('v').orderBy('v.entry_at', 'DESC');
+    sortKey?: string;
+    sortOrder?: string;
+    page?: number;
+    pageSize?: number;
+  }): Promise<{ data: Visit[]; total: number }> {
+    const qb = this.repo.createQueryBuilder('v');
 
     if (filters?.dateFrom) qb.andWhere('v.entry_at >= :df', { df: new Date(filters.dateFrom) });
     if (filters?.dateTo) qb.andWhere('v.entry_at <= :dt', { dt: new Date(filters.dateTo) });
@@ -27,7 +31,19 @@ export class VisitsService {
     if (filters?.plate) qb.andWhere("REPLACE(UPPER(v.vehicle_plate), ' ', '') LIKE :p", { p: `%${filters.plate.replace(/\s+/g, '').toUpperCase()}%` });
     if (filters?.visitedPerson) qb.andWhere('v.visited_person_full_name ILIKE :vp', { vp: `%${filters.visitedPerson}%` });
 
-    return qb.getMany();
+    // Sorting
+    const sortable = new Set(['entry_at','exit_at','visitor_full_name','visited_person_full_name','company_name']);
+    const sortKey = (filters?.sortKey && sortable.has(filters.sortKey)) ? filters.sortKey : 'entry_at';
+    const sortOrder = (filters?.sortOrder === 'asc') ? 'ASC' : 'DESC';
+    qb.orderBy(`v.${sortKey}`, sortOrder as 'ASC'|'DESC');
+
+    // Pagination
+    const page = Math.max(1, Number(filters?.page || 1));
+    const pageSize = Math.max(1, Math.min(100, Number(filters?.pageSize || 10)));
+    qb.skip((page - 1) * pageSize).take(pageSize);
+
+    const [data, total] = await qb.getManyAndCount();
+    return { data, total };
   }
 
   // Creates a new visit, normalizing and validating the plate when needed

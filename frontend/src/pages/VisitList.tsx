@@ -22,6 +22,9 @@ export default function VisitList() {
   const [loading, setLoading] = useState(false)
   const [sortKey, setSortKey] = useState<string | null>(null)
   const [sortOrder, setSortOrder] = useState<'ascend' | 'descend' | null>(null)
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
+  const [total, setTotal] = useState(0)
 
   // Filter states bound to the form controls
   const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null] | null>(null)
@@ -41,8 +44,13 @@ export default function VisitList() {
       if (hasVehicle) params.hasVehicle = hasVehicle
       if (plate) params.plate = plate
       if (visitedPerson) params.visitedPerson = visitedPerson
-      const res = await api.get<Visit[]>('/visits', { params })
-      setItems(res.data)
+      if (sortKey) params.sortKey = sortKey
+      if (sortOrder) params.sortOrder = sortOrder === 'ascend' ? 'asc' : 'desc'
+      params.page = page
+      params.pageSize = pageSize
+      const res = await api.get<{ data: Visit[]; total: number }>('/visits', { params })
+      setItems(res.data.data)
+      setTotal(res.data.total)
     } finally {
       setLoading(false)
     }
@@ -181,17 +189,23 @@ export default function VisitList() {
         </Form.Item>
       </Form>
 
+      <div role="region" aria-label="Kayıtlar tablosu ve sayfalama">
       <Table
         rowKey="id"
         columns={columns as any}
         dataSource={items}
         loading={loading}
-        pagination={{ pageSize: 10 }}
+        pagination={{ pageSize, current: page, total, showSizeChanger: true, pageSizeOptions: [10, 20, 50] }}
         onChange={(_pagination, _filters, sorter: any) => {
           setSortKey(sorter?.field || null)
           setSortOrder(sorter?.order || null)
+          if (_pagination?.current) setPage(_pagination.current)
+          if (_pagination?.pageSize) setPageSize(_pagination.pageSize)
+          // Sayfa/sort değişikliklerinde yeniden yükle
+          setTimeout(() => load(), 0)
         }}
       />
+      </div>
     </div>
   )
 }
