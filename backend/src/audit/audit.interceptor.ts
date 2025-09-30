@@ -18,14 +18,24 @@ export class AuditInterceptor implements NestInterceptor {
     const userEmail = (user as any)?.email || null;
     const userAgent = req.headers['user-agent'] || null;
 
+    // Metrics/health/docs gibi uçları audit dışı bırak
+    if (path === '/metrics' || path === '/health' || path?.startsWith('/docs')) {
+      return next.handle();
+    }
+
     return next.handle().pipe(
-      tap(async () => {
-        const res = context.switchToHttp().getResponse();
-        const durationMs = Date.now() - now;
-        const statusCode = res.statusCode;
-        // payload'ta PII bulundurmayın; sadece küçük özet
-        const payload = undefined;
-        await this.audit.write({ method, path, statusCode, durationMs, userId, userRole, userEmail, ip, userAgent });
+      tap(() => {
+        try {
+          const res = context.switchToHttp().getResponse();
+          const durationMs = Date.now() - now;
+          const statusCode = res.statusCode;
+          // Hataları yut: tablo yoksa (42P01) ya da ilk kurulumda DB hazır değilse app çökmesin
+          this.audit
+            .write({ method, path, statusCode, durationMs, userId, userRole, userEmail, ip, userAgent })
+            .catch(() => void 0);
+        } catch {
+          // ignore
+        }
       })
     );
   }

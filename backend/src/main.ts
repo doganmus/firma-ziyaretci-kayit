@@ -23,7 +23,12 @@ async function bootstrap() {
   // Allow frontend on localhost:5173 to call this API during development
   app.enableCors({ origin: [/localhost:5173$/], credentials: true });
   // Validate all incoming requests and strip unknown fields
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }));
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true,
+    forbidNonWhitelisted: true,
+    transform: true,
+    transformOptions: { enableImplicitConversion: true },
+  }));
 
   // Serve uploaded assets
   app.use('/uploads', express.static(join(process.cwd(), 'uploads')));

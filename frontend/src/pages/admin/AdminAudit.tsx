@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { api } from '../../api/client'
-import { Card, DatePicker, Input, Select, Button, Space, Table } from 'antd'
+import { Card, DatePicker, Input, Select, Button, Space, Table, message } from 'antd'
 import dayjs from 'dayjs'
 
 const { RangePicker } = DatePicker
@@ -44,6 +44,10 @@ export default function AdminAudit() {
       const res = await api.get<{ data: Audit[]; total: number }>('/admin/audit', { params })
       setItems(res.data.data)
       setTotal(res.data.total)
+    } catch {
+      setItems([])
+      setTotal(0)
+      message.error('Audit kayıtları yüklenemedi')
     } finally {
       setLoading(false)
     }

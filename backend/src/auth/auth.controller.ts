@@ -9,7 +9,7 @@ export class AuthController {
 
   // Receives email and password, returns a JWT and basic user info
   @Post('login')
-  @Throttle(5, 60) // 1 dakikada en fazla 5 deneme
+  @Throttle({ default: { limit: 5, ttl: 60_000 } }) // 1 dakikada en fazla 5 deneme
   login(@Body() body: LoginDto) {
     return this.auth.login(body.email, body.password);
   }

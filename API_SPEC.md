@@ -11,39 +11,42 @@ Not: Frontend prod ortamda Nginx üzerinden /api yolunu backend'e proxy'ler.
 ### Kimlik Doğrulama
 - POST /auth/login
   - Body
-    `json
+    ```json
     { "email": "admin@example.com", "password": "secret" }
-    `
+    ```
   - 200
-    `json
+    ```json
     {
       "accessToken": "<jwt>",
       "user": { "id": "uuid", "email": "admin@example.com", "full_name": "Admin", "role": "ADMIN" }
     }
-    `
+    ```
   - 401: Geçersiz kimlik bilgileri
 
 ### Ziyaretler (JWT + RBAC)
 - GET /visits
-  - Sorgu: dateFrom,dateTo,company,hasVehicle,plate,visitedPerson
-  - 200 örnek
-    `json
-    [
-      {
-        "id": "uuid",
-        "visitor_full_name": "DOĞAN MUŞ",
-        "visited_person_full_name": "ALİ VELİ",
-        "company_name": "BİTECH",
-        "entry_at": "2025-09-20T08:30:00.000Z",
-        "exit_at": null,
-        "has_vehicle": false,
-        "vehicle_plate": null
-      }
-    ]
-    `
+  - Sorgu: `dateFrom,dateTo,company,hasVehicle,plate,visitedPerson,sortKey,sortOrder,page,pageSize`
+  - 200 örnek (sayfalı yanıt)
+    ```json
+    {
+      "data": [
+        {
+          "id": "uuid",
+          "visitor_full_name": "DOĞAN MUŞ",
+          "visited_person_full_name": "ALİ VELİ",
+          "company_name": "BİTECH",
+          "entry_at": "2025-09-20T08:30:00.000Z",
+          "exit_at": null,
+          "has_vehicle": false,
+          "vehicle_plate": null
+        }
+      ],
+      "total": 1
+    }
+    ```
 - POST /visits
   - Body
-    `json
+    ```json
     {
       "entry_at": "2025-01-01T08:30:00.000Z",
       "visitor_full_name": "AD SOYAD",
@@ -52,7 +55,7 @@ Not: Frontend prod ortamda Nginx üzerinden /api yolunu backend'e proxy'ler.
       "has_vehicle": true,
       "vehicle_plate": "34ABC1234"
     }
-    `
+    ```
   - 201: Oluşturulan ziyaret kaydı
 - POST /visits/:id/exit
   - Body: boş; sunucu exit_at = now() atar
@@ -91,10 +94,11 @@ Not: Frontend prod ortamda Nginx üzerinden /api yolunu backend'e proxy'ler.
   - 200: { url: "/uploads/logo-...png" }
 
 ### Hata Formatı
-`json
+```json
 { "statusCode": 400, "message": "Validation failed", "error": "Bad Request" }
-`
+```
 
 ### Notlar
 - Ziyaret kuralı: has_vehicle = false ise vehicle_plate gönderilmemeli; gönderilirse yoksayılır veya reddedilebilir
 - Tarihler ISO 8601 formatında UTC olarak gönderilmelidir
+- Geliştirme: Vite dev sunucusunda `/api` ve `/uploads` yolları `http://localhost:3000` backend'ine proxy edilir.

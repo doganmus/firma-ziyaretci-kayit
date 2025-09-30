@@ -25,6 +25,10 @@ Bu dosya günlük/haftalık çalışmayı izlemek için kullanılır. Aşamalar 
 - [x] Global navigasyon: Sol daralabilir Sider (hamburger) ve Admin alt menüleri
 - [x] Aşama 4: Prod hazırlığı (PDF export, güvenlik başlıkları)
 - [x] Frontend modernizasyon: Polishing & A11y
+- [x] Backend ValidationPipe: implicit conversion (page/pageSize vs. string)
+- [x] Vite dev proxy: /api ve /uploads → http://localhost:3000
+- [x] VisitForm: /visits yanıtı { data, total } ile uyumlama
+- [x] VisitList/AdminAudit: hata yakalama ve kullanıcı geri bildirimi
 
 ### Backlog (Aşama 4)
 - [x] Nginx reverse proxy + prod dockerizasyon

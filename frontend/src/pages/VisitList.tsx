@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { api } from '../api/client'
-import { Table, Form, Input, Select, DatePicker, Button, Space } from 'antd'
+import { Table, Form, Input, Select, DatePicker, Button, Space, message } from 'antd'
 import dayjs, { Dayjs } from 'dayjs'
 
 const { RangePicker } = DatePicker
@@ -51,6 +51,10 @@ export default function VisitList() {
       const res = await api.get<{ data: Visit[]; total: number }>('/visits', { params })
       setItems(res.data.data)
       setTotal(res.data.total)
+    } catch {
+      setItems([])
+      setTotal(0)
+      message.error('Kayıtlar yüklenemedi')
     } finally {
       setLoading(false)
     }

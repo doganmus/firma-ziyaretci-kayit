@@ -63,6 +63,14 @@ docker compose up -d --build
 
 > Admin/Operator seed ve login örnekleri için OPERATIONS.md dosyasına bakın.
 
+### Geliştirme (yalnız frontend)
+- Sadece frontend geliştirmek için Vite dev sunucusunu kullanın. `/api` ve `/uploads` çağrıları otomatik olarak `http://localhost:3000` backend'ine proxy edilir.
+```
+cd frontend
+npm install
+npm run dev
+```
+
 ## Belgeler
 - Yol haritası: ROADMAP.md
 - Görev listeleri/kanban: TASKS.md

@@ -28,7 +28,7 @@ Her aşama sonunda proje Docker Compose ile çalışır. Temel özellikler Aşam
 - Teslimatlar
   - [x] Backend filtreli sorgular ve rapor endpointleri
   - [x] Frontend filtre alanları ve Raporlar sayfası
-  - [x] CSV/Excel export (frontend)
+- [x] CSV/Excel export (frontend)
 - Notlar
   - [x] Rapor indirme uç noktası geçici olarak CSV döndürür (PDF sonraki aşamaya taşındı)
 
@@ -50,14 +50,15 @@ Her aşama sonunda proje Docker Compose ile çalışır. Temel özellikler Aşam
   - UI/UX modernizasyon: Ant Design ile sayfaların yenilenmesi 
 - Teslimatlar
   - [x] Nginx konfigürasyonu (frontend + api proxy)
-  - [x] PDF export (sunucu tarafı)
-  - [x] Dark Mode (global tema sağlayıcı + kalıcı tercih)
+- [x] PDF export (sunucu tarafı)
+- [x] Dark Mode (global tema sağlayıcı + kalıcı tercih)
   - [x] Frontend Modernizasyon (Ant Design):
     - Phase A: Layout + Tema (tamamlandı)
     - Phase B: Login + Kayıt (tamamlandı)
     - Phase C: Kayıtlar (tamamlandı)
     - Phase D: Admin (tamamlandı)
     - Phase E: Polishing & A11y (tamamlandı)
+    - Not: Geliştirme sırasında Vite dev proxy ile `/api` ve `/uploads` backend'e yönlendirilir (güncel).
 - Ek Notlar
   - Varsayılan rota: /  Kayıt; Kayıtlar: /list. VIEWER role / isterse /list'e yönlendirilir.
   - Navigasyon: Sol daralabilir Sider (hamburger) ile tüm sayfalar; Admin altında Kullanıcı İşlemleri ve Marka Ayarları.

@@ -26,6 +26,7 @@ import * as bcrypt from 'bcrypt';
       type: 'postgres',
       url: process.env.DATABASE_URL,
       autoLoadEntities: true,
+      // Prod'da migrations; local'de senkronizasyon açılabilir
       synchronize: process.env.NODE_ENV !== 'production',
     }),
     // Basic rate limiting: up to 120 requests per minute per client

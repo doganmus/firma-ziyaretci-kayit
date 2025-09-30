@@ -54,18 +54,18 @@ Uygulama iki ana bileşenden oluşur: NestJS tabanlı REST API (backend) ve Reac
 ### Frontend Mimarisi
 - Sayfalar: Login, Ziyaret Formu, Ziyaret Listesi, Raporlar, Admin
 - Router: React Router
-- Veri: React Query + Axios; global auth context
-- UI: Ant Design, form validasyonunda Yup opsiyonel
+- Veri: Axios tabanlı `api` istemcisi ve interceptor'lar (401 yakalama, token ekleme)
+- UI: Ant Design; Form kuralları AntD üzerinden
 
 ### Docker Topolojisi
 - Servisler: `db(PostgreSQL)`, `pgadmin`, `backend`, `frontend`
 - Dahili network ile iletişim; `backend` → `db` bağlantısı `postgres://...@db:5432/...`
-- `frontend` Nginx ile statik servis; API çağrıları prod'da Nginx `/api` → `http://backend:3000` proxy'si, geliştirmede Vite `VITE_API_URL` yoksa `/api` tabanı
+- `frontend` Nginx ile statik servis; API çağrıları prod'da Nginx `/api` → `http://backend:3000` proxy'si, geliştirmede Vite dev proxy `/api` ve `/uploads` yollarını `http://localhost:3000`'a yönlendirir.
 
-### Gözlemlenebilirlik ve Loglama (opsiyonel)
-- API logları (pino/winston), istek-id korelasyonu
-- Sağlık uçları: `/health` (ileride)
-- Metrikler: Prometheus/Grafana entegrasyonu (ileride)
+### Gözlemlenebilirlik ve Loglama
+- İstek logları: `RequestLoggerMiddleware` ile istek-id ve süre loglanır
+- Sağlık uçları: `/health`
+- Metrikler: `/metrics` (Prometheus), Grafana dashboardları sağlanır
 
 ### Uluslararasılaştırma (opsiyonel)
 - i18n planı: TR/EN dil dosyaları, UI dil seçimi
