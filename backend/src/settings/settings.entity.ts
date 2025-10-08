@@ -12,6 +12,9 @@ export class Setting {
   @Column({ name: 'brand_logo_url', type: 'text', nullable: true })
   brandLogoUrl!: string | null;
 
+  @Column({ name: 'maintenance_mode', type: 'boolean', default: false })
+  maintenanceMode!: boolean;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
 

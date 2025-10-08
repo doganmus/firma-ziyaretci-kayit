@@ -30,6 +30,18 @@ type Visit = {
 
 export default function VisitForm() {
   const [loading, setLoading] = useState(false)
+  const [maintenance, setMaintenance] = useState(false)
+  useEffect(() => {
+    ;(async () => {
+      try {
+        const s = await api.get('/settings/public')
+        setMaintenance(!!s.data.maintenanceMode)
+      } catch {}
+    })()
+  }, [])
+  if (maintenance) {
+    return <div style={{ padding: 16 }}>Sistem bakım modunda. Lütfen daha sonra tekrar deneyin.</div>
+  }
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [activeVehicles, setActiveVehicles] = useState<Visit[]>([])
 
@@ -48,6 +60,10 @@ export default function VisitForm() {
 
   // Submit handler: creates a new visit record via API
   const onFinish = async (values: FormValues) => {
+    if (maintenance) {
+      setMessage({ type: 'error', text: 'Bakım modunda işlem yapılamaz' })
+      return
+    }
     setMessage(null)
     try {
       setLoading(true)

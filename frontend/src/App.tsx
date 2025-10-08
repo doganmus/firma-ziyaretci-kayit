@@ -8,6 +8,7 @@ import AdminLayout from './pages/admin/AdminLayout'
 import AdminUsers from './pages/admin/AdminUsers'
 import AdminBrand from './pages/admin/AdminBrand'
 import AdminAudit from './pages/admin/AdminAudit'
+import AdminOps from './pages/admin/AdminOps'
 import { useEffect, useMemo, useState } from 'react'
 import { ConfigProvider, theme, Layout, Menu, Space, Button, Tooltip, Dropdown, Modal, Form as AntForm, Input as AntInput, message, Divider, Switch as AntSwitch } from 'antd'
 import { SunOutlined, MoonOutlined, MenuOutlined, LogoutOutlined, UserOutlined, FormOutlined, UnorderedListOutlined, BarChartOutlined, SettingOutlined, TeamOutlined, PictureOutlined } from '@ant-design/icons'
@@ -83,6 +84,7 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
           { key: '/admin/users', icon: <TeamOutlined />, label: <Link to="/admin/users">Kullanıcı İşlemleri</Link>, title: 'Kullanıcı İşlemleri' },
           { key: '/admin/branding', icon: <PictureOutlined />, label: <Link to="/admin/branding">Marka Ayarları</Link>, title: 'Marka Ayarları' },
           { key: '/admin/audit', icon: <PictureOutlined />, label: <Link to="/admin/audit">Audit Log</Link>, title: 'Audit Log' },
+          { key: '/admin/ops', icon: <SettingOutlined />, label: <Link to="/admin/ops">Sistem Yönetimi</Link>, title: 'Sistem Yönetimi' },
         ],
       })
     }
@@ -358,6 +360,7 @@ export default function App() {
                 <Route path="users" element={<AdminUsers />} />
                 <Route path="branding" element={<AdminBrand />} />
                 <Route path="audit" element={<AdminAudit />} />
+                <Route path="ops" element={<AdminOps />} />
               </Route>
               <Route path="*" element={<Navigate to={canCreate ? '/' : '/list'} replace />} />
             </Routes>

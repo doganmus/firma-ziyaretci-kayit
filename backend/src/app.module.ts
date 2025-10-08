@@ -14,6 +14,7 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 import { AuditInterceptor } from './audit/audit.interceptor';
 import { RequestLoggerMiddleware } from './common/request-logger.middleware';
 import { SettingsModule } from './settings/settings.module';
+import { OpsModule } from './ops/ops.module';
 import { UsersService } from './users/users.service';
 import { UserRole } from './users/user.entity';
 import * as bcrypt from 'bcrypt';
@@ -37,6 +38,7 @@ import * as bcrypt from 'bcrypt';
     ReportsModule,
     SettingsModule,
     AuditModule,
+    OpsModule,
   ],
   controllers: [HealthController, MetricsController],
   providers: [

@@ -20,6 +20,7 @@ Ziyaretçi giriş-çıkışlarının kayıt altına alındığı, raporlanabildi
  - **Audit**: Global istek/yanıt meta verileri audit_logs tablosuna yazılır (kullanıcı, yol, durum kodu, süre)
  - **Monitoring**: Prometheus + Grafana (hazır datasource ve dashboard provisioning)
  - **Admin**: Kullanıcı İşlemleri, Marka Ayarları, Audit Log ekranı
+ - **Ops**: Sistem Yönetimi (bakım modu, audit temizliği), SSL ve yedekleme scriptleri
 
 ## Hızlı Başlangıç (Docker)
 
@@ -77,6 +78,7 @@ npm run dev
 - Mimari: ARCHITECTURE.md
 - API sözleşmesi: API_SPEC.md
 - Operasyonlar ve komutlar: OPERATIONS.md
+ - Ops scriptleri: scripts/*.ps1 (generate-ssl, reload-nginx, backup-db, restore-db, ops-status)
 
 ## Notlar
 - TR plaka doğrulaması katmanlıdır (DTO + Service + DB CHECK) ve boşluklar kaldırıldıktan sonra büyük harfle kontrol edilir.

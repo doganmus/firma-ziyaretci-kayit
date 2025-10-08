@@ -32,6 +32,36 @@ docker compose up -d
 - /uploads yolu backend'in statik dosya servisine (http://backend:3000/uploads) proxy edilir.
 - Frontend kodu VITE_API_URL yoksa otomatik /api tabanını kullanır.
 
+### Sertifikalar (SSL)
+- Sertifikalar `certs/server.crt` ve `certs/server.key` olarak projede tutulur ve frontend Nginx container'ına mount edilir.
+- Self-signed üretmek için (PowerShell):
+`powershell
+./scripts/generate-ssl.ps1 -Days 365 -CommonName localhost
+./scripts/reload-nginx.ps1
+`
+
+### Yedekleme / Geri Yükleme
+- Veritabanı yedeği almak:
+`powershell
+./scripts/backup-db.ps1 -File backups/backup.sql
+`
+- Yedekten geri yüklemek:
+`powershell
+./scripts/restore-db.ps1 -File backups/backup.sql
+`
+
+### Ops Durum
+- Servis durumlarını görmek:
+`powershell
+./scripts/ops-status.ps1
+`
+
+### Admin Ops API (yalnız ADMIN)
+- Bakım modu aç: `POST /api/admin/ops/maintenance/enable`
+- Bakım modu kapat: `POST /api/admin/ops/maintenance/disable`
+- Audit temizliği: `POST /api/admin/ops/audit/cleanup` body: `{ olderThanDays: 30 }`
+- Durum: `GET /api/admin/ops/status`
+
 ### Rotalar
 - Varsayılan sayfa: /  Kayıt (VisitForm)
 - Kayıtlar listesi: /list

@@ -68,6 +68,7 @@ Her aşama sonunda proje Docker Compose ile çalışır. Temel özellikler Aşam
 
 ### Aşama 5 - Opsiyonel Gelişmiş Özellikler
 - Öneriler
+  - [ ] Admin & Ops Yönetimi (Panel + CLI)
   - [ ] LDAP/SSO entegrasyonu
   - [x] Denetim izi (audit log)
   - [ ] Çoklu dil desteği (i18n)
