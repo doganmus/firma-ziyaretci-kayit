@@ -37,7 +37,7 @@ Bu dosya günlük/haftalık çalışmayı izlemek için kullanılır. Aşamalar 
 
 ### Backlog (Aşama 5 - Opsiyonel)
 - [ ] LDAP/SSO
-- [ ] Audit log
+- [x] Audit log
 - [ ] i18n
 - [ ] E2E testler
 - [ ] Otomatik yedek/geri yükleme scriptleri
