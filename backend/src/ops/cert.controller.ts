@@ -2,7 +2,7 @@ import { Body, Controller, Post, UploadedFile, UploadedFiles, UseGuards, UseInte
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
-import { diskStorage } from 'multer';
+import * as multer from 'multer';
 import { FileFieldsInterceptor, FileInterceptor } from '@nestjs/platform-express';
 import { existsSync, mkdirSync, writeFileSync, chmodSync } from 'fs';
 import { join } from 'path';
@@ -24,10 +24,7 @@ export class CertController {
     { name: 'key', maxCount: 1 },
     { name: 'chain', maxCount: 1 },
   ], {
-    storage: diskStorage({
-      destination: (_req, _file, cb) => cb(null, join(process.cwd(), 'tmp')),
-      filename: (_req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`),
-    }),
+    storage: multer.memoryStorage(),
     limits: { fileSize: 1_000_000 },
   }))
   async uploadPem(@UploadedFiles() files: { crt?: Express.Multer.File[]; key?: Express.Multer.File[]; chain?: Express.Multer.File[] }) {
@@ -51,13 +48,7 @@ export class CertController {
   }
 
   @Post('pfx')
-  @UseInterceptors(FileInterceptor('pfx', {
-    storage: diskStorage({
-      destination: (_req, _file, cb) => cb(null, join(process.cwd(), 'tmp')),
-      filename: (_req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`),
-    }),
-    limits: { fileSize: 2_000_000 },
-  }))
+  @UseInterceptors(FileInterceptor('pfx', { storage: multer.memoryStorage(), limits: { fileSize: 2_000_000 } }))
   async uploadPfx(@UploadedFile() pfx: Express.Multer.File, @Body() body: { password: string }) {
     if (!pfx) throw new Error('pfx zorunludur')
     const password = body?.password || ''

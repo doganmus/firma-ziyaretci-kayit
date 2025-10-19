@@ -40,6 +40,11 @@ docker compose up -d
 ./scripts/reload-nginx.ps1
 `
 
+#### UI Üzerinden Yükleme (Admin → Sistem Yönetimi)
+- PEM yükleme: `server.crt` ve `server.key` (opsiyonel `chain`) dosyalarını seçin ve yükleyin. Ardından `./scripts/reload-nginx.ps1` ile Nginx’i yeniden yükleyin.
+- PFX/P12 yükleme: `.pfx/.p12` dosyanızı ve parolasını girin, yükleyin; işlem sonunda `server.crt` ve `server.key` üretilir. Sonrasında Nginx reload yapın.
+- Not: Backend `./certs` (container: `/app/certs`) dizinine yazar; frontend container bu klasörü `/etc/nginx/certs` olarak kullanır.
+
 ### Yedekleme / Geri Yükleme
 - Veritabanı yedeği almak:
 `powershell

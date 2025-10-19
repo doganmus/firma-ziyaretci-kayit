@@ -21,6 +21,7 @@ Ziyaretçi giriş-çıkışlarının kayıt altına alındığı, raporlanabildi
  - **Monitoring**: Prometheus + Grafana (hazır datasource ve dashboard provisioning)
  - **Admin**: Kullanıcı İşlemleri, Marka Ayarları, Audit Log ekranı
  - **Ops**: Sistem Yönetimi (bakım modu, audit temizliği), SSL ve yedekleme scriptleri
+  - Admin panelinden SSL sertifikası yükleme (PEM/PFX), Nginx manuel reload
 
 ## Hızlı Başlangıç (Docker)
 
