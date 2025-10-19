@@ -36,7 +36,7 @@ Bu dosya günlük/haftalık çalışmayı izlemek için kullanılır. Aşamalar 
 - [x] (Opsiyonel) Monitoring/metrics
 
 ### Backlog (Aşama 5 - Opsiyonel)
-- [ ] Admin & Ops Yönetimi (Panel + CLI)
+- [x] Admin & Ops Yönetimi (Panel + CLI)
 - [ ] LDAP/SSO
 - [x] Audit log
 - [ ] i18n
