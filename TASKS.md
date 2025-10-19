@@ -40,5 +40,5 @@ Bu dosya günlük/haftalık çalışmayı izlemek için kullanılır. Aşamalar 
 - [ ] LDAP/SSO
 - [x] Audit log
 - [ ] i18n
-- [ ] E2E testler
+- [x] E2E testler
 - [ ] Otomatik yedek/geri yükleme scriptleri
