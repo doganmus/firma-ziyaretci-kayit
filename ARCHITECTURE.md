@@ -9,6 +9,8 @@ Uygulama iki ana bileşenden oluşur: NestJS tabanlı REST API (backend) ve Reac
 - **reports**: özet ve firma bazlı raporlar
 - **admin**: admin paneline özel yönetim uçları (users)
 - **common**: guard/pipe/interceptor, hata işleme, config
+- **settings**: marka ayarları ve bakım modu (`maintenance_mode`)
+- **ops**: sistem yönetimi uçları (status, maintenance enable/disable, audit cleanup, sertifika yükleme, nginx reload)
 
 ### Veri Modeli
 - **users**
@@ -55,7 +57,7 @@ Uygulama iki ana bileşenden oluşur: NestJS tabanlı REST API (backend) ve Reac
 - Sayfalar: Login, Ziyaret Formu, Ziyaret Listesi, Raporlar, Admin
 - Router: React Router
 - Veri: Axios tabanlı `api` istemcisi ve interceptor'lar (401 yakalama, token ekleme)
-- UI: Ant Design; Form kuralları AntD üzerinden
+- UI: Ant Design; Form kuralları AntD üzerinden. Admin altında “Sistem Yönetimi” sayfası (bakım modu, audit temizliği, sertifika yükleme ve reload butonu).
 
 ### Docker Topolojisi
 - Servisler: `db(PostgreSQL)`, `pgadmin`, `backend`, `frontend`

@@ -85,13 +85,25 @@ Not: Frontend prod ortamda Nginx üzerinden /api yolunu backend'e proxy'ler.
 - DELETE /admin/users/:id  kullanıcı sil
 
 ### Ayarlar (Admin)
-- GET /admin/settings → { brandName: string|null, brandLogoUrl: string|null }
+- GET /admin/settings → { brandName: string|null, brandLogoUrl: string|null, maintenanceMode: boolean }
 - PATCH /admin/settings (ADMIN)
-  - Body: { brandName?: string|null, brandLogoUrl?: string|null }
+  - Body: { brandName?: string|null, brandLogoUrl?: string|null, maintenanceMode?: boolean }
   - Not: brandName varsa brandLogoUrl null olmalıdır ve tersi
 - POST /admin/settings/logo (ADMIN)
   - Form-Data: file: PNG (<=2MB)
   - 200: { url: "/uploads/logo-...png" }
+
+### Genel Ayarlar (Public)
+- GET /settings/public → { brandName: string|null, brandLogoUrl: string|null, maintenanceMode: boolean }
+
+### Admin Ops (JWT + ADMIN)
+- GET /admin/ops/status → { uptimeSec, node, env, version }
+- POST /admin/ops/maintenance/enable → bakım modunu açar
+- POST /admin/ops/maintenance/disable → bakım modunu kapatır
+- POST /admin/ops/audit/cleanup  Body: { olderThanDays: number } → eski audit kayıtlarını temizler
+- POST /admin/ops/cert/pem  Form-Data: crt (required), key (required), chain? (optional) → certleri yazar
+- POST /admin/ops/cert/pfx  Form-Data: pfx (required), password (required) → PFX’i PEM’e dönüştürüp yazar
+- POST /admin/ops/nginx/reload → frontend container içinde nginx reload tetikler
 
 ### Hata Formatı
 ```json

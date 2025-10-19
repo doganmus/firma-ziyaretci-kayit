@@ -20,6 +20,9 @@ Ziyaretçi giriş-çıkışlarının kayıt altına alındığı, raporlanabildi
  - **Audit**: Global istek/yanıt meta verileri audit_logs tablosuna yazılır (kullanıcı, yol, durum kodu, süre)
  - **Monitoring**: Prometheus + Grafana (hazır datasource ve dashboard provisioning)
  - **Admin**: Kullanıcı İşlemleri, Marka Ayarları, Audit Log ekranı
+ - **Ops**: Sistem Yönetimi (bakım modu, audit temizliği), SSL ve yedekleme scriptleri
+  - Admin panelinden SSL sertifikası yükleme (PEM/PFX), Nginx manuel reload
+ - **E2E**: Playwright ile temel smoke testleri (login, admin ops akışları)
 
 ## Hızlı Başlangıç (Docker)
 
@@ -71,12 +74,21 @@ npm install
 npm run dev
 ```
 
+### E2E Testleri (Playwright)
+```
+cd e2e
+npm install
+npx playwright install
+npm test
+```
+
 ## Belgeler
 - Yol haritası: ROADMAP.md
 - Görev listeleri/kanban: TASKS.md
 - Mimari: ARCHITECTURE.md
 - API sözleşmesi: API_SPEC.md
 - Operasyonlar ve komutlar: OPERATIONS.md
+ - Ops scriptleri: scripts/*.ps1 (generate-ssl, reload-nginx, backup-db, restore-db, ops-status)
 
 ## Notlar
 - TR plaka doğrulaması katmanlıdır (DTO + Service + DB CHECK) ve boşluklar kaldırıldıktan sonra büyük harfle kontrol edilir.

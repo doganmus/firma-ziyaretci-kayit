@@ -8,26 +8,28 @@ export class SettingsService {
   constructor(@InjectRepository(Setting) private readonly repo: Repository<Setting>) {}
 
   // Returns the single settings record (or empty defaults)
-  async get(): Promise<{ brandName: string | null; brandLogoUrl: string | null }> {
+  async get(): Promise<{ brandName: string | null; brandLogoUrl: string | null; maintenanceMode: boolean }> {
     const s = await this.repo.find({ order: { createdAt: 'ASC' }, take: 1 });
     const first = s[0];
     return {
       brandName: first?.brandName ?? null,
       brandLogoUrl: first?.brandLogoUrl ?? null,
+      maintenanceMode: first?.maintenanceMode ?? false,
     };
   }
 
   // Creates or updates settings with provided fields only
-  async update(data: { brandName?: string | null; brandLogoUrl?: string | null }) {
+  async update(data: { brandName?: string | null; brandLogoUrl?: string | null; maintenanceMode?: boolean }) {
     const s = await this.repo.find({ order: { createdAt: 'ASC' }, take: 1 });
     let entity = s[0];
     if (!entity) {
-      entity = this.repo.create({ brandName: null, brandLogoUrl: null });
+      entity = this.repo.create({ brandName: null, brandLogoUrl: null, maintenanceMode: false });
     }
     if (Object.prototype.hasOwnProperty.call(data, 'brandName')) entity.brandName = data.brandName ?? null;
     if (Object.prototype.hasOwnProperty.call(data, 'brandLogoUrl')) entity.brandLogoUrl = data.brandLogoUrl ?? null;
+    if (Object.prototype.hasOwnProperty.call(data, 'maintenanceMode')) entity.maintenanceMode = !!data.maintenanceMode;
     const saved = await this.repo.save(entity);
-    return { brandName: saved.brandName, brandLogoUrl: saved.brandLogoUrl };
+    return { brandName: saved.brandName, brandLogoUrl: saved.brandLogoUrl, maintenanceMode: saved.maintenanceMode };
   }
 }
 

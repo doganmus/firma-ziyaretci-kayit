@@ -32,6 +32,41 @@ docker compose up -d
 - /uploads yolu backend'in statik dosya servisine (http://backend:3000/uploads) proxy edilir.
 - Frontend kodu VITE_API_URL yoksa otomatik /api tabanını kullanır.
 
+### Sertifikalar (SSL)
+- Sertifikalar `certs/server.crt` ve `certs/server.key` olarak projede tutulur ve frontend Nginx container'ına mount edilir.
+- Self-signed üretmek için (PowerShell):
+`powershell
+./scripts/generate-ssl.ps1 -Days 365 -CommonName localhost
+./scripts/reload-nginx.ps1
+`
+
+#### UI Üzerinden Yükleme (Admin → Sistem Yönetimi)
+- PEM yükleme: `server.crt` ve `server.key` (opsiyonel `chain`) dosyalarını seçin ve yükleyin. Ardından `./scripts/reload-nginx.ps1` ile Nginx’i yeniden yükleyin.
+- PFX/P12 yükleme: `.pfx/.p12` dosyanızı ve parolasını girin, yükleyin; işlem sonunda `server.crt` ve `server.key` üretilir. Sonrasında Nginx reload yapın.
+- Not: Backend `./certs` (container: `/app/certs`) dizinine yazar; frontend container bu klasörü `/etc/nginx/certs` olarak kullanır.
+
+### Yedekleme / Geri Yükleme
+- Veritabanı yedeği almak:
+`powershell
+./scripts/backup-db.ps1 -File backups/backup.sql
+`
+- Yedekten geri yüklemek:
+`powershell
+./scripts/restore-db.ps1 -File backups/backup.sql
+`
+
+### Ops Durum
+- Servis durumlarını görmek:
+`powershell
+./scripts/ops-status.ps1
+`
+
+### Admin Ops API (yalnız ADMIN)
+- Bakım modu aç: `POST /api/admin/ops/maintenance/enable`
+- Bakım modu kapat: `POST /api/admin/ops/maintenance/disable`
+- Audit temizliği: `POST /api/admin/ops/audit/cleanup` body: `{ olderThanDays: 30 }`
+- Durum: `GET /api/admin/ops/status`
+
 ### Rotalar
 - Varsayılan sayfa: /  Kayıt (VisitForm)
 - Kayıtlar listesi: /list

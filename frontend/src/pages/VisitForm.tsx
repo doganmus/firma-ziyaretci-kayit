@@ -32,8 +32,26 @@ export default function VisitForm() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [activeVehicles, setActiveVehicles] = useState<Visit[]>([])
-
   const [form] = Form.useForm<FormValues>()
+  const [maintenance, setMaintenance] = useState(false)
+  // Determine role to hide actions for VIEWER and handle maintenance gating
+  const role = (() => {
+    try {
+      const u = localStorage.getItem('user')
+      return u ? (JSON.parse(u).role as string) : null
+    } catch {
+      return null
+    }
+  })()
+  const isViewer = role === 'VIEWER'
+  useEffect(() => {
+    ;(async () => {
+      try {
+        const s = await api.get('/settings/public')
+        setMaintenance(!!s.data.maintenanceMode)
+      } catch {}
+    })()
+  }, [])
 
   // Load current active (not exited) visits to show in the table below
   const loadActiveVehicles = async () => {
@@ -46,8 +64,17 @@ export default function VisitForm() {
     loadActiveVehicles()
   }, [])
 
+  // Gate non-admin users during maintenance after hooks are registered
+  if (maintenance && role !== 'ADMIN') {
+    return <div style={{ padding: 16 }}>Sistem bakım modunda. Lütfen daha sonra tekrar deneyin.</div>
+  }
+
   // Submit handler: creates a new visit record via API
   const onFinish = async (values: FormValues) => {
+    if (maintenance) {
+      setMessage({ type: 'error', text: 'Bakım modunda işlem yapılamaz' })
+      return
+    }
     setMessage(null)
     try {
       setLoading(true)
@@ -76,17 +103,6 @@ export default function VisitForm() {
     await api.post(`/visits/${id}/exit`)
     await loadActiveVehicles()
   }
-
-  // Determine role to hide actions for VIEWER
-  const role = (() => {
-    try {
-      const u = localStorage.getItem('user')
-      return u ? (JSON.parse(u).role as string) : null
-    } catch {
-      return null
-    }
-  })()
-  const isViewer = role === 'VIEWER'
 
   // Columns for the active vehicles table
   const activeColumns: any[] = [

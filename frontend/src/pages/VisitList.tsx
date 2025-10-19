@@ -18,6 +18,15 @@ type Visit = {
 }
 
 export default function VisitList() {
+  const [maintenance, setMaintenance] = useState(false)
+  useEffect(() => {
+    ;(async () => {
+      try {
+        const s = await api.get('/settings/public')
+        setMaintenance(!!s.data.maintenanceMode)
+      } catch {}
+    })()
+  }, [])
   const [items, setItems] = useState<Visit[]>([])
   const [loading, setLoading] = useState(false)
   const [sortKey, setSortKey] = useState<string | null>(null)
@@ -163,6 +172,7 @@ export default function VisitList() {
 
   return (
     <div style={{ padding: 16 }}>
+      {maintenance && <div style={{ padding: 16, marginBottom: 12, background: '#fff1f0', border: '1px solid #ffa39e' }}>Sistem bakım modunda, değişiklik yapılamaz. Liste sadece görüntülenebilir.</div>}
       <div style={{ marginBottom: 8, fontSize: 18, fontWeight: 600 }}>Kayıtlar</div>
       {/* Filter form */}
       <Form layout="inline" style={{ marginBottom: 12 }}>
