@@ -10,7 +10,8 @@ import AdminBrand from './pages/admin/AdminBrand'
 import AdminAudit from './pages/admin/AdminAudit'
 import AdminOps from './pages/admin/AdminOps'
 import { useEffect, useMemo, useState } from 'react'
-import { ConfigProvider, theme, Layout, Menu, Space, Button, Tooltip, Dropdown, Modal, Form as AntForm, Input as AntInput, message, Divider, Switch as AntSwitch } from 'antd'
+import { ConfigProvider, theme, Layout, Menu, Space, Button, Tooltip, Dropdown, Modal, Form as AntForm, Input as AntInput, message, Divider, Switch as AntSwitch, Alert } from 'antd'
+import { api } from './api/client'
 import { SunOutlined, MoonOutlined, MenuOutlined, LogoutOutlined, UserOutlined, FormOutlined, UnorderedListOutlined, BarChartOutlined, SettingOutlined, TeamOutlined, PictureOutlined } from '@ant-design/icons'
 
 const { Header, Content, Sider } = Layout
@@ -51,6 +52,7 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
     } catch {}
     return { name: null, logoUrl: null }
   })
+  const [maintenance, setMaintenance] = useState(false)
   // React to brand changes fired from AdminBrand
   useEffect(() => {
     const handler = () => {
@@ -66,6 +68,15 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
     }
     window.addEventListener('brandSettingsChanged', handler as any)
     return () => window.removeEventListener('brandSettingsChanged', handler as any)
+  }, [])
+  // Load public settings (maintenance flag) once
+  useEffect(() => {
+    ;(async () => {
+      try {
+        const s = await api.get('/settings/public')
+        setMaintenance(!!s.data.maintenanceMode)
+      } catch {}
+    })()
   }, [])
   // Build sidebar items based on user role
   const menuItems = useMemo(() => {
@@ -302,7 +313,18 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
           <Divider />
           <Button danger onClick={logout} icon={<LogoutOutlined />}>Oturumu Kapat</Button>
         </Modal>
-        <Content id="mainContent" role="main" tabIndex={-1} ref={mainRef as any} aria-label="Ana içerik" style={{ padding: 16 }}>{children}</Content>
+        <Content id="mainContent" role="main" tabIndex={-1} ref={mainRef as any} aria-label="Ana içerik" style={{ padding: 16 }}>
+          {maintenance && role !== 'ADMIN' && (
+            <Alert
+              type="warning"
+              showIcon
+              banner
+              message="Sistem bakım modunda, değişiklik yapılamaz. Görünüm kısıtlıdır."
+              style={{ marginBottom: 12 }}
+            />
+          )}
+          {children}
+        </Content>
       </Layout>
     </Layout>
     </>

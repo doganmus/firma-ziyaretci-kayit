@@ -22,6 +22,7 @@ Ziyaretçi giriş-çıkışlarının kayıt altına alındığı, raporlanabildi
  - **Admin**: Kullanıcı İşlemleri, Marka Ayarları, Audit Log ekranı
  - **Ops**: Sistem Yönetimi (bakım modu, audit temizliği), SSL ve yedekleme scriptleri
   - Admin panelinden SSL sertifikası yükleme (PEM/PFX), Nginx manuel reload
+ - **E2E**: Playwright ile temel smoke testleri (login, admin ops akışları)
 
 ## Hızlı Başlangıç (Docker)
 
@@ -71,6 +72,14 @@ docker compose up -d --build
 cd frontend
 npm install
 npm run dev
+```
+
+### E2E Testleri (Playwright)
+```
+cd e2e
+npm install
+npx playwright install
+npm test
 ```
 
 ## Belgeler
