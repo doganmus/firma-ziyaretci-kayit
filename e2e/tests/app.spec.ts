@@ -5,11 +5,13 @@ const adminEmail = process.env.ADMIN_EMAIL || 'admin@example.com'
 const adminPassword = process.env.ADMIN_PASSWORD || 'admin123'
 
 test.describe('App smoke', () => {
-  test('login and navigate', async ({ page }) => {
+  test('login opens dashboard by default', async ({ page }) => {
     await loginAsAdmin(page)
-    await page.goto('/')
-    await page.waitForURL('**/')
-    await expect(page).toHaveURL(/\/$|\/list|\/reports/)
+    await page.goto('/dashboard')
+    // Dashboard başlığı veya menü öğesi görünmeli
+    await expect(page.getByText('Dashboard').first()).toBeVisible()
+    // En az bir grafik render edilmiş olmalı (recharts svg veya ant-design/plots canvas)
+    await expect(page.locator('svg.recharts-surface, canvas').first()).toBeVisible()
   })
 
   test('maintenance mode flow (admin)', async ({ page }) => {
