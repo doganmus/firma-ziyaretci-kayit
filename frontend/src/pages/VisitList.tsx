@@ -173,7 +173,7 @@ export default function VisitList() {
   return (
     <div style={{ padding: 16 }}>
       {maintenance && <div style={{ padding: 16, marginBottom: 12, background: '#fff1f0', border: '1px solid #ffa39e' }}>Sistem bakım modunda, değişiklik yapılamaz. Liste sadece görüntülenebilir.</div>}
-      <div style={{ marginBottom: 8, fontSize: 18, fontWeight: 600 }}>Kayıtlar</div>
+      <div style={{ marginBottom: 8, fontSize: 18, fontWeight: 600 }}>Ziyaret Kayıtları</div>
       {/* Filter form */}
       <Form layout="inline" style={{ marginBottom: 12 }}>
         <Form.Item label="Tarih">

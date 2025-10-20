@@ -84,9 +84,9 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
   const menuItems = useMemo(() => {
     const items: any[] = []
     if (role === 'ADMIN' || role === 'OPERATOR') {
-      items.push({ key: '/', icon: <FormOutlined />, label: <Link to="/">Kayıt</Link>, title: 'Kayıt' })
+      items.push({ key: '/', icon: <FormOutlined />, label: <Link to="/">Ziyaretçi Kayıt</Link>, title: 'Ziyaretçi Kayıt' })
     }
-    items.push({ key: '/list', icon: <UnorderedListOutlined />, label: <Link to="/list">Kayıtlar</Link>, title: 'Kayıtlar' })
+    items.push({ key: '/list', icon: <UnorderedListOutlined />, label: <Link to="/list">Ziyaret Kayıtları</Link>, title: 'Ziyaret Kayıtları' })
     items.push({ key: '/reports', icon: <BarChartOutlined />, label: <Link to="/reports">Rapor</Link>, title: 'Rapor' })
     // Vehicle logs navigation
     if (role === 'ADMIN' || role === 'OPERATOR') {
