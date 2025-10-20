@@ -115,7 +115,9 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
     if (path.startsWith('/admin/')) return [path]
     if (path === '/') return ['/']
     const keys = ['/', '/list', '/reports', '/vehicles', '/vehicles/list']
-    const found = keys.find((k) => k !== '/' && path.startsWith(k))
+    const found = keys
+      .filter((k) => k !== '/' && path.startsWith(k))
+      .sort((a, b) => b.length - a.length)[0]
     return found ? [found] : []
   }, [location.pathname])
 
