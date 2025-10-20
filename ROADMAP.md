@@ -44,6 +44,15 @@ Her aşama sonunda proje Docker Compose ile çalışır. Temel özellikler Aşam
   - [x] Router & Menü güncellemesi
   - [ ] E2E testler
 
+### Aşama 2.8 - Dashboard (Raporlar’ın Yenilenmesi)
+- Kabul Kriterleri
+  - Login sonrası varsayılan `/dashboard`
+  - KPI kartları, günlük trend, araç türü dağılımı, top 5 firma
+- Teslimatlar
+  - [x] Backend: /reports/dashboard/overview
+  - [x] Frontend: Dashboard sayfası ve menü
+  - [x] Varsayılan yönlendirme
+
 ### Aşama 3 - Admin Modülü
 - Kabul Kriterleri
   - Admin kullanıcılar için CRUD ve rol atama 

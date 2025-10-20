@@ -74,6 +74,10 @@ Not: Frontend prod ortamda Nginx üzerinden /api yolunu backend'e proxy'ler.
   - Yanıt: application/pdf (PDF)
   - İçerik: Özet metrikleri (mini grafik) ve firma bazlı tablo
 
+### Ek Rapor Uçları
+- GET /reports/by-day?dateFrom&dateTo → { visitsDaily: [{day, count}], vehiclesDaily: [{day, count}] }
+- GET /reports/vehicle-summary?dateFrom&dateTo → [ { type, count } ]
+
 ### Admin (JWT + ADMIN)
 - GET /admin/users  kullanıcı listesi
 - POST /admin/users  kullanıcı oluştur
@@ -130,3 +134,19 @@ Not: Frontend prod ortamda Nginx üzerinden /api yolunu backend'e proxy'ler.
 - POST /vehicle-logs/:id/exit
   - roles: ADMIN, OPERATOR
   - 200: VehicleLog
+
+## Dashboard
+
+- GET /reports/dashboard/overview?dateFrom&dateTo
+  - 200
+  ```json
+  {
+    "kpis": { "visitsTotal": 100, "visitsActive": 5, "vehiclesTotal": 60, "vehiclesActive": 3 },
+    "timeSeries": {
+      "visitsDaily": [{ "day": "2025-10-01T00:00:00.000Z", "count": 12 }],
+      "vehiclesDaily": [{ "day": "2025-10-01T00:00:00.000Z", "count": 8 }]
+    },
+    "vehicleTypeBreakdown": [{ "type": "BINEK", "count": 40 }],
+    "topCompanies": [{ "company": "Şirket A", "count": 15 }]
+  }
+  ```

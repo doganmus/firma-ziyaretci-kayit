@@ -87,7 +87,7 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
     // Dashboard always on top
     items.push({ key: '/dashboard', icon: <BarChartOutlined />, label: <Link to="/dashboard">Dashboard</Link>, title: 'Dashboard' })
     if (role === 'ADMIN' || role === 'OPERATOR') {
-      items.push({ key: '/', icon: <FormOutlined />, label: <Link to="/">Ziyaretçi Kayıt</Link>, title: 'Ziyaretçi Kayıt' })
+      items.push({ key: '/visit', icon: <FormOutlined />, label: <Link to="/visit">Ziyaretçi Kayıt</Link>, title: 'Ziyaretçi Kayıt' })
     }
     items.push({ key: '/list', icon: <UnorderedListOutlined />, label: <Link to="/list">Ziyaret Kayıtları</Link>, title: 'Ziyaret Kayıtları' })
     // Vehicle logs navigation
@@ -116,7 +116,7 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
     const path = location.pathname
     if (path.startsWith('/admin/')) return [path]
     if (path === '/') return ['/']
-    const keys = ['/', '/dashboard', '/list', '/reports', '/vehicles', '/vehicles/list']
+    const keys = ['/', '/dashboard', '/visit', '/list', '/reports', '/vehicles', '/vehicles/list']
     const found = keys
       .filter((k) => k !== '/' && path.startsWith(k))
       .sort((a, b) => b.length - a.length)[0]
@@ -386,6 +386,8 @@ export default function App() {
             <Routes>
               <Route path="/" element={canCreate ? <RequireAuth><VisitForm /></RequireAuth> : <Navigate to="/list" replace />} />
               <Route path="/dashboard" element={<RequireAuth><Dashboard /></RequireAuth>} />
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/visit" element={<RequireAuth><VisitForm /></RequireAuth>} />
               <Route path="/list" element={<RequireAuth><VisitList /></RequireAuth>} />
               <Route path="/vehicles" element={<RequireAuth><VehicleForm /></RequireAuth>} />
               <Route path="/vehicles/list" element={<RequireAuth><VehicleList /></RequireAuth>} />

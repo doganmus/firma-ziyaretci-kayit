@@ -27,6 +27,18 @@ export class ReportsController {
     return this.reports.dashboardOverview(dateFrom, dateTo);
   }
 
+  // Optional granular daily series
+  @Get('/by-day')
+  byDay(@Query('dateFrom') dateFrom?: string, @Query('dateTo') dateTo?: string) {
+    return this.reports.byDay(dateFrom, dateTo);
+  }
+
+  // Optional vehicle summary by type
+  @Get('/vehicle-summary')
+  vehicleSummary(@Query('dateFrom') dateFrom?: string, @Query('dateTo') dateTo?: string) {
+    return this.reports.vehicleSummary(dateFrom, dateTo);
+  }
+
   // Returns how many visits per company in a date range
   @Get('by-company')
   byCompany(@Query('dateFrom') dateFrom?: string, @Query('dateTo') dateTo?: string) {

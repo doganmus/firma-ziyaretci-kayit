@@ -87,3 +87,9 @@ Uygulama iki ana bileşenden oluşur: NestJS tabanlı REST API (backend) ve Reac
 
 ### Uluslararasılaştırma (opsiyonel)
 - i18n planı: TR/EN dil dosyaları, UI dil seçimi
+
+### Dashboard (Raporlar)
+- Veri kaynakları: `visits` ve `vehicle_logs`
+- Uç: `/reports/dashboard/overview` (JWT, tüm rollere açık)
+- İçerik: KPI (toplam/aktif), günlük trendler (ziyaret/araç), araç türü dağılımı (pie), en çok ziyaret alan 5 firma (bar)
+- Frontend: `Dashboard.tsx` (AntD + Recharts), tarih aralığı filtresi tüm bileşenleri yeniler

@@ -100,6 +100,50 @@ export class ReportsService {
     };
   }
 
+  // Optional granular daily report for visits and vehicles
+  async byDay(dateFrom?: string, dateTo?: string) {
+    const df = dateFrom ? new Date(dateFrom) : new Date(Date.now() - 30*24*60*60*1000);
+    const dt = dateTo ? new Date(dateTo) : new Date();
+
+    const visits = await this.repo.createQueryBuilder('v')
+      .select("date_trunc('day', v.entry_at)", 'day')
+      .addSelect('COUNT(*)', 'count')
+      .where('v.entry_at >= :df', { df })
+      .andWhere('v.entry_at <= :dt', { dt })
+      .groupBy("date_trunc('day', v.entry_at)")
+      .orderBy('day', 'ASC')
+      .getRawMany<{ day: Date; count: string }>();
+
+    const vehicles = await this.vehicles.createQueryBuilder('vl')
+      .select("date_trunc('day', vl.entry_at)", 'day')
+      .addSelect('COUNT(*)', 'count')
+      .where('vl.entry_at >= :df', { df })
+      .andWhere('vl.entry_at <= :dt', { dt })
+      .groupBy("date_trunc('day', vl.entry_at)")
+      .orderBy('day', 'ASC')
+      .getRawMany<{ day: Date; count: string }>();
+
+    return {
+      visitsDaily: visits.map(r => ({ day: (r as any).day, count: Number(r.count) })),
+      vehiclesDaily: vehicles.map(r => ({ day: (r as any).day, count: Number(r.count) })),
+    }
+  }
+
+  // Optional vehicle summary grouped by type
+  async vehicleSummary(dateFrom?: string, dateTo?: string) {
+    const df = dateFrom ? new Date(dateFrom) : undefined;
+    const dt = dateTo ? new Date(dateTo) : undefined;
+    const byType = await this.vehicles.createQueryBuilder('vl')
+      .select('vl.vehicle_type', 'type')
+      .addSelect('COUNT(*)', 'count')
+      .where(df ? 'vl.entry_at >= :df' : '1=1', { df })
+      .andWhere(dt ? 'vl.entry_at <= :dt' : '1=1', { dt })
+      .groupBy('vl.vehicle_type')
+      .orderBy('count', 'DESC')
+      .getRawMany<{ type: string | null; count: string }>();
+    return byType.map(r => ({ type: r.type || 'BİLİNMİYOR', count: Number(r.count) }));
+  }
+
   // Returns number of visits per company name for the given date range
   async byCompany(dateFrom?: string, dateTo?: string) {
     const qb = this.repo.createQueryBuilder('v')

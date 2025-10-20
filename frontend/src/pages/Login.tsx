@@ -23,7 +23,7 @@ export default function Login({ themeName = 'light', onToggleTheme }: { themeNam
       const res = await api.post<LoginResponse>('/auth/login', values)
       localStorage.setItem('accessToken', res.data.accessToken)
       localStorage.setItem('user', JSON.stringify(res.data.user))
-      window.location.href = '/'
+      window.location.href = '/dashboard'
     } catch {
       setError('Giriş başarısız')
     } finally {

@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import { api } from '../api/client'
 import { Card, DatePicker, Row, Col, Statistic, Skeleton } from 'antd'
 import dayjs, { Dayjs } from 'dayjs'
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, PieChart, Pie, Cell, BarChart, Bar } from 'recharts'
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, BarChart, Bar } from 'recharts'
+import { Pie } from '@ant-design/plots'
 
 type Overview = {
   kpis: { visitsTotal: number; visitsActive: number; vehiclesTotal: number; vehiclesActive: number }
@@ -85,19 +86,15 @@ export default function Dashboard() {
             </Col>
             <Col xs={24} md={8}>
               <Card title="Araç Türü Dağılımı">
-                <div style={{ width: '100%', height: 260 }}>
-                  <ResponsiveContainer>
-                    <PieChart>
-                      <Pie dataKey="count" data={data.vehicleTypeBreakdown} nameKey="type" outerRadius={90}>
-                        {data.vehicleTypeBreakdown.map((_, i) => (
-                          <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                      <Legend />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
+                <Pie
+                  data={data.vehicleTypeBreakdown}
+                  angleField="count"
+                  colorField="type"
+                  radius={0.9}
+                  legend={{ position: 'bottom' }}
+                  tooltip={{}}
+                  interactions={[{ type: 'element-active' }]}
+                />
               </Card>
             </Col>
           </Row>

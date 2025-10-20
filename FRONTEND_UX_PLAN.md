@@ -21,12 +21,13 @@
   - Required alanlar net uyarılar gösterir; loading state butonları kilitler
  - Status: Completed
 
-### Phase C — Lists (Ziyaretler + Raporlar)
+### Phase C — Lists (Ziyaretler + Raporlar/Dashboard)
 - Convert Ziyaret Listesi to AntD `Table` (pagination, sorting)
-- Raporlar filtrelerini AntD controls ile düzenle; PDF butonu `Button` olarak
+- Raporlar Dashboard'a dönüştürüldü: KPI kartları, günlük trend, araç türü dağılımı, top 5 firma
+- Filtre: tarih aralığı tüm widget'ları etkiler; PDF/Excel export raporlar bölümünde korunur
 - Acceptance:
   - Tablo sayfalama ve sıralama çalışır; filtreler tutarlı
- - Status: Completed
+- Status: Completed (Dashboard deployed, menu default)
 
 ### Phase D — Admin
 - Admin kullanıcı ekranı: AntD `Table` + inline actions; kullanıcı ekleme `Modal`
