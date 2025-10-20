@@ -21,6 +21,12 @@ export class ReportsController {
     return this.reports.summary(dateFrom, dateTo);
   }
 
+  // Dashboard overview combining visits and vehicles
+  @Get('/dashboard/overview')
+  overview(@Query('dateFrom') dateFrom?: string, @Query('dateTo') dateTo?: string) {
+    return this.reports.dashboardOverview(dateFrom, dateTo);
+  }
+
   // Returns how many visits per company in a date range
   @Get('by-company')
   byCompany(@Query('dateFrom') dateFrom?: string, @Query('dateTo') dateTo?: string) {

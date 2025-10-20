@@ -6,6 +6,7 @@ import VehicleForm from './pages/VehicleForm'
 import VehicleList from './pages/VehicleList'
 import VisitList from './pages/VisitList'
 import Reports from './pages/Reports'
+import Dashboard from './pages/Dashboard'
 import AdminLayout from './pages/admin/AdminLayout'
 import AdminUsers from './pages/admin/AdminUsers'
 import AdminBrand from './pages/admin/AdminBrand'
@@ -83,11 +84,12 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
   // Build sidebar items based on user role
   const menuItems = useMemo(() => {
     const items: any[] = []
+    // Dashboard always on top
+    items.push({ key: '/dashboard', icon: <BarChartOutlined />, label: <Link to="/dashboard">Dashboard</Link>, title: 'Dashboard' })
     if (role === 'ADMIN' || role === 'OPERATOR') {
       items.push({ key: '/', icon: <FormOutlined />, label: <Link to="/">Ziyaretçi Kayıt</Link>, title: 'Ziyaretçi Kayıt' })
     }
     items.push({ key: '/list', icon: <UnorderedListOutlined />, label: <Link to="/list">Ziyaret Kayıtları</Link>, title: 'Ziyaret Kayıtları' })
-    items.push({ key: '/reports', icon: <BarChartOutlined />, label: <Link to="/reports">Rapor</Link>, title: 'Rapor' })
     // Vehicle logs navigation
     if (role === 'ADMIN' || role === 'OPERATOR') {
       items.push({ key: '/vehicles', icon: <FormOutlined />, label: <Link to="/vehicles">Araç Girişi</Link>, title: 'Araç Girişi' })
@@ -114,7 +116,7 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
     const path = location.pathname
     if (path.startsWith('/admin/')) return [path]
     if (path === '/') return ['/']
-    const keys = ['/', '/list', '/reports', '/vehicles', '/vehicles/list']
+    const keys = ['/', '/dashboard', '/list', '/reports', '/vehicles', '/vehicles/list']
     const found = keys
       .filter((k) => k !== '/' && path.startsWith(k))
       .sort((a, b) => b.length - a.length)[0]
@@ -157,7 +159,7 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
     }
     // Update document title by route
     const path = location.pathname
-    const map: Record<string, string> = { '/': 'Kayıt', '/list': 'Kayıtlar', '/reports': 'Rapor' }
+    const map: Record<string, string> = { '/': 'Kayıt', '/dashboard': 'Dashboard', '/list': 'Kayıtlar', '/reports': 'Rapor' }
     const title = path.startsWith('/admin') ? 'Admin' : (map[path] || 'Uygulama')
     try { document.title = `${title} · Ziyaretçi Kayıt` } catch {}
   }, [location.pathname])
@@ -383,10 +385,11 @@ export default function App() {
           <Shell themeName={themeName} setThemeName={setThemeName}>
             <Routes>
               <Route path="/" element={canCreate ? <RequireAuth><VisitForm /></RequireAuth> : <Navigate to="/list" replace />} />
+              <Route path="/dashboard" element={<RequireAuth><Dashboard /></RequireAuth>} />
               <Route path="/list" element={<RequireAuth><VisitList /></RequireAuth>} />
               <Route path="/vehicles" element={<RequireAuth><VehicleForm /></RequireAuth>} />
               <Route path="/vehicles/list" element={<RequireAuth><VehicleList /></RequireAuth>} />
-              <Route path="/new" element={<Navigate to="/" replace />} />
+              <Route path="/new" element={<Navigate to="/dashboard" replace />} />
               <Route path="/reports" element={<RequireAuth><Reports /></RequireAuth>} />
               <Route path="/admin" element={role === 'ADMIN' ? <RequireAuth><AdminLayout /></RequireAuth> : <Navigate to="/list" replace />}>
                 <Route index element={<Navigate to="/admin/users" replace />} />
@@ -395,7 +398,7 @@ export default function App() {
                 <Route path="audit" element={<AdminAudit />} />
                 <Route path="ops" element={<AdminOps />} />
               </Route>
-              <Route path="*" element={<Navigate to={canCreate ? '/' : '/list'} replace />} />
+              <Route path="*" element={<Navigate to={'/dashboard'} replace />} />
             </Routes>
           </Shell>
         ) : (
