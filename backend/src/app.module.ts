@@ -16,6 +16,7 @@ import { RequestLoggerMiddleware } from './common/request-logger.middleware';
 import { SettingsModule } from './settings/settings.module';
 import { OpsModule } from './ops/ops.module';
 import { UsersService } from './users/users.service';
+import { VehicleLogsModule } from './vehicle-logs/vehicle-logs.module';
 import { UserRole } from './users/user.entity';
 import * as bcrypt from 'bcrypt';
 
@@ -39,6 +40,7 @@ import * as bcrypt from 'bcrypt';
     SettingsModule,
     AuditModule,
     OpsModule,
+    VehicleLogsModule,
   ],
   controllers: [HealthController, MetricsController],
   providers: [

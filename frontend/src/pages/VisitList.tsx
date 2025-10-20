@@ -156,7 +156,7 @@ export default function VisitList() {
         sorter: (a: Visit, b: Visit) => (dayjs(a.exit_at || 0).valueOf() - dayjs(b.exit_at || 0).valueOf()),
         sortOrder: sortKey === 'exit_at' ? sortOrder : null,
       },
-      { title: 'Araç/Plaka', key: 'vehicle', render: (_: any, r: Visit) => r.has_vehicle ? (r.vehicle_plate ?? '') : '' },
+      { title: 'Araç/Plaka', key: 'vehicle', render: (_: any, r: Visit) => r.has_vehicle ? (r.vehicle_plate ?? '') : 'YAYA' },
     ]
     if (!isViewer) {
       base.push({

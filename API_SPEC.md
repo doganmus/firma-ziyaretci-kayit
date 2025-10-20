@@ -114,3 +114,19 @@ Not: Frontend prod ortamda Nginx üzerinden /api yolunu backend'e proxy'ler.
 - Ziyaret kuralı: has_vehicle = false ise vehicle_plate gönderilmemeli; gönderilirse yoksayılır veya reddedilebilir
 - Tarihler ISO 8601 formatında UTC olarak gönderilmelidir
 - Geliştirme: Vite dev sunucusunda `/api` ve `/uploads` yolları `http://localhost:3000` backend'ine proxy edilir.
+
+## Vehicle Logs
+
+- POST /vehicle-logs
+  - body: { plate: string, district: string, vehicle_type: 'SERVIS'|'BINEK'|'TICARI'|'DIGER', entry_at?: ISOString, exit_at?: ISOString|null, note?: string }
+  - roles: ADMIN, OPERATOR
+  - 201: { id, plate, entry_at, exit_at, date, district, vehicle_type, note }
+
+- GET /vehicle-logs
+  - query: { dateFrom?: ISOString, dateTo?: ISOString, plate?: string, active?: boolean, district?: string, vehicleType?: string, sortKey?: 'entry_at'|'exit_at'|'plate'|'district'|'vehicle_type', sortOrder?: 'asc'|'desc', page?: number, pageSize?: number }
+  - roles: ADMIN, OPERATOR, VIEWER
+  - 200: { data: VehicleLog[], total: number }
+
+- POST /vehicle-logs/:id/exit
+  - roles: ADMIN, OPERATOR
+  - 200: VehicleLog

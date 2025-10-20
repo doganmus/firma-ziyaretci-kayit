@@ -6,6 +6,7 @@ Uygulama iki ana bileşenden oluşur: NestJS tabanlı REST API (backend) ve Reac
 - **auth**: JWT ile kimlik doğrulama, login
 - **users**: kullanıcı CRUD, rol yönetimi (`ADMIN`, `OPERATOR`, `VIEWER`)
 - **visits**: ziyaret kayıtları CRUD ve iş kuralları
+- **vehicle-logs**: araç-only giriş/çıkış kayıtları (kişi bilgisi olmadan)
 - **reports**: özet ve firma bazlı raporlar
 - **admin**: admin paneline özel yönetim uçları (users)
 - **common**: guard/pipe/interceptor, hata işleme, config
@@ -32,6 +33,17 @@ Uygulama iki ana bileşenden oluşur: NestJS tabanlı REST API (backend) ve Reac
   - `vehicle_plate` (varchar 20, nullable)
   - Kısıt: `(has_vehicle = false AND vehicle_plate IS NULL) OR (has_vehicle = true AND vehicle_plate IS NOT NULL)`
   - Indeksler: `entry_at`, `vehicle_plate`
+- **vehicle_logs**
+  - `id` (uuid, pk)
+  - `date` (date)
+  - `entry_at` (timestamptz)
+  - `exit_at` (timestamptz, nullable)
+  - `plate` (varchar 20, TR plaka regex)
+  - `district` (varchar 100, nullable)
+  - `vehicle_type` (varchar 20, nullable)
+  - `note` (text, nullable)
+  - İndeksler: `entry_at`, `plate`, `district`, `vehicle_type`
+  - Kısıt: `exit_at >= entry_at`
 
 ### Akışlar
 - **Login**
@@ -43,6 +55,10 @@ Uygulama iki ana bileşenden oluşur: NestJS tabanlı REST API (backend) ve Reac
   3. Liste ekranında görünür
 - **Çıkış Verme**
   1. Liste veya detaydan "Çıkış Ver" ⇒ `POST /visits/:id/exit`
+- **Araç Girişi (Araç Kayıtları)**
+  1. `POST /vehicle-logs` (plate, opsiyonel entry_at)
+  2. Liste: `GET /vehicle-logs?active=true`
+  3. Çıkış ver: `POST /vehicle-logs/:id/exit`
 
 ### Güvenlik
 - Parolalar `bcrypt` ile hashlenir (min cost 10)

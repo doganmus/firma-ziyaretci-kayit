@@ -32,6 +32,18 @@ Her aşama sonunda proje Docker Compose ile çalışır. Temel özellikler Aşam
 - Notlar
   - [x] Rapor indirme uç noktası geçici olarak CSV döndürür (PDF sonraki aşamaya taşındı)
 
+### Aşama 2.5 - Araç Kayıtları (MVP)
+- Kabul Kriterleri
+  - Araç-only giriş/çıkış akışı çalışır (kişi bilgisi olmadan)
+  - `POST /vehicle-logs`, `GET /vehicle-logs`, `POST /vehicle-logs/:id/exit`
+  - UI: Araç Girişi sayfası ve Araç Kayıtları listesi
+- Teslimatlar
+  - [x] VehicleLogs entity + migration
+  - [x] Service + Controller + Module
+  - [x] Frontend sayfalar (VehicleForm, VehicleList)
+  - [x] Router & Menü güncellemesi
+  - [ ] E2E testler
+
 ### Aşama 3 - Admin Modülü
 - Kabul Kriterleri
   - Admin kullanıcılar için CRUD ve rol atama 
