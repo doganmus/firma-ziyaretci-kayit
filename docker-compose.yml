@@ -41,7 +41,7 @@ services:
     volumes:
       - uploads_data:/app/uploads
       - ./certs:/app/certs
-      - /var/run/docker.sock:/var/run/docker.sock
+      # docker.sock prod'da mount edilmemelidir. Yerel geliştirme için ayrı bir compose override dosyasında tutun.
     depends_on:
       db:
         condition: service_healthy
