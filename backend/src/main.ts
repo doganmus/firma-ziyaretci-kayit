@@ -6,6 +6,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import * as express from 'express';
 import { join } from 'path';
+import cookieParser from 'cookie-parser';
 
 // App bootstrap entry. Sets security headers, validation rules,
 // static file serving for uploads, API docs, and starts the server.
@@ -20,8 +21,12 @@ async function bootstrap() {
   }
   // Add common security HTTP headers
   app.use(helmet());
-  // Allow frontend on localhost:5173 to call this API during development
-  app.enableCors({ origin: [/localhost:5173$/], credentials: true });
+  app.use(cookieParser());
+  // Allow frontend origins only in development via ALLOWED_ORIGINS env (comma-separated)
+  if (process.env.NODE_ENV !== 'production') {
+    const allowed = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173').split(',').map((s) => s.trim());
+    app.enableCors({ origin: allowed, credentials: true });
+  }
   // Validate all incoming requests and strip unknown fields
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,

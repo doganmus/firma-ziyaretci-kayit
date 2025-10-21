@@ -1,4 +1,5 @@
 import { Controller, Get, Query, Res, UseGuards } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { ReportsService } from './reports.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
@@ -47,6 +48,7 @@ export class ReportsController {
 
   // Generates an Excel (.xlsx) file with summary and company sheets
   @Get('export/excel')
+  @Throttle({ default: { limit: 2, ttl: 60_000 } })
   async exportExcel(@Query('dateFrom') dateFrom: string, @Query('dateTo') dateTo: string, @Res() res: Response) {
     const [s, companies] = await Promise.all([
       this.reports.summary(dateFrom, dateTo),
@@ -82,6 +84,7 @@ export class ReportsController {
 
   // Generates a PDF file with a simple bar chart and a company table
   @Get('export/pdf')
+  @Throttle({ default: { limit: 2, ttl: 60_000 } })
   async exportPdf(@Query('dateFrom') dateFrom: string, @Query('dateTo') dateTo: string, @Res() res: Response) {
     const [s, companies] = await Promise.all([
       this.reports.summary(dateFrom, dateTo),

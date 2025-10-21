@@ -7,17 +7,12 @@ const apiBase = (import.meta.env.VITE_API_URL as string) || fallbackBase
 // Pre-configured Axios instance used by the app to call the backend API
 export const api = axios.create({
   baseURL: apiBase,
+  withCredentials: true,
 })
 
 // Attach JWT token to every request if present (user logged in)
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('accessToken')
-  if (token) {
-    config.headers = config.headers ?? {}
-    config.headers.Authorization = `Bearer ${token}`
-  }
-  return config
-})
+// No Authorization header; backend reads HttpOnly cookie
+api.interceptors.request.use((config) => config)
 
 // If the server says we are unauthorized, clear session and go to login
 api.interceptors.response.use(
@@ -25,11 +20,8 @@ api.interceptors.response.use(
   (error) => {
     const status = error?.response?.status
     if (status === 401) {
-      localStorage.removeItem('accessToken')
       localStorage.removeItem('user')
-      if (location.pathname !== '/login') {
-        location.href = '/login'
-      }
+      if (location.pathname !== '/login') location.href = '/login'
     }
     return Promise.reject(error)
   }

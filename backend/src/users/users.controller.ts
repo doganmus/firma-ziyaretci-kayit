@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Delete, UseGuards, Req, BadRequestException } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Delete, UseGuards, Req, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import * as bcrypt from 'bcrypt';
 import { User, UserRole } from './user.entity';
@@ -33,6 +33,15 @@ export class UsersController {
   @Roles('ADMIN')
   async update(@Param('id') id: string, @Body() body: UpdateUserDto): Promise<User> {
     const update: Partial<User> = {};
+    if (body.role && body.role !== 'ADMIN') {
+      const all = await this.users.findAll();
+      const admins = all.filter(u => u.role === 'ADMIN');
+      const target = all.find(u => u.id === id);
+      const isTargetAdmin = target?.role === 'ADMIN';
+      if (isTargetAdmin && admins.length <= 1) {
+        throw new ForbiddenException('Son ADMIN rolü düşürülemez');
+      }
+    }
     if (body.full_name) update.full_name = body.full_name;
     if (body.role) update.role = body.role;
     if (body.password) update['password_hash' as keyof User] = await bcrypt.hash(body.password, 10) as any;
@@ -43,7 +52,17 @@ export class UsersController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
   remove(@Param('id') id: string) {
-    return this.users.remove(id);
+    return (async () => {
+      const all = await this.users.findAll();
+      const target = all.find(u => u.id === id);
+      if (target?.role === 'ADMIN') {
+        const admins = all.filter(u => u.role === 'ADMIN');
+        if (admins.length <= 1) {
+          throw new BadRequestException('Son ADMIN silinemez');
+        }
+      }
+      return this.users.remove(id);
+    })();
   }
 
   // Self-service: change own password

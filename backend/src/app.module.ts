@@ -19,10 +19,13 @@ import { UsersService } from './users/users.service';
 import { VehicleLogsModule } from './vehicle-logs/vehicle-logs.module';
 import { UserRole } from './users/user.entity';
 import * as bcrypt from 'bcrypt';
+import { ConfigModule } from '@nestjs/config';
 
 // Root module that wires up database, rate limiting, and feature modules
 @Module({
   imports: [
+    // Centralized configuration (reads from process.env)
+    ConfigModule.forRoot({ isGlobal: true }),
     // Connect to PostgreSQL using DATABASE_URL; auto loads entity metadata
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -61,11 +64,19 @@ export class AppModule implements OnApplicationBootstrap {
   async onApplicationBootstrap() {
     // Create a default ADMIN user on first run if the database is empty
     try {
+      if (process.env.NODE_ENV === 'production') {
+        return; // no seeding in production
+      }
       const users = await this.usersService.findAll();
       if (users.length === 0) {
-        const email = process.env.SEED_ADMIN_EMAIL || 'admin@example.com';
-        const password = process.env.SEED_ADMIN_PASSWORD || 'admin123';
+        const email = process.env.SEED_ADMIN_EMAIL;
+        const password = process.env.SEED_ADMIN_PASSWORD;
         const fullName = process.env.SEED_ADMIN_NAME || 'Admin';
+        if (!email || !password) {
+          // eslint-disable-next-line no-console
+          console.warn('[bootstrap] Skipping admin seed: SEED_ADMIN_EMAIL/PASSWORD not set');
+          return;
+        }
         const password_hash = await bcrypt.hash(password, 10);
         await this.usersService.create({
           email,

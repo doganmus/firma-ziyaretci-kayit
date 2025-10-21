@@ -11,7 +11,7 @@ async function run() {
   } catch (e) {
     // eslint-disable-next-line no-console
     console.error('[migrations] Failed:', e);
-    process.exit(0); // migrations failure should not block app in container startup
+    process.exit(1); // fail-fast: block app startup when migrations fail
   }
 }
 

@@ -21,7 +21,8 @@ const { Header, Content, Sider } = Layout
 
 // Checks if a JWT token exists (meaning user is logged in)
 function isAuthed() {
-  return !!localStorage.getItem('accessToken')
+  // Cookie-based auth: presence of user object is a hint; server enforces auth
+  return !!localStorage.getItem('user')
 }
 
 // Reads the current user's role from localStorage (if present)
@@ -131,9 +132,10 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
 
   // Logout clears session and redirects to login
   const logout = () => {
-    localStorage.removeItem('accessToken')
-    localStorage.removeItem('user')
-    window.location.href = '/login'
+    fetch('/api/auth/logout', { method: 'POST', credentials: 'include' }).finally(() => {
+      localStorage.removeItem('user')
+      window.location.href = '/login'
+    })
   }
 
   // Toggle between light and dark theme

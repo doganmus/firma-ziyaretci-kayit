@@ -4,6 +4,7 @@ import { Setting } from './settings.entity';
 import { SettingsService } from './settings.service';
 import { SettingsController } from './settings.controller';
 import { PublicSettingsController } from './public-settings.controller';
+import './dto/update-settings.dto';
 
 // Settings module stores brand name or logo URL and exposes admin endpoints
 @Module({

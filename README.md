@@ -5,7 +5,7 @@ Ziyaretçi giriş-çıkışlarının kayıt altına alındığı, raporlanabildi
 ### Özellikler
 - **Giriş/Çıkış Kaydı**: Tarih, ziyaretçi adı soyadı, şirketi, ziyaret edilen kişi, giriş/çıkış saati
 - **Araç Bilgisi**: Araç var/yok, plaka; araç yoksa plaka devre dışı ve veritabanında NULL
-- **Kimlik Doğrulama**: JWT tabanlı login ve RBAC
+- **Kimlik Doğrulama**: JWT tabanlı login ve RBAC (HttpOnly cookie)
 - **Raporlar**: Tarih aralığı ve filtrelerle özet ve firma bazlı tablo; Excel/PDF dışa aktarma uçları
 - **Kayıtlar Export**: Ziyaret listesi için Excel (.xls) indirme
 - **Tema**: Dark/Light mode toggle (kalıcı tercih)
@@ -58,7 +58,7 @@ docker compose up -d --build
 - Kayıtlar: http://localhost:5173/list
 - Raporlar: http://localhost:5173/reports
 - Backend API: http://localhost:3000
-- Metrics: http://localhost:3000/metrics (Prometheus format)
+- Metrics: http://localhost:3000/metrics (Prometheus format, prod'da korumalı)
 - Yüklenen dosyalar: http://localhost:5173/uploads/... (Nginx backend'e proxy eder)
 - pgAdmin: http://localhost:5050
  - Prometheus: http://localhost:9090

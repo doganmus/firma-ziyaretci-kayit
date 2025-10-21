@@ -4,9 +4,12 @@ import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { SettingsService } from './settings.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname, join } from 'path';
-import { existsSync, mkdirSync } from 'fs';
+import { join } from 'path';
+import { existsSync, mkdirSync, writeFileSync } from 'fs';
+import * as multer from 'multer';
+import * as FileType from 'file-type';
+import sharp from 'sharp';
+import { UpdateSettingsDto } from './dto/update-settings.dto';
 
 @Controller('admin/settings')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -22,7 +25,7 @@ export class SettingsController {
 
   // Updates brand settings; only the provided fields are changed
   @Patch()
-  update(@Body() body: { brandName?: string | null; brandLogoUrl?: string | null }) {
+  update(@Body() body: UpdateSettingsDto) {
     return this.settings.update(body);
   }
 
@@ -30,31 +33,25 @@ export class SettingsController {
   @Post('logo')
   @UseInterceptors(
     FileInterceptor('file', {
-      storage: diskStorage({
-        destination: (_req, _file, cb) => {
-          const dir = join(process.cwd(), 'uploads')
-          if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
-          cb(null, dir)
-        },
-        filename: (_req, file, cb) => {
-          const ext = (extname(file.originalname) || '.png').toLowerCase()
-          const unique = Date.now() + '-' + Math.round(Math.random() * 1e9)
-          cb(null, `logo-${unique}${ext}`)
-        },
-      }),
-      fileFilter: (_req, file, cb) => {
-        if (file.mimetype !== 'image/png') {
-          cb(new Error('Only PNG allowed'), false)
-        } else {
-          cb(null, true)
-        }
-      },
+      storage: multer.memoryStorage(),
       limits: { fileSize: 2 * 1024 * 1024 },
     })
   )
-  uploadLogo(@UploadedFile() file: Express.Multer.File) {
-    const url = `/uploads/${file.filename}`
-    return { url }
+  async uploadLogo(@UploadedFile() file: Express.Multer.File) {
+    if (!file || !file.buffer) throw new Error('Dosya zorunludur');
+    const type = await FileType.fileTypeFromBuffer(file.buffer);
+    if (!type || type.mime !== 'image/png') {
+      throw new Error('Yalnız PNG desteklenir');
+    }
+    const dir = join(process.cwd(), 'uploads');
+    if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+    const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const filename = `logo-${unique}.png`;
+    // Re-encode to PNG to strip metadata and ensure safe content
+    const encoded = await sharp(file.buffer).png({ compressionLevel: 9 }).toBuffer();
+    writeFileSync(join(dir, filename), encoded);
+    const url = `/uploads/${filename}`;
+    return { url };
   }
 }
 

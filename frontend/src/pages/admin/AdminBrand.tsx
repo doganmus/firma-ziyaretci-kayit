@@ -40,7 +40,7 @@ export default function AdminBrand() {
               formData.append('file', logoFile)
               const resUpload = await fetch('/api/admin/settings/logo', {
                 method: 'POST',
-                headers: { Authorization: `Bearer ${localStorage.getItem('accessToken') || ''}` },
+                credentials: 'include',
                 body: formData,
               })
               if (!resUpload.ok) {

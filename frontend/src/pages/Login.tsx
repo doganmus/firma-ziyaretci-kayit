@@ -20,8 +20,7 @@ export default function Login({ themeName = 'light', onToggleTheme }: { themeNam
     setError(null)
     try {
       setLoading(true)
-      const res = await api.post<LoginResponse>('/auth/login', values)
-      localStorage.setItem('accessToken', res.data.accessToken)
+      const res = await api.post<{ user: LoginResponse['user'] }>('/auth/login', values)
       localStorage.setItem('user', JSON.stringify(res.data.user))
       window.location.href = '/dashboard'
     } catch {

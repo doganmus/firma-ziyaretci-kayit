@@ -102,7 +102,8 @@ docker compose up -d
 ### Ortam Değişkenleri (.env)
 - POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD: PostgreSQL ayarları
 - PGADMIN_EMAIL, PGADMIN_PASSWORD: pgAdmin giriş bilgileri
-- JWT_SECRET: Backend için JWT imzalama anahtarı
+- JWT_SECRET: Backend için JWT imzalama anahtarı (zorunlu)
+- ALLOWED_ORIGINS: (opsiyonel) geliştirme modunda CORS izinli kökenler (virgülle)
 
 ### Veritabanı
 - Bağlantı: postgres://:@db:5432/
@@ -115,8 +116,9 @@ docker compose up -d
 Get-Content backup.sql | & "C:\Program Files\Docker\Docker\resources\bin\docker.exe" compose exec -T db psql -U  
 `
 
-### TypeORM Migration (öneri)
-- Prod’da `synchronize=false` kullanın ve migration üretin/çalıştırın:
+### TypeORM Migration
+- Prod’da `synchronize=false` kullanılır; migration hatası durumda başlatma başarısız olur.
+  - Migration üret/çalıştır:
   - `npm run typeorm migration:generate -n init`
   - `npm run typeorm migration:run`
 
@@ -134,10 +136,11 @@ Invoke-RestMethod -Method Post -Uri 'http://localhost:3000/admin/users' -Content
  = @{ email = 'operator@example.com'; password = 'operator123'; full_name = 'Operator'; role = 'OPERATOR' } | ConvertTo-Json
 Invoke-RestMethod -Method Post -Uri 'http://localhost:3000/admin/users' -Headers  -ContentType 'application/json' -Body 
 `
-- Login testi
+-- Login testi (cookie tabanlı)
 `powershell
  = @{ email = 'operator@example.com'; password = 'operator123' } | ConvertTo-Json
-Invoke-RestMethod -Method Post -Uri 'http://localhost:3000/auth/login' -ContentType 'application/json' -Body 
+Invoke-RestMethod -Method Post -Uri 'http://localhost:3000/auth/login' -ContentType 'application/json' -Body  -SessionVariable s
+($s.Cookies.GetCookies('http://localhost:3000')['access_token']).Value # doğrula
 `
 
 ### HTTPS (Geliştirme için self-signed)
