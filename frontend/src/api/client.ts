@@ -2,7 +2,9 @@ import axios from 'axios'
 
 // Choose API base URL: from environment (VITE_API_URL) or default to '/api'
 const fallbackBase = '/api'
-const apiBase = (import.meta.env.VITE_API_URL as string) || fallbackBase
+const raw = (import.meta.env.VITE_API_URL as string) || fallbackBase
+// Ensure trailing slash is NOT duplicated and path prefix exists
+const apiBase = raw.endsWith('/') ? raw.slice(0, -1) : raw
 
 // Pre-configured Axios instance used by the app to call the backend API
 export const api = axios.create({
