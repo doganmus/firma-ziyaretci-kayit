@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { api } from '../api/client'
-import { Form, Input, Switch, Button, Card, Typography, Alert, Row, Col, Table, Space, Popconfirm } from 'antd'
-import dayjs from 'dayjs'
+import { Form, Input, Switch, Button, Card, Typography, Alert, Row, Col, Table, Space, Popconfirm, DatePicker } from 'antd'
+import dayjs, { Dayjs } from 'dayjs'
 
 // Normalized TR plate formats (no spaces):
 // 99X9999 or 99X99999 | 99XX999 or 99XX9999 | 99XXX99 or 99XXX999
@@ -14,6 +14,8 @@ type FormValues = {
   company_name: string
   has_vehicle: boolean
   vehicle_plate?: string
+  entry_at: Dayjs
+  exit_at?: Dayjs
 }
 
 // Type representing a visit row from the API
@@ -78,10 +80,10 @@ export default function VisitForm() {
     setMessage(null)
     try {
       setLoading(true)
-      const now = new Date().toISOString()
       const normalizedPlate = (values.vehicle_plate ?? '').replace(/\s+/g, '').toUpperCase()
       await api.post('/visits', {
-        entry_at: now,
+        entry_at: values.entry_at ? dayjs(values.entry_at).toISOString() : undefined,
+        exit_at: values.exit_at ? dayjs(values.exit_at).toISOString() : undefined,
         visitor_full_name: values.visitor_full_name.toLocaleUpperCase('tr-TR'),
         visited_person_full_name: values.visited_person_full_name.toLocaleUpperCase('tr-TR'),
         company_name: values.company_name.toLocaleUpperCase('tr-TR'),
@@ -139,6 +141,26 @@ export default function VisitForm() {
         >
           <Row gutter={[16, 8]}>
             <Col xs={24} md={12}>
+            <Form.Item
+              label="Giriş Tarih/Saat"
+              name="entry_at"
+              rules={[{ required: true, message: 'Giriş tarih/saat gerekli' }]}
+            >
+              <DatePicker showTime style={{ width: '100%' }} format="YYYY-MM-DD HH:mm" />
+            </Form.Item>
+          </Col>
+          <Col xs={24} md={12}>
+            <Form.Item
+              label="Çıkış Tarih/Saat (opsiyonel)"
+              name="exit_at"
+            >
+              <DatePicker showTime style={{ width: '100%' }} format="YYYY-MM-DD HH:mm" />
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Row gutter={[16, 8]}>
+          <Col xs={24} md={12}>
               <Form.Item
                 label="Adı Soyadı"
                 name="visitor_full_name"

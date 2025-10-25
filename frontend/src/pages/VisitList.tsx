@@ -72,7 +72,7 @@ export default function VisitList() {
   useEffect(() => {
     load()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [page, pageSize, sortKey, sortOrder])
 
   // Calls the API to set exit time for a visit
   const exitVisit = async (id: string) => {
@@ -215,8 +215,6 @@ export default function VisitList() {
           setSortOrder(sorter?.order || null)
           if (_pagination?.current) setPage(_pagination.current)
           if (_pagination?.pageSize) setPageSize(_pagination.pageSize)
-          // Sayfa/sort değişikliklerinde yeniden yükle
-          setTimeout(() => load(), 0)
         }}
       />
       </div>

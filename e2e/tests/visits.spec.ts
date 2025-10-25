@@ -98,6 +98,31 @@ test.describe.serial('Visits flow', () => {
     }
     expect(exited).toBeTruthy()
   })
+
+  test('pagination: navigate between pages', async ({ page }) => {
+    await loginAsAdmin(page)
+    const req = await newAuthedRequest()
+    const baseNow = Date.now()
+    // create 25 visits via API
+    for (let i = 0; i < 25; i++) {
+      await req.post('http://localhost:3000/visits', {
+        data: {
+          entry_at: new Date(baseNow - i * 60000).toISOString(),
+          visitor_full_name: `PAGETEST VISITOR ${baseNow}-${i}`,
+          visited_person_full_name: `PAGETEST TARGET ${baseNow}-${i}`,
+          company_name: `PAGETEST CO ${baseNow}`,
+          has_vehicle: false,
+        },
+      })
+    }
+    await page.goto('/list')
+    await page.getByLabel('Firma ara').fill(`PAGETEST CO ${baseNow}`)
+    await page.getByRole('button', { name: 'Filtrele' }).click()
+    // go to page 2
+    await page.getByRole('button', { name: '2' }).click()
+    // expect some row visible still
+    await expect(page.getByRole('cell', { name: new RegExp(`PAGETEST CO ${baseNow}`) }).first()).toBeVisible()
+  })
 })
 
 

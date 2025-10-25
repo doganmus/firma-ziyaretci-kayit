@@ -16,7 +16,7 @@ test.describe.serial('Vehicle logs flow', () => {
     // Create via API
     const req = await newAuthedRequest()
     const createRes = await req.post('http://localhost:3000/vehicle-logs', {
-      data: { plate, district, vehicle_type }
+      data: { plate, district, vehicle_type, entry_at: new Date().toISOString() }
     })
     expect(createRes.ok()).toBeTruthy()
     const body = await createRes.json() as any

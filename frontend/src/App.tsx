@@ -15,6 +15,9 @@ import AdminOps from './pages/admin/AdminOps'
 import { useEffect, useMemo, useState } from 'react'
 import { ConfigProvider, theme, Layout, Menu, Space, Button, Tooltip, Dropdown, Modal, Form as AntForm, Input as AntInput, message, Divider, Switch as AntSwitch, Alert } from 'antd'
 import { api } from './api/client'
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
+import timezone from 'dayjs/plugin/timezone'
 import { SunOutlined, MoonOutlined, MenuOutlined, LogoutOutlined, UserOutlined, FormOutlined, UnorderedListOutlined, BarChartOutlined, SettingOutlined, TeamOutlined, PictureOutlined } from '@ant-design/icons'
 
 const { Header, Content, Sider } = Layout
@@ -57,6 +60,36 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
     return { name: null, logoUrl: null }
   })
   const [maintenance, setMaintenance] = useState(false)
+  // Setup logout scheduler for 07:01 and 19:01 Europe/Istanbul
+  useEffect(() => {
+    dayjs.extend(utc)
+    dayjs.extend(timezone)
+    let timer: any
+    const schedule = () => {
+      try {
+        const now = dayjs().tz('Europe/Istanbul')
+        const seven = now.clone().hour(7).minute(1).second(0).millisecond(0)
+        const nineteen = now.clone().hour(19).minute(1).second(0).millisecond(0)
+        let next = seven
+        if (!now.isBefore(next)) {
+          const cand = nineteen
+          next = now.isBefore(cand) ? cand : now.add(1, 'day').hour(7).minute(1).second(0).millisecond(0)
+        }
+        const ms = Math.max(0, next.diff(now))
+        clearTimeout(timer)
+        timer = setTimeout(() => {
+          // Fire once, then reschedule for the next cutoff
+          fetch('/api/auth/logout', { method: 'POST', credentials: 'include' }).finally(() => {
+            localStorage.removeItem('user')
+            window.location.href = '/login'
+          })
+          schedule()
+        }, ms)
+      } catch {}
+    }
+    schedule()
+    return () => clearTimeout(timer)
+  }, [])
   // React to brand changes fired from AdminBrand
   useEffect(() => {
     const handler = () => {

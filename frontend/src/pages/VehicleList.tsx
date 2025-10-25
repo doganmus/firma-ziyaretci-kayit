@@ -55,7 +55,7 @@ export default function VehicleList() {
   useEffect(() => {
     load()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [page, pageSize, sortKey, sortOrder])
 
   const exitVehicle = async (id: string) => {
     await api.post(`/vehicle-logs/${id}/exit`)
@@ -140,7 +140,6 @@ export default function VehicleList() {
           setSortOrder(sorter?.order || null)
           if (_pagination?.current) setPage(_pagination.current)
           if (_pagination?.pageSize) setPageSize(_pagination.pageSize)
-          setTimeout(() => load(), 0)
         }}
       />
     </div>
