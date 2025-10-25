@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { api } from '../api/client'
-import { Form, Input, Button, Card, Typography, Table, Row, Col, Select, Radio } from 'antd'
-import dayjs from 'dayjs'
+import { Form, Input, Button, Card, Typography, Table, Row, Col, Select, Radio, DatePicker } from 'antd'
+import dayjs, { Dayjs } from 'dayjs'
 
 const { Title } = Typography
 
@@ -11,6 +11,8 @@ type FormValues = {
   vehicle_type?: string
   note?: string
   action?: 'entry' | 'exit'
+  entry_at?: Dayjs
+  exit_at?: Dayjs
 }
 
 type VehicleLog = {
@@ -47,6 +49,8 @@ export default function VehicleForm() {
         district: values.district || undefined,
         vehicle_type: values.vehicle_type || undefined,
         note: values.note || undefined,
+        entry_at: values.entry_at ? dayjs(values.entry_at).toISOString() : undefined,
+        exit_at: values.exit_at ? dayjs(values.exit_at).toISOString() : undefined,
       }
       if (values.action === 'exit') {
         // Bulması için aktif listeden ilk eşleşeni çıkış veriyoruz (basit UX)
@@ -103,6 +107,19 @@ export default function VehicleForm() {
           </Form.Item>
 
           <Row gutter={[16,8]}>
+          <Col xs={24} md={12}>
+            <Form.Item label="Giriş Tarih/Saat" name="entry_at" rules={[{ required: true, message: 'Giriş tarih/saat gerekli' }]}>
+              <DatePicker showTime style={{ width: '100%' }} format="YYYY-MM-DD HH:mm" />
+            </Form.Item>
+          </Col>
+          <Col xs={24} md={12}>
+            <Form.Item label="Çıkış Tarih/Saat (opsiyonel)" name="exit_at">
+              <DatePicker showTime style={{ width: '100%' }} format="YYYY-MM-DD HH:mm" />
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Row gutter={[16,8]}>
             <Col xs={24} md={12}>
               <Form.Item label="İlçe" name="district" rules={[{ required: true, message: 'İlçe gerekli' }]}>
                 <Input placeholder="İlçe" />

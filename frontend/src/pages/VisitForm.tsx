@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { api } from '../api/client'
-import { Form, Input, Switch, Button, Card, Typography, Alert, Row, Col, Table, Space, Popconfirm } from 'antd'
-import dayjs from 'dayjs'
+import { Form, Input, Switch, Button, Card, Typography, Alert, Row, Col, Table, DatePicker } from 'antd'
+import dayjs, { Dayjs } from 'dayjs'
 
 // Normalized TR plate formats (no spaces):
 // 99X9999 or 99X99999 | 99XX999 or 99XX9999 | 99XXX99 or 99XXX999
@@ -14,6 +14,8 @@ type FormValues = {
   company_name: string
   has_vehicle: boolean
   vehicle_plate?: string
+  entry_at: Dayjs
+  exit_at?: Dayjs
 }
 
 // Type representing a visit row from the API
@@ -31,7 +33,8 @@ type Visit = {
 export default function VisitForm() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
-  const [activeVehicles, setActiveVehicles] = useState<Visit[]>([])
+  const [activeVisitors, setActiveVisitors] = useState<Visit[]>([])
+  const [editingId, setEditingId] = useState<string | null>(null)
   const [form] = Form.useForm<FormValues>()
   const [maintenance, setMaintenance] = useState(false)
   // Determine role to hide actions for VIEWER and handle maintenance gating
@@ -44,6 +47,7 @@ export default function VisitForm() {
     }
   })()
   const isViewer = role === 'VIEWER'
+  const canEdit = role === 'OPERATOR' || role === 'ADMIN'
   useEffect(() => {
     ;(async () => {
       try {
@@ -57,7 +61,7 @@ export default function VisitForm() {
   const loadActiveVehicles = async () => {
     const res = await api.get<{ data: Visit[]; total: number }>('/visits')
     const rows = Array.isArray((res.data as any)?.data) ? (res.data as any).data as Visit[] : ([] as Visit[])
-    setActiveVehicles(rows.filter(v => !v.exit_at))
+    setActiveVisitors(rows.filter(v => !v.exit_at))
   }
 
   useEffect(() => {
@@ -69,7 +73,7 @@ export default function VisitForm() {
     return <div style={{ padding: 16 }}>Sistem bakım modunda. Lütfen daha sonra tekrar deneyin.</div>
   }
 
-  // Submit handler: creates a new visit record via API
+  // Submit handler: create or update visit record via API
   const onFinish = async (values: FormValues) => {
     if (maintenance) {
       setMessage({ type: 'error', text: 'Bakım modunda işlem yapılamaz' })
@@ -78,18 +82,25 @@ export default function VisitForm() {
     setMessage(null)
     try {
       setLoading(true)
-      const now = new Date().toISOString()
       const normalizedPlate = (values.vehicle_plate ?? '').replace(/\s+/g, '').toUpperCase()
-      await api.post('/visits', {
-        entry_at: now,
+      const payload = {
+        entry_at: values.entry_at ? dayjs(values.entry_at).toISOString() : undefined,
+        exit_at: values.exit_at ? dayjs(values.exit_at).toISOString() : undefined,
         visitor_full_name: values.visitor_full_name.toLocaleUpperCase('tr-TR'),
         visited_person_full_name: values.visited_person_full_name.toLocaleUpperCase('tr-TR'),
         company_name: values.company_name.toLocaleUpperCase('tr-TR'),
         has_vehicle: values.has_vehicle,
         vehicle_plate: values.has_vehicle ? normalizedPlate : undefined,
-      })
-      setMessage({ type: 'success', text: 'Kayıt oluşturuldu' })
+      }
+      if (editingId && canEdit) {
+        await api.patch(`/visits/${editingId}`, payload)
+        setMessage({ type: 'success', text: 'Kayıt güncellendi' })
+      } else {
+        await api.post('/visits', payload)
+        setMessage({ type: 'success', text: 'Kayıt oluşturuldu' })
+      }
       form.resetFields()
+      setEditingId(null)
       await loadActiveVehicles()
     } catch {
       setMessage({ type: 'error', text: 'Hata oluştu' })
@@ -98,31 +109,15 @@ export default function VisitForm() {
     }
   }
 
-  // Marks a visit as exited
-  const exitVisit = async (id: string) => {
-    await api.post(`/visits/${id}/exit`)
-    await loadActiveVehicles()
-  }
-
-  // Columns for the active vehicles table
+  // Columns for the active visitors table
   const activeColumns: any[] = [
     { title: 'Plaka', dataIndex: 'vehicle_plate' },
-    { title: 'Ad Soyad', dataIndex: 'visitor_full_name' },
+    { title: 'Ziyaret eden', dataIndex: 'visitor_full_name' },
     { title: 'Ziyaret Edilen', dataIndex: 'visited_person_full_name' },
     { title: 'Firma', dataIndex: 'company_name' },
-    { title: 'Giriş', dataIndex: 'entry_at', render: (v: string) => dayjs(v).format('YYYY-MM-DD HH:mm') },
+    { title: 'Giriş', dataIndex: 'entry_at', render: (v: string) => dayjs(v).format('DD.MM.YYYY HH:mm') },
   ]
-  if (!isViewer) {
-    activeColumns.push({
-      title: 'Aksiyon', key: 'action', render: (_: any, r: Visit) => (
-        <Space>
-          <Popconfirm title="Çıkış verilsin mi?" onConfirm={() => exitVisit(r.id)}>
-            <Button type="link">Çıkış Yap</Button>
-          </Popconfirm>
-        </Space>
-      )
-    })
-  }
+  // No exit actions anymore
 
   return (
     <div style={{ maxWidth: 960, margin: '24px auto' }}>
@@ -137,14 +132,14 @@ export default function VisitForm() {
           onFinish={onFinish}
           initialValues={{ has_vehicle: false }}
         >
-          <Row gutter={[16, 8]}>
-            <Col xs={24} md={12}>
+        <Row gutter={[16, 8]}>
+          <Col xs={24} md={12}>
               <Form.Item
-                label="Adı Soyadı"
+                label="Ziyaret eden Adı Soyadı"
                 name="visitor_full_name"
                 dependencies={['visited_person_full_name']}
                 rules={[
-                  { required: true, message: 'Adı Soyadı gerekli' },
+                  { required: true, message: 'Ziyaret eden Adı Soyadı gerekli' },
                   ({ getFieldValue }) => ({
                     validator(_, value) {
                       const other = getFieldValue('visited_person_full_name')
@@ -182,6 +177,27 @@ export default function VisitForm() {
                 getValueFromEvent={(e) => (e?.target?.value ?? '').toLocaleUpperCase('tr-TR')}
               > 
                 <Input placeholder="Ziyaret edilen kişi" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          {/* Date fields under the name fields */}
+          <Row gutter={[16, 8]}>
+            <Col xs={24} md={12}>
+              <Form.Item
+                label="Giriş Tarih/Saat"
+                name="entry_at"
+                rules={[{ required: true, message: 'Giriş tarih/saat gerekli' }]}
+              >
+                <DatePicker showTime style={{ width: '100%' }} format="DD.MM.YYYY HH:mm" placeholder="25.10.2025 15:00" inputReadOnly={false} />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={12}>
+              <Form.Item
+                label="Çıkış Tarih/Saat (opsiyonel)"
+                name="exit_at"
+              >
+                <DatePicker showTime style={{ width: '100%' }} format="DD.MM.YYYY HH:mm" placeholder="25.10.2025 15:00" inputReadOnly={false} />
               </Form.Item>
             </Col>
           </Row>
@@ -237,13 +253,28 @@ export default function VisitForm() {
         </Form>
       </Card>
 
-      {/* List of vehicles that are still inside (no exit yet) */}
-      <Card style={{ marginTop: 16 }} title="İçerideki Araçlar (Çıkış Yapılmamış)">
+      {/* List of visitors that are still inside (no exit yet) */}
+      <Card style={{ marginTop: 16 }} title="İçerideki Ziyaretçiler (Çıkış Yapılmamış)">
         <Table
           rowKey="id"
-          dataSource={activeVehicles}
+          dataSource={activeVisitors}
           columns={activeColumns as any}
           pagination={{ pageSize: 5 }}
+          onRow={(record) => ({
+            onClick: () => {
+              if (!canEdit) return
+              setEditingId(record.id)
+              form.setFieldsValue({
+                visitor_full_name: record.visitor_full_name,
+                visited_person_full_name: record.visited_person_full_name,
+                company_name: record.company_name,
+                has_vehicle: record.has_vehicle,
+                vehicle_plate: record.vehicle_plate ?? undefined,
+                entry_at: record.entry_at ? dayjs(record.entry_at) : undefined,
+                exit_at: record.exit_at ? dayjs(record.exit_at) : undefined,
+              } as any)
+            }
+          })}
         />
       </Card>
     </div>
