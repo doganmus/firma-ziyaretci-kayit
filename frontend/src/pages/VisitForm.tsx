@@ -47,7 +47,7 @@ export default function VisitForm() {
     }
   })()
   const isViewer = role === 'VIEWER'
-  const isOperator = role === 'OPERATOR'
+  const canEdit = role === 'OPERATOR' || role === 'ADMIN'
   useEffect(() => {
     ;(async () => {
       try {
@@ -92,7 +92,7 @@ export default function VisitForm() {
         has_vehicle: values.has_vehicle,
         vehicle_plate: values.has_vehicle ? normalizedPlate : undefined,
       }
-      if (editingId && isOperator) {
+      if (editingId && canEdit) {
         await api.patch(`/visits/${editingId}`, payload)
         setMessage({ type: 'success', text: 'Kayıt güncellendi' })
       } else {
@@ -262,7 +262,7 @@ export default function VisitForm() {
           pagination={{ pageSize: 5 }}
           onRow={(record) => ({
             onClick: () => {
-              if (!isOperator) return
+              if (!canEdit) return
               setEditingId(record.id)
               form.setFieldsValue({
                 visitor_full_name: record.visitor_full_name,
