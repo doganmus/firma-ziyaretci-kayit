@@ -87,8 +87,8 @@ export default function VisitList() {
       v.visitor_full_name,
       v.visited_person_full_name,
       v.company_name,
-      dayjs(v.entry_at).format('YYYY-MM-DD HH:mm'),
-      v.exit_at ? dayjs(v.exit_at).format('YYYY-MM-DD HH:mm') : '-',
+      dayjs(v.entry_at).format('DD.MM.YYYY HH:mm'),
+      v.exit_at ? dayjs(v.exit_at).format('DD.MM.YYYY HH:mm') : '-',
       v.has_vehicle ? (v.vehicle_plate ?? '') : '',
     ])
 
@@ -144,7 +144,7 @@ export default function VisitList() {
         title: <span aria-sort={sortKey === 'entry_at' ? (sortOrder || 'none') : 'none'}>Giriş</span>,
         dataIndex: 'entry_at',
         key: 'entry_at',
-        render: (v: string) => dayjs(v).format('YYYY-MM-DD HH:mm'),
+        render: (v: string) => dayjs(v).format('DD.MM.YYYY HH:mm'),
         sorter: (a: Visit, b: Visit) => dayjs(a.entry_at).valueOf() - dayjs(b.entry_at).valueOf(),
         sortOrder: sortKey === 'entry_at' ? sortOrder : null,
       },
@@ -152,21 +152,13 @@ export default function VisitList() {
         title: <span aria-sort={sortKey === 'exit_at' ? (sortOrder || 'none') : 'none'}>Çıkış</span>,
         dataIndex: 'exit_at',
         key: 'exit_at',
-        render: (v: string | null) => v ? dayjs(v).format('YYYY-MM-DD HH:mm') : '-',
+        render: (v: string | null) => v ? dayjs(v).format('DD.MM.YYYY HH:mm') : '-',
         sorter: (a: Visit, b: Visit) => (dayjs(a.exit_at || 0).valueOf() - dayjs(b.exit_at || 0).valueOf()),
         sortOrder: sortKey === 'exit_at' ? sortOrder : null,
       },
       { title: 'Araç/Plaka', key: 'vehicle', render: (_: any, r: Visit) => r.has_vehicle ? (r.vehicle_plate ?? '') : 'YAYA' },
     ]
-    if (!isViewer) {
-      base.push({
-        title: 'Aksiyon', key: 'action', render: (_: any, r: Visit) => (
-          r.exit_at ? null : (
-            <Button type="link" onClick={() => exitVisit(r.id)}>Çıkış Ver</Button>
-          )
-        )
-      })
-    }
+    // Remove action column entirely (no exit flow)
     return base
   }, [isViewer, sortKey, sortOrder])
 

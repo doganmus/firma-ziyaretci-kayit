@@ -84,10 +84,44 @@ export class VisitsService {
   }
 
   // Sets the exit time for a visit to now
-  async exit(id: string): Promise<Visit> {
+  async update(id: string, payload: {
+    entry_at?: string;
+    exit_at?: string | null;
+    visitor_full_name?: string;
+    visited_person_full_name?: string;
+    company_name?: string;
+    has_vehicle?: boolean;
+    vehicle_plate?: string | null;
+  }): Promise<Visit> {
     const visit = await this.repo.findOne({ where: { id } });
     if (!visit) throw new BadRequestException('Visit not found');
-    visit.exit_at = new Date();
+
+    if (typeof payload.entry_at === 'string') {
+      const entryAt = new Date(payload.entry_at);
+      visit.entry_at = entryAt;
+      visit.date = entryAt.toISOString().slice(0, 10);
+    }
+    if (typeof payload.exit_at !== 'undefined') {
+      visit.exit_at = payload.exit_at ? new Date(payload.exit_at) : null;
+    }
+    if (typeof payload.visitor_full_name === 'string') visit.visitor_full_name = payload.visitor_full_name.toLocaleUpperCase('tr-TR');
+    if (typeof payload.visited_person_full_name === 'string') visit.visited_person_full_name = payload.visited_person_full_name.toLocaleUpperCase('tr-TR');
+    if (typeof payload.company_name === 'string') visit.company_name = payload.company_name.toLocaleUpperCase('tr-TR');
+
+    if (typeof payload.has_vehicle === 'boolean') {
+      visit.has_vehicle = payload.has_vehicle;
+      if (!payload.has_vehicle) {
+        visit.vehicle_plate = null;
+      }
+    }
+    if (typeof payload.vehicle_plate === 'string') {
+      const normalized = payload.vehicle_plate.replace(/\s+/g, '').toUpperCase();
+      if (!TR_PLATE_REGEX.test(normalized)) {
+        throw new BadRequestException('vehicle_plate must match TR plate format (e.g. 34ABC1234)');
+      }
+      visit.vehicle_plate = normalized;
+    }
+
     return this.repo.save(visit);
   }
 }
