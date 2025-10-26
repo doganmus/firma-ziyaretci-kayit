@@ -16,6 +16,7 @@ export default function Reports() {
   const [summary, setSummary] = useState<Summary | null>(null)
   const [byCompany, setByCompany] = useState<ByCompany[]>([])
   const [loading, setLoading] = useState(false)
+  const [vehicleEvents, setVehicleEvents] = useState<any[]>([])
 
   // Loads report data for the selected date range
   const load = async () => {
@@ -26,8 +27,10 @@ export default function Reports() {
       if (dateRange && dateRange[1]) params.dateTo = dateRange[1].toDate().toISOString()
       const s = await api.get<Summary>('/reports/summary', { params })
       const c = await api.get<ByCompany[]>('/reports/by-company', { params })
+      const ve = await api.get<{ data: any[]; total: number }>('/vehicle-events', { params: { ...params, pageSize: 100 } })
       setSummary(s.data)
       setByCompany(c.data)
+      setVehicleEvents(Array.isArray(ve.data?.data) ? ve.data.data : [])
     } finally {
       setLoading(false)
     }
@@ -70,6 +73,24 @@ export default function Reports() {
           columns={[
             { title: 'Firma', dataIndex: 'company' },
             { title: 'Adet', dataIndex: 'count' },
+          ]}
+          pagination={{ pageSize: 10 }}
+          loading={loading}
+        />
+      </Card>
+
+      {/* Vehicle events table */}
+      <Card style={{ marginTop: 16 }} title="Araç Olayları">
+        <Table
+          rowKey={(r) => r.id}
+          dataSource={vehicleEvents}
+          columns={[
+            { title: 'Plaka', dataIndex: 'plate' },
+            { title: 'İşlem', dataIndex: 'action' },
+            { title: 'Tarih', dataIndex: 'at', render: (v: string) => dayjs(v).format('DD.MM.YYYY HH:mm') },
+            { title: 'İlçe', dataIndex: 'district' },
+            { title: 'Araç Türü', dataIndex: 'vehicle_type' },
+            { title: 'Not', dataIndex: 'note' },
           ]}
           pagination={{ pageSize: 10 }}
           loading={loading}

@@ -68,12 +68,7 @@ export class VehicleLogsService {
     return this.repo.save(log);
   }
 
-  async exit(id: string): Promise<VehicleLog> {
-    const item = await this.repo.findOne({ where: { id } });
-    if (!item) throw new BadRequestException('VehicleLog not found');
-    item.exit_at = new Date();
-    return this.repo.save(item);
-  }
+  // exit akışı olay-temelli modele taşındı
 }
 
 

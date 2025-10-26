@@ -5,18 +5,18 @@ import dayjs, { Dayjs } from 'dayjs'
 
 const { RangePicker } = DatePicker
 
-type VehicleLog = {
+type VehicleEvent = {
   id: string
   plate: string
-  entry_at: string
-  exit_at: string | null
+  action: 'ENTRY' | 'EXIT'
+  at: string
   district?: string | null
   vehicle_type?: string | null
   note?: string | null
 }
 
 export default function VehicleList() {
-  const [items, setItems] = useState<VehicleLog[]>([])
+  const [items, setItems] = useState<VehicleEvent[]>([])
   const [loading, setLoading] = useState(false)
   const [sortKey, setSortKey] = useState<string | null>(null)
   const [sortOrder, setSortOrder] = useState<'ascend' | 'descend' | null>(null)
@@ -26,7 +26,7 @@ export default function VehicleList() {
 
   const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null] | null>(null)
   const [plate, setPlate] = useState('')
-  const [active, setActive] = useState('')
+  const [action, setAction] = useState<'ENTRY' | 'EXIT' | ''>('')
   const [district, setDistrict] = useState('')
   const [vehicleType, setVehicleType] = useState('')
 
@@ -37,14 +37,14 @@ export default function VehicleList() {
       if (dateRange && dateRange[0]) params.dateFrom = dateRange[0].toDate().toISOString()
       if (dateRange && dateRange[1]) params.dateTo = dateRange[1].toDate().toISOString()
       if (plate) params.plate = plate
-      if (active) params.active = active
+      if (action) params.action = action
       if (district) params.district = district
       if (vehicleType) params.vehicleType = vehicleType
       if (sortKey) params.sortKey = sortKey
       if (sortOrder) params.sortOrder = sortOrder === 'ascend' ? 'asc' : 'desc'
       params.page = page
       params.pageSize = pageSize
-      const res = await api.get<{ data: VehicleLog[]; total: number }>('/vehicle-logs', { params })
+      const res = await api.get<{ data: VehicleEvent[]; total: number }>('/vehicle-events', { params })
       setItems(res.data.data)
       setTotal(res.data.total)
     } finally {
@@ -57,30 +57,26 @@ export default function VehicleList() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, pageSize, sortKey, sortOrder])
 
-  const exitVehicle = async (id: string) => {
-    await api.post(`/vehicle-logs/${id}/exit`)
-    await load()
-  }
+  // no inline exit in event model
 
   const columns = useMemo(() => {
     const base: any[] = [
-      { title: 'Plaka', dataIndex: 'plate', key: 'plate', sorter: (a: VehicleLog, b: VehicleLog) => a.plate.localeCompare(b.plate), sortOrder: sortKey === 'plate' ? sortOrder : null },
-      { title: 'Giriş', dataIndex: 'entry_at', key: 'entry_at', render: (v: string) => dayjs(v).format('YYYY-MM-DD HH:mm'), sorter: (a: VehicleLog, b: VehicleLog) => dayjs(a.entry_at).valueOf() - dayjs(b.entry_at).valueOf(), sortOrder: sortKey === 'entry_at' ? sortOrder : null },
-      { title: 'Çıkış', dataIndex: 'exit_at', key: 'exit_at', render: (v: string | null) => v ? dayjs(v).format('YYYY-MM-DD HH:mm') : '-', sorter: (a: VehicleLog, b: VehicleLog) => (dayjs(a.exit_at || 0).valueOf() - dayjs(b.exit_at || 0).valueOf()), sortOrder: sortKey === 'exit_at' ? sortOrder : null },
+      { title: 'Plaka', dataIndex: 'plate', key: 'plate', sorter: (a: VehicleEvent, b: VehicleEvent) => a.plate.localeCompare(b.plate), sortOrder: sortKey === 'plate' ? sortOrder : null },
+      { title: 'İşlem', dataIndex: 'action', key: 'action' },
+      { title: 'Tarih', dataIndex: 'at', key: 'at', render: (v: string) => dayjs(v).format('DD.MM.YYYY HH:mm'), sorter: (a: VehicleEvent, b: VehicleEvent) => dayjs(a.at).valueOf() - dayjs(b.at).valueOf(), sortOrder: sortKey === 'at' ? sortOrder : null },
       { title: 'İlçe', dataIndex: 'district', key: 'district' },
       { title: 'Araç Türü', dataIndex: 'vehicle_type', key: 'vehicle_type' },
       { title: 'Not', dataIndex: 'note', key: 'note' },
-      { title: 'Aksiyon', key: 'action', render: (_: any, r: VehicleLog) => r.exit_at ? null : (<Button type="link" onClick={() => exitVehicle(r.id)}>Çıkış Ver</Button>) },
     ]
     return base
   }, [sortKey, sortOrder])
 
   const exportExcel = () => {
-    const headers = ['Plaka','Giriş','Çıkış','İlçe','Araç Türü','Not']
+    const headers = ['Plaka','İşlem','Tarih','İlçe','Araç Türü','Not']
     const rows = items.map(v => [
       v.plate,
-      dayjs(v.entry_at).format('YYYY-MM-DD HH:mm'),
-      v.exit_at ? dayjs(v.exit_at).format('YYYY-MM-DD HH:mm') : '-',
+      v.action,
+      dayjs(v.at).format('DD.MM.YYYY HH:mm'),
       v.district || '',
       v.vehicle_type || '',
       v.note || '',
@@ -107,8 +103,11 @@ export default function VehicleList() {
         <Form.Item label="Plaka">
           <Input value={plate} onChange={(e) => setPlate(e.target.value)} allowClear placeholder="Plaka" />
         </Form.Item>
-        <Form.Item label="Durum">
-          <Input value={active} onChange={(e) => setActive(e.target.value)} placeholder="true/false" style={{ width: 120 }} />
+        <Form.Item label="İşlem">
+          <Select value={action} onChange={(v) => setAction(v)} allowClear placeholder="Seçiniz" style={{ width: 160 }} options={[
+            { value: 'ENTRY', label: 'GİRİŞ' },
+            { value: 'EXIT', label: 'ÇIKIŞ' },
+          ]} />
         </Form.Item>
         <Form.Item label="İlçe">
           <Input aria-label="İlçe" value={district} onChange={(e) => setDistrict(e.target.value)} allowClear placeholder="İlçe" />

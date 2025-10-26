@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { VehicleEvent } from '../vehicle-events/vehicle-event.entity';
 import { Visit } from '../visits/visit.entity';
 import { VehicleLog } from '../vehicle-logs/vehicle-log.entity';
 
@@ -9,6 +10,7 @@ export class ReportsService {
   constructor(
     @InjectRepository(Visit) private readonly repo: Repository<Visit>,
     @InjectRepository(VehicleLog) private readonly vehicles: Repository<VehicleLog>,
+    @InjectRepository(VehicleEvent) private readonly vehicleEvents: Repository<VehicleEvent>,
   ) {}
 
   // Builds a quick statistics object for the given date range
