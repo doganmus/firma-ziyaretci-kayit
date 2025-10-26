@@ -17,6 +17,7 @@ import { SettingsModule } from './settings/settings.module';
 import { OpsModule } from './ops/ops.module';
 import { UsersService } from './users/users.service';
 import { VehicleLogsModule } from './vehicle-logs/vehicle-logs.module';
+import { VehicleEventsModule } from './vehicle-events/vehicle-events.module';
 import { UserRole } from './users/user.entity';
 import * as bcrypt from 'bcrypt';
 import { ConfigModule } from '@nestjs/config';
@@ -44,6 +45,7 @@ import { ConfigModule } from '@nestjs/config';
     AuditModule,
     OpsModule,
     VehicleLogsModule,
+    VehicleEventsModule,
   ],
   controllers: [HealthController, MetricsController],
   providers: [
@@ -64,8 +66,9 @@ export class AppModule implements OnApplicationBootstrap {
   async onApplicationBootstrap() {
     // Create a default ADMIN user on first run if the database is empty
     try {
-      if (process.env.NODE_ENV === 'production') {
-        return; // no seeding in production
+      const shouldSeedInProd = Boolean(process.env.SEED_ADMIN_EMAIL && process.env.SEED_ADMIN_PASSWORD);
+      if (process.env.NODE_ENV === 'production' && !shouldSeedInProd) {
+        return; // only seed in production when explicit SEED_ADMIN_* provided
       }
       const users = await this.usersService.findAll();
       if (users.length === 0) {

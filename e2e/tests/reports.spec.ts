@@ -16,6 +16,8 @@ test('Reports load and filter (legacy reports page)', async ({ page }) => {
   await filterBtn.click()
   // Expect some content to be visible
   await expect(page.getByText(/Toplam|Firma Bazlı|Özet/i).first()).toBeVisible()
+  // Vehicle events table should render now
+  await expect(page.getByText('Araç Olayları')).toBeVisible()
 })
 
 

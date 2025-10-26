@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
@@ -44,11 +44,7 @@ export class VehicleLogsController {
     return this.vehicleLogs.create(body as any);
   }
 
-  @Post(':id/exit')
-  @Roles('ADMIN', 'OPERATOR')
-  exit(@Param('id') id: string) {
-    return this.vehicleLogs.exit(id);
-  }
+  // Çıkış akışı olay-temelli modele taşındı; bu uç kaldırıldı
 }
 
 
