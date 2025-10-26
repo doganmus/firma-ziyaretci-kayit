@@ -86,7 +86,7 @@ export default function Reports() {
           dataSource={vehicleEvents}
           columns={[
             { title: 'Plaka', dataIndex: 'plate' },
-            { title: 'İşlem', dataIndex: 'action' },
+            { title: 'İşlem', dataIndex: 'action', render: (v: string) => v === 'ENTRY' ? 'GİRİŞ' : 'ÇIKIŞ' },
             { title: 'Tarih', dataIndex: 'at', render: (v: string) => dayjs(v).format('DD.MM.YYYY HH:mm') },
             { title: 'İlçe', dataIndex: 'district' },
             { title: 'Araç Türü', dataIndex: 'vehicle_type' },

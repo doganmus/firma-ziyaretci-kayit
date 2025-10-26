@@ -13,10 +13,10 @@ test.describe.serial('Vehicle events flow', () => {
     const adminReq = await newAuthedRequest()
     await adminReq.post('http://localhost:3000/admin/ops/maintenance/disable')
 
-    // Create via API
-    const req = await newAuthedRequest()
-    const createRes = await req.post('http://localhost:3000/vehicle-events', {
-      data: { action: 'ENTRY', plate, district, vehicle_type, at: new Date().toISOString() }
+    // Create via API (reuse same authenticated context to avoid rate limits)
+    const atIso = new Date().toISOString()
+    const createRes = await adminReq.post('http://localhost:3000/vehicle-events', {
+      data: { action: 'ENTRY', plate, district, vehicle_type, at: atIso }
     })
     expect(createRes.ok()).toBeTruthy()
     const body = await createRes.json() as any
@@ -25,13 +25,18 @@ test.describe.serial('Vehicle events flow', () => {
     // Go to list UI and filter by plate + district
     await page.goto('/vehicles/list')
     await page.getByPlaceholder('Plaka').fill(plate)
-    await page.getByLabel('İlçe').getByRole('textbox').fill(district)
+    await page.getByPlaceholder('İlçe').fill(district)
     await page.getByRole('button', { name: 'Filtrele' }).click()
     await expect(page.getByRole('cell', { name: plate })).toBeVisible()
 
     // Create EXIT event via API
-    const exitRes = await req.post(`http://localhost:3000/vehicle-events`, {
-      data: { action: 'EXIT', plate, district, vehicle_type, at: new Date().toISOString() }
+    const exitResSame = await adminReq.post(`http://localhost:3000/vehicle-events`, {
+      data: { action: 'EXIT', plate, district, vehicle_type, at: atIso }
+    })
+    expect(exitResSame.ok()).toBeFalsy()
+    // change time +1 minute
+    const exitRes = await adminReq.post(`http://localhost:3000/vehicle-events`, {
+      data: { action: 'EXIT', plate, district, vehicle_type, at: new Date(Date.now() + 60000).toISOString() }
     })
     expect(exitRes.ok()).toBeTruthy()
   })

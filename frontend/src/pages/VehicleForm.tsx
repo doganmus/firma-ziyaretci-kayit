@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { api } from '../api/client'
-import { Form, Input, Button, Card, Typography, Table, Row, Col, Select, DatePicker, Space } from 'antd'
+import { Form, Input, Button, Card, Typography, Table, Row, Col, Select, DatePicker, Space, message } from 'antd'
 import dayjs, { Dayjs } from 'dayjs'
 
 const { Title } = Typography
@@ -66,6 +66,22 @@ export default function VehicleForm() {
       if (editing && editing.action === action) {
         await api.patch(`/vehicle-events/${editing.id}`, payload)
       } else {
+        // UI guard: if switching to EXIT and time equals an existing ENTRY time for same day, block
+        if (action === 'EXIT') {
+          try {
+            const day = dayjs(values.at || dayjs())
+            const from = day.startOf('day').toDate().toISOString()
+            const to = day.endOf('day').toDate().toISOString()
+            const res = await api.get<{ data: VehicleEvent[]; total: number }>(`/vehicle-events`, {
+              params: { plate: payload.plate, action: 'ENTRY', dateFrom: from, dateTo: to, pageSize: 100 },
+            })
+            const same = (res.data?.data || []).some(e => dayjs(e.at).valueOf() === day.valueOf())
+            if (same) {
+              message.error('Giriş saati ile Çıkış saati aynı olamaz!')
+              return
+            }
+          } catch {}
+        }
         await api.post('/vehicle-events', payload)
       }
       form.resetFields()
@@ -90,25 +106,26 @@ export default function VehicleForm() {
       <Card>
         <Title level={4} style={{ marginTop: 0 }}>Araç Girişi</Title>
         <Form form={form} layout="vertical" onValuesChange={onValuesChange}>
-          <Form.Item
-            label="Plaka"
-            name="plate"
-            rules={[
-              { required: true, message: 'Plaka gerekli' },
-              {
-                validator: (_, value) => {
-                  const v = (value ?? '').toString().replace(/\s+/g, '').toUpperCase()
-                  return TR_PLATE_REGEX.test(v) ? Promise.resolve() : Promise.reject(new Error('Geçersiz plaka'))
-                }
-              }
-            ]}
-            getValueFromEvent={(e) => (e?.target?.value ?? '').toLocaleUpperCase('tr-TR')}
-          >
-            <Input placeholder="Örn: 34 ABC 1234" />
-          </Form.Item>
-
           <Row gutter={[16,8]}>
-            <Col xs={24} md={12}>
+            <Col xs={24} md={10}>
+              <Form.Item
+                label="Plaka"
+                name="plate"
+                rules={[
+                  { required: true, message: 'Plaka gerekli' },
+                  {
+                    validator: (_, value) => {
+                      const v = (value ?? '').toString().replace(/\s+/g, '').toUpperCase()
+                      return TR_PLATE_REGEX.test(v) ? Promise.resolve() : Promise.reject(new Error('Geçersiz plaka'))
+                    }
+                  }
+                ]}
+                getValueFromEvent={(e) => (e?.target?.value ?? '').toLocaleUpperCase('tr-TR')}
+              >
+                <Input placeholder="Örn: 34 ABC 1234" maxLength={12} />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={14}>
               <Form.Item label="Tarih" name="at" rules={[{ required: true, message: 'Tarih gerekli' }]}>
                 <DatePicker showTime style={{ width: '100%' }} format="DD.MM.YYYY HH:mm" placeholder="25.10.2025 15:00" inputReadOnly={false} />
               </Form.Item>

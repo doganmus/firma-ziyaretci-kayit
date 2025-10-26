@@ -71,8 +71,14 @@ test.describe.serial('Visits flow', () => {
     await page.goto('/list')
     await page.getByLabel('Firma ara').fill(`PAGETEST CO ${baseNow}`)
     await page.getByRole('button', { name: 'Filtrele' }).click()
-    // go to page 2
-    await page.getByRole('button', { name: '2' }).click()
+    // wait table render
+    await page.getByRole('region', { name: 'Kayıtlar tablosu ve sayfalama' }).waitFor()
+    // ensure at least first page has rows
+    await expect(page.getByRole('cell', { name: new RegExp(`PAGETEST CO ${baseNow}`) }).first()).toBeVisible()
+    // go to next page using pagination next button (robust to locale/markup)
+    const nextBtn = page.locator('.ant-pagination-next:not(.ant-pagination-disabled)')
+    await nextBtn.waitFor()
+    await nextBtn.click()
     // expect some row visible still
     await expect(page.getByRole('cell', { name: new RegExp(`PAGETEST CO ${baseNow}`) }).first()).toBeVisible()
   })

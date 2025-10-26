@@ -61,11 +61,30 @@ export class VehicleEventsService {
     const at = new Date(payload.at);
     if (Number.isNaN(at.getTime())) throw new BadRequestException('Invalid date');
     const date = at.toISOString().slice(0, 10);
+    const normalizedPlate = (payload.plate ?? '').replace(/\s+/g, '').toUpperCase();
+
+    if (payload.action === 'EXIT') {
+      // Aynı gün aynı plaka için en az bir ENTRY var mı?
+      const hasEntry = await this.repo.createQueryBuilder('e')
+        .where("e.plate = :p AND e.date = :d AND e.action = 'ENTRY'", { p: normalizedPlate, d: date })
+        .getExists();
+      if (!hasEntry) {
+        throw new BadRequestException('Giriş kaydı olmayan aracın çıkış kaydı olamaz!');
+      }
+      // EXIT zamanı, aynı gün herhangi bir ENTRY ile birebir aynı olamaz
+      const sameTimeEntry = await this.repo.createQueryBuilder('e')
+        .where("e.plate = :p AND e.date = :d AND e.action = 'ENTRY' AND e.at = :at", { p: normalizedPlate, d: date, at })
+        .getExists();
+      if (sameTimeEntry) {
+        throw new BadRequestException('Giriş saati ile Çıkış saati aynı olamaz!');
+      }
+    }
+
     const entity = this.repo.create({
       action: payload.action,
       at,
       date,
-      plate: (payload.plate ?? '').replace(/\s+/g, '').toUpperCase(),
+      plate: normalizedPlate,
       district: payload.district ?? null,
       vehicle_type: payload.vehicle_type ?? null,
       note: payload.note ?? null,
