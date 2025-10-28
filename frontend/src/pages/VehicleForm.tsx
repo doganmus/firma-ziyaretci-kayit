@@ -102,12 +102,11 @@ export default function VehicleForm() {
   ]
 
   return (
-    <div style={{ padding: 16 }}>
-      <Card>
-        <Title level={4} style={{ marginTop: 0 }}>Araç Girişi</Title>
-        <Form form={form} layout="vertical" onValuesChange={onValuesChange}>
+    <div style={{ maxWidth: 960, margin: '24px auto' }}>
+      <Card title="Araç Kayıt">
+        <Form form={form} layout="vertical" onValuesChange={onValuesChange} initialValues={{ at: dayjs() }}>
           <Row gutter={[16,8]}>
-            <Col xs={24} md={10}>
+            <Col xs={24} md={12}>
               <Form.Item
                 label="Plaka"
                 name="plate"
@@ -125,7 +124,7 @@ export default function VehicleForm() {
                 <Input placeholder="Örn: 34 ABC 1234" maxLength={12} />
               </Form.Item>
             </Col>
-            <Col xs={24} md={14}>
+            <Col xs={24} md={12}>
               <Form.Item label="Tarih" name="at" rules={[{ required: true, message: 'Tarih gerekli' }]}>
                 <DatePicker showTime style={{ width: '100%' }} format="DD.MM.YYYY HH:mm" placeholder="25.10.2025 15:00" inputReadOnly={false} />
               </Form.Item>

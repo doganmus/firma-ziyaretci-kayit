@@ -130,7 +130,7 @@ export default function VisitForm() {
           labelCol={{ flex: '200px' }}
           labelAlign="left"
           onFinish={onFinish}
-          initialValues={{ has_vehicle: false }}
+          initialValues={{ has_vehicle: false, entry_at: dayjs() }}
         >
         <Row gutter={[16, 8]}>
           <Col xs={24} md={12}>

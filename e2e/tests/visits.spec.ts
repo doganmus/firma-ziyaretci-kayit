@@ -52,6 +52,17 @@ test.describe.serial('Visits flow', () => {
     expect(Array.isArray(verifyData?.data) && verifyData.data.length > 0).toBeTruthy()
   })
 
+  test('visit form defaults entry date to now', async ({ page }) => {
+    await loginAsAdmin(page)
+    await page.goto('/visit')
+    const now = new Date()
+    const pad = (n: number) => String(n).padStart(2, '0')
+    const expected = `${pad(now.getDate())}.${pad(now.getMonth()+1)}.${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`
+    const value = await page.locator('label:has-text("Giriş Tarih/Saat")').locator('..').locator('input').inputValue()
+    // The value can differ by a couple minutes due to render delay; check prefix to HH:mm
+    expect(value.slice(0, 13)).toBe(expected.slice(0, 13))
+  })
+
   test('pagination: navigate between pages', async ({ page }) => {
     await loginAsAdmin(page)
     const req = await newAuthedRequest()

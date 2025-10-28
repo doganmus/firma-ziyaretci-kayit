@@ -126,7 +126,7 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
     items.push({ key: '/list', icon: <UnorderedListOutlined />, label: <Link to="/list">Ziyaret Kayıtları</Link>, title: 'Ziyaret Kayıtları' })
     // Vehicle logs navigation
     if (role === 'ADMIN' || role === 'OPERATOR') {
-      items.push({ key: '/vehicles', icon: <FormOutlined />, label: <Link to="/vehicles">Araç Girişi</Link>, title: 'Araç Girişi' })
+      items.push({ key: '/vehicles', icon: <FormOutlined />, label: <Link to="/vehicles">Araç Kayıt</Link>, title: 'Araç Kayıt' })
     }
     items.push({ key: '/vehicles/list', icon: <UnorderedListOutlined />, label: <Link to="/vehicles/list">Araç Kayıtları</Link>, title: 'Araç Kayıtları' })
     if (role === 'ADMIN') {

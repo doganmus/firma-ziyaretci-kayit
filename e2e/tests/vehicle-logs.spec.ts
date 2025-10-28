@@ -40,6 +40,17 @@ test.describe.serial('Vehicle events flow', () => {
     })
     expect(exitRes.ok()).toBeTruthy()
   })
+
+  test('vehicle form shows title and defaults date to now', async ({ page }) => {
+    await loginAsAdmin(page)
+    await page.goto('/vehicles')
+    await expect(page.getByRole('heading', { name: 'Araç Kayıt' })).toBeVisible()
+    const now = new Date()
+    const pad = (n: number) => String(n).padStart(2, '0')
+    const expected = `${pad(now.getDate())}.${pad(now.getMonth()+1)}.${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`
+    const value = await page.getByLabel('Tarih').locator('..').locator('input').inputValue()
+    expect(value.slice(0, 13)).toBe(expected.slice(0, 13))
+  })
 })
 
 
