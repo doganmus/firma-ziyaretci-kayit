@@ -1,0 +1,119 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - link "İçeriğe atla" [ref=e4] [cursor=pointer]:
+    - /url: "#mainContent"
+  - complementary [ref=e5]:
+    - generic [ref=e6]:
+      - button "Menü" [ref=e8] [cursor=pointer]:
+        - img "menu" [ref=e10]:
+          - img [ref=e11]
+      - menu [ref=e13]:
+        - menuitem "bar-chart Dashboard" [ref=e14] [cursor=pointer]:
+          - img "bar-chart" [ref=e15]:
+            - img [ref=e16]
+          - link "Dashboard" [ref=e19]:
+            - /url: /dashboard
+        - menuitem "form Ziyaretçi Kayıt" [ref=e20] [cursor=pointer]:
+          - img "form" [ref=e21]:
+            - img [ref=e22]
+          - link "Ziyaretçi Kayıt" [ref=e26]:
+            - /url: /visit
+        - menuitem "unordered-list Ziyaret Kayıtları" [ref=e27] [cursor=pointer]:
+          - img "unordered-list" [ref=e28]:
+            - img [ref=e29]
+          - link "Ziyaret Kayıtları" [ref=e32]:
+            - /url: /list
+        - menuitem "form Araç Kayıt" [ref=e33] [cursor=pointer]:
+          - img "form" [ref=e34]:
+            - img [ref=e35]
+          - link "Araç Kayıt" [ref=e39]:
+            - /url: /vehicles
+        - menuitem "unordered-list Araç Kayıtları" [ref=e40] [cursor=pointer]:
+          - img "unordered-list" [ref=e41]:
+            - img [ref=e42]
+          - link "Araç Kayıtları" [ref=e45]:
+            - /url: /vehicles/list
+        - menuitem "setting Admin" [ref=e46] [cursor=pointer]:
+          - img "setting" [ref=e47]:
+            - img [ref=e48]
+          - generic [ref=e50]: Admin
+  - generic [ref=e51]:
+    - banner [ref=e52]:
+      - generic [ref=e55]: Firma
+      - generic [ref=e56]:
+        - button "Tema" [ref=e58] [cursor=pointer]:
+          - img "moon" [ref=e60]:
+            - img [ref=e61]
+        - button "user Profil" [ref=e64] [cursor=pointer]:
+          - img "user" [ref=e66]:
+            - img [ref=e67]
+          - generic [ref=e69]: Profil
+        - button "logout Çıkış" [ref=e71] [cursor=pointer]:
+          - img "logout" [ref=e73]:
+            - img [ref=e74]
+          - generic [ref=e76]: Çıkış
+    - main "Ana içerik" [active] [ref=e77]:
+      - generic [ref=e78]:
+        - generic [ref=e79]:
+          - generic [ref=e82]: Araç Kayıt
+          - generic [ref=e84]:
+            - generic [ref=e85]:
+              - generic [ref=e88]:
+                - generic "Plaka" [ref=e90]: "* Plaka"
+                - textbox "* Plaka" [ref=e94]:
+                  - /placeholder: "Örn: 34 ABC 1234"
+              - generic [ref=e97]:
+                - generic "Tarih" [ref=e99]: "* Tarih"
+                - generic [ref=e104]:
+                  - textbox "* Tarih" [ref=e105]:
+                    - /placeholder: 25.10.2025 15:00
+                    - text: 28.10.2025 09:08
+                  - generic:
+                    - img "calendar":
+                      - img
+                  - button "close-circle" [ref=e106] [cursor=pointer]:
+                    - img "close-circle" [ref=e107]:
+                      - img [ref=e108]
+            - generic [ref=e110]:
+              - generic [ref=e113]:
+                - generic "İlçe" [ref=e115]: "* İlçe"
+                - textbox "* İlçe" [ref=e119]:
+                  - /placeholder: İlçe
+              - generic [ref=e122]:
+                - generic "Araç Türü" [ref=e124]: "* Araç Türü"
+                - generic [ref=e128] [cursor=pointer]:
+                  - generic [ref=e130]:
+                    - combobox "* Araç Türü" [ref=e132]
+                    - generic: Seçiniz
+                  - generic:
+                    - img:
+                      - img
+            - generic [ref=e134]:
+              - generic "Not" [ref=e136]
+              - textbox "Not" [ref=e140]:
+                - /placeholder: Notlar
+            - generic [ref=e142]:
+              - button "Giriş" [ref=e144] [cursor=pointer]:
+                - generic [ref=e145]: Giriş
+              - button "Çıkış" [ref=e147] [cursor=pointer]:
+                - generic [ref=e148]: Çıkış
+        - generic [ref=e149]:
+          - generic [ref=e152]: İçerideki Araçlar (Çıkış Yapılmamış)
+          - table [ref=e160]:
+            - rowgroup [ref=e161]:
+              - row "Plaka İşlem Tarih İlçe Araç Türü Not" [ref=e162]:
+                - columnheader "Plaka" [ref=e163]
+                - columnheader "İşlem" [ref=e164]
+                - columnheader "Tarih" [ref=e165]
+                - columnheader "İlçe" [ref=e166]
+                - columnheader "Araç Türü" [ref=e167]
+                - columnheader "Not" [ref=e168]
+            - rowgroup [ref=e169]:
+              - row "No data No data" [ref=e170]:
+                - cell "No data No data" [ref=e171]:
+                  - generic [ref=e172]:
+                    - img "No data" [ref=e174]
+                    - generic [ref=e180]: No data
+```

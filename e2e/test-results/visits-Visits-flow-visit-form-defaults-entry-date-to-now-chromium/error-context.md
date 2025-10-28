@@ -1,0 +1,161 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - link "İçeriğe atla" [ref=e4] [cursor=pointer]:
+    - /url: "#mainContent"
+  - complementary [ref=e5]:
+    - generic [ref=e6]:
+      - button "Menü" [ref=e8] [cursor=pointer]:
+        - img "menu" [ref=e10]:
+          - img [ref=e11]
+      - menu [ref=e13]:
+        - menuitem "bar-chart Dashboard" [ref=e14] [cursor=pointer]:
+          - img "bar-chart" [ref=e15]:
+            - img [ref=e16]
+          - link "Dashboard" [ref=e19]:
+            - /url: /dashboard
+        - menuitem "form Ziyaretçi Kayıt" [ref=e20] [cursor=pointer]:
+          - img "form" [ref=e21]:
+            - img [ref=e22]
+          - link "Ziyaretçi Kayıt" [ref=e26]:
+            - /url: /visit
+        - menuitem "unordered-list Ziyaret Kayıtları" [ref=e27] [cursor=pointer]:
+          - img "unordered-list" [ref=e28]:
+            - img [ref=e29]
+          - link "Ziyaret Kayıtları" [ref=e32]:
+            - /url: /list
+        - menuitem "form Araç Kayıt" [ref=e33] [cursor=pointer]:
+          - img "form" [ref=e34]:
+            - img [ref=e35]
+          - link "Araç Kayıt" [ref=e39]:
+            - /url: /vehicles
+        - menuitem "unordered-list Araç Kayıtları" [ref=e40] [cursor=pointer]:
+          - img "unordered-list" [ref=e41]:
+            - img [ref=e42]
+          - link "Araç Kayıtları" [ref=e45]:
+            - /url: /vehicles/list
+        - menuitem "setting Admin" [ref=e46] [cursor=pointer]:
+          - img "setting" [ref=e47]:
+            - img [ref=e48]
+          - generic [ref=e50]: Admin
+  - generic [ref=e51]:
+    - banner [ref=e52]:
+      - generic [ref=e55]: Firma
+      - generic [ref=e56]:
+        - button "Tema" [ref=e58] [cursor=pointer]:
+          - img "moon" [ref=e60]:
+            - img [ref=e61]
+        - button "user Profil" [ref=e64] [cursor=pointer]:
+          - img "user" [ref=e66]:
+            - img [ref=e67]
+          - generic [ref=e69]: Profil
+        - button "logout Çıkış" [ref=e71] [cursor=pointer]:
+          - img "logout" [ref=e73]:
+            - img [ref=e74]
+          - generic [ref=e76]: Çıkış
+    - main "Ana içerik" [active] [ref=e77]:
+      - generic [ref=e78]:
+        - generic [ref=e79]:
+          - generic [ref=e82]: Ziyaretçi Kayıt
+          - generic [ref=e84]:
+            - generic [ref=e85]:
+              - generic [ref=e88]:
+                - generic "Ziyaret eden Adı Soyadı" [ref=e90]: "* Ziyaret eden Adı Soyadı :"
+                - textbox "* Ziyaret eden Adı Soyadı :" [ref=e94]:
+                  - /placeholder: Ziyaretçi adı soyadı
+              - generic [ref=e97]:
+                - generic "Ziyaret edilen Adı Soyadı" [ref=e99]: "* Ziyaret edilen Adı Soyadı :"
+                - textbox "* Ziyaret edilen Adı Soyadı :" [ref=e103]:
+                  - /placeholder: Ziyaret edilen kişi
+            - generic [ref=e104]:
+              - generic [ref=e107]:
+                - generic "Giriş Tarih/Saat" [ref=e109]: "* Giriş Tarih/Saat :"
+                - generic [ref=e114]:
+                  - textbox "* Giriş Tarih/Saat :" [ref=e115]:
+                    - /placeholder: 25.10.2025 15:00
+                    - text: 28.10.2025 09:08
+                  - generic:
+                    - img "calendar":
+                      - img
+                  - button "close-circle" [ref=e116] [cursor=pointer]:
+                    - img "close-circle" [ref=e117]:
+                      - img [ref=e118]
+              - generic [ref=e122]:
+                - generic "Çıkış Tarih/Saat (opsiyonel)" [ref=e124]: "Çıkış Tarih/Saat (opsiyonel) :"
+                - generic [ref=e129]:
+                  - textbox "Çıkış Tarih/Saat (opsiyonel) :" [ref=e130]:
+                    - /placeholder: 25.10.2025 15:00
+                  - generic:
+                    - img "calendar":
+                      - img
+            - generic [ref=e131]:
+              - generic [ref=e134]:
+                - generic "Firma" [ref=e136]: "* Firma :"
+                - textbox "* Firma :" [ref=e140]:
+                  - /placeholder: Firma adı
+              - generic [ref=e143]:
+                - generic "Araç var mı?" [ref=e145]: "Araç var mı? :"
+                - switch "Araç var mı? :" [ref=e149] [cursor=pointer]
+            - generic [ref=e155]:
+              - generic "Plaka" [ref=e157]: "Plaka :"
+              - textbox "Plaka :" [disabled] [ref=e161]:
+                - /placeholder: ""
+            - button "Kaydet" [ref=e163] [cursor=pointer]:
+              - generic [ref=e164]: Kaydet
+        - generic [ref=e165]:
+          - generic [ref=e168]: İçerideki Ziyaretçiler (Çıkış Yapılmamış)
+          - generic [ref=e172]:
+            - table [ref=e176]:
+              - rowgroup [ref=e177]:
+                - row "Plaka Ziyaret eden Ziyaret Edilen Firma Giriş" [ref=e178]:
+                  - columnheader "Plaka" [ref=e179]
+                  - columnheader "Ziyaret eden" [ref=e180]
+                  - columnheader "Ziyaret Edilen" [ref=e181]
+                  - columnheader "Firma" [ref=e182]
+                  - columnheader "Giriş" [ref=e183]
+              - rowgroup [ref=e184]:
+                - row "34AB1234 E2E ZIYARETÇI 1761631691374 E2E HEDEF 1761631691374 E2E CO 1761631691374-UPDATED 28.10.2025 09:08" [ref=e185]:
+                  - cell "34AB1234" [ref=e186]
+                  - cell "E2E ZIYARETÇI 1761631691374" [ref=e187]
+                  - cell "E2E HEDEF 1761631691374" [ref=e188]
+                  - cell "E2E CO 1761631691374-UPDATED" [ref=e189]
+                  - cell "28.10.2025 09:08" [ref=e190]
+                - row "34AB1234 E2E ZIYARETÇI 1761631615588 E2E HEDEF 1761631615588 E2E CO 1761631615588-UPDATED 28.10.2025 09:06" [ref=e191]:
+                  - cell "34AB1234" [ref=e192]
+                  - cell "E2E ZIYARETÇI 1761631615588" [ref=e193]
+                  - cell "E2E HEDEF 1761631615588" [ref=e194]
+                  - cell "E2E CO 1761631615588-UPDATED" [ref=e195]
+                  - cell "28.10.2025 09:06" [ref=e196]
+                - row "PAGETEST VISITOR 1761494373707-0 PAGETEST TARGET 1761494373707-0 PAGETEST CO 1761494373707 26.10.2025 18:59" [ref=e197]:
+                  - cell [ref=e198]
+                  - cell "PAGETEST VISITOR 1761494373707-0" [ref=e199]
+                  - cell "PAGETEST TARGET 1761494373707-0" [ref=e200]
+                  - cell "PAGETEST CO 1761494373707" [ref=e201]
+                  - cell "26.10.2025 18:59" [ref=e202]
+                - row "34AB1234 E2E ZIYARETÇI 1761494372422 E2E HEDEF 1761494372422 E2E CO 1761494372422-UPDATED 26.10.2025 18:59" [ref=e203]:
+                  - cell "34AB1234" [ref=e204]
+                  - cell "E2E ZIYARETÇI 1761494372422" [ref=e205]
+                  - cell "E2E HEDEF 1761494372422" [ref=e206]
+                  - cell "E2E CO 1761494372422-UPDATED" [ref=e207]
+                  - cell "26.10.2025 18:59" [ref=e208]
+                - row "PAGETEST VISITOR 1761494373707-1 PAGETEST TARGET 1761494373707-1 PAGETEST CO 1761494373707 26.10.2025 18:58" [ref=e209]:
+                  - cell [ref=e210]
+                  - cell "PAGETEST VISITOR 1761494373707-1" [ref=e211]
+                  - cell "PAGETEST TARGET 1761494373707-1" [ref=e212]
+                  - cell "PAGETEST CO 1761494373707" [ref=e213]
+                  - cell "26.10.2025 18:58" [ref=e214]
+            - list [ref=e215]:
+              - listitem "Previous Page" [ref=e216]:
+                - button "left" [disabled] [ref=e217]:
+                  - img "left" [ref=e218]:
+                    - img [ref=e219]
+              - listitem "1" [ref=e221] [cursor=pointer]:
+                - generic [ref=e222]: "1"
+              - listitem "2" [ref=e223] [cursor=pointer]:
+                - generic [ref=e224]: "2"
+              - listitem "Next Page" [ref=e225] [cursor=pointer]:
+                - button "right" [ref=e226]:
+                  - img "right" [ref=e227]:
+                    - img [ref=e228]
+```

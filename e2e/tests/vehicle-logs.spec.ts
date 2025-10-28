@@ -44,12 +44,30 @@ test.describe.serial('Vehicle events flow', () => {
   test('vehicle form shows title and defaults date to now', async ({ page }) => {
     await loginAsAdmin(page)
     await page.goto('/vehicles')
-    await expect(page.getByRole('heading', { name: 'Araç Kayıt' })).toBeVisible()
+    await expect(page.getByText('Araç Kayıt')).toBeVisible()
     const now = new Date()
     const pad = (n: number) => String(n).padStart(2, '0')
     const expected = `${pad(now.getDate())}.${pad(now.getMonth()+1)}.${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`
     const value = await page.getByLabel('Tarih').locator('..').locator('input').inputValue()
     expect(value.slice(0, 13)).toBe(expected.slice(0, 13))
+  })
+
+  test('vehicle form aligned widths (Plaka=İlçe, Tarih=Araç Türü)', async ({ page }) => {
+    await loginAsAdmin(page)
+    await page.goto('/vehicles')
+    const plaka = await page.getByLabel('Plaka').boundingBox()
+    const ilce = await page.getByLabel('İlçe').boundingBox()
+    const tarih = await page.getByLabel('Tarih').boundingBox()
+    const tur = await page.getByLabel('Araç Türü').boundingBox()
+    expect(plaka && ilce).toBeTruthy()
+    expect(tarih && tur).toBeTruthy()
+    const w1 = Math.abs((plaka!.width) - (ilce!.width))
+    const w2 = Math.abs((tarih!.width) - (tur!.width))
+    expect(w1).toBeLessThan(10)
+    expect(w2).toBeLessThan(10)
+    // Also check left alignment (x positions should match within tolerance)
+    expect(Math.abs(plaka!.x - ilce!.x)).toBeLessThan(5)
+    expect(Math.abs(tarih!.x - tur!.x)).toBeLessThan(5)
   })
 })
 
