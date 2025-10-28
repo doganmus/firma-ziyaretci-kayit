@@ -69,6 +69,20 @@ test.describe.serial('Vehicle events flow', () => {
     expect(Math.abs(plaka!.x - ilce!.x)).toBeLessThan(5)
     expect(Math.abs(tarih!.x - tur!.x)).toBeLessThan(5)
   })
+
+  test('EXIT without same-day ENTRY should be rejected', async ({ page }) => {
+    const now = Date.now()
+    const plate = `34E${(now % 900 + 100).toString()}`.slice(0, 7)
+    await loginAsAdmin(page)
+    const req = await newAuthedRequest()
+    const atIso = new Date().toISOString()
+    const res = await req.post('http://localhost:3000/vehicle-events', {
+      data: { action: 'EXIT', plate, at: atIso }
+    })
+    expect(res.ok()).toBeFalsy()
+    const body = await res.json().catch(() => null)
+    expect((body?.message || '').toString()).toContain('Giriş kaydı olmayan aracın çıkış kaydı olamaz')
+  })
 })
 
 

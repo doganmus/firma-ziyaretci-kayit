@@ -36,6 +36,7 @@ services:
       SEED_ADMIN_NAME: ${SEED_ADMIN_NAME}
       PORT: 3000
       CERTS_DIR: /app/certs
+      BUSINESS_TZ: ${BUSINESS_TZ}
     ports:
       - "3000:3000"
     volumes:

@@ -29,11 +29,15 @@ export class VehicleEventsService {
 
     if (typeof filters?.active === 'boolean') {
       if (filters.active) {
-        // Active = ENTRY event with no subsequent EXIT on same date for same plate
+        // Active = ENTRY with no subsequent EXIT on the same local day (TZ-aware) for same plate
+        const tz = process.env.BUSINESS_TZ || 'Europe/Istanbul';
         qb.andWhere("e.action = 'ENTRY'")
           .andWhere(`NOT EXISTS (
             SELECT 1 FROM vehicle_events e2
-            WHERE e2.plate = e.plate AND e2.date = e.date AND e2.action = 'EXIT' AND e2.at > e.at
+            WHERE e2.plate = e.plate
+              AND (e2.at AT TIME ZONE '${tz}')::date = (e.at AT TIME ZONE '${tz}')::date
+              AND e2.action = 'EXIT'
+              AND e2.at > e.at
           )`);
       } else {
         qb.andWhere("e.action = 'EXIT'");
@@ -64,16 +68,23 @@ export class VehicleEventsService {
     const normalizedPlate = (payload.plate ?? '').replace(/\s+/g, '').toUpperCase();
 
     if (payload.action === 'EXIT') {
-      // Aynı gün aynı plaka için en az bir ENTRY var mı?
+      // Aynı gün (TZ) aynı plaka için en az bir ENTRY var mı?
+      const tz = process.env.BUSINESS_TZ || 'Europe/Istanbul';
       const hasEntry = await this.repo.createQueryBuilder('e')
-        .where("e.plate = :p AND e.date = :d AND e.action = 'ENTRY'", { p: normalizedPlate, d: date })
+        .where(
+          `e.plate = :p AND e.action = 'ENTRY' AND (e.at AT TIME ZONE '${tz}')::date = (:at AT TIME ZONE '${tz}')::date`,
+          { p: normalizedPlate, at }
+        )
         .getExists();
       if (!hasEntry) {
         throw new BadRequestException('Giriş kaydı olmayan aracın çıkış kaydı olamaz!');
       }
       // EXIT zamanı, aynı gün herhangi bir ENTRY ile birebir aynı olamaz
       const sameTimeEntry = await this.repo.createQueryBuilder('e')
-        .where("e.plate = :p AND e.date = :d AND e.action = 'ENTRY' AND e.at = :at", { p: normalizedPlate, d: date, at })
+        .where(
+          `e.plate = :p AND e.action = 'ENTRY' AND e.at = :at`,
+          { p: normalizedPlate, at }
+        )
         .getExists();
       if (sameTimeEntry) {
         throw new BadRequestException('Giriş saati ile Çıkış saati aynı olamaz!');
