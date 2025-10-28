@@ -76,12 +76,26 @@ test.describe.serial('Vehicle events flow', () => {
     await loginAsAdmin(page)
     const req = await newAuthedRequest()
     const atIso = new Date().toISOString()
-    const res = await req.post('http://localhost:3000/vehicle-events', {
-      data: { action: 'EXIT', plate, at: atIso }
-    })
-    expect(res.ok()).toBeFalsy()
-    const body = await res.json().catch(() => null)
-    expect((body?.message || '').toString()).toContain('Giriş kaydı olmayan aracın çıkış kaydı olamaz')
+    // UI üzerinden deneyelim ki toast doğrulansın
+    await page.goto('/vehicles')
+    await page.getByLabel('Plaka').fill(plate)
+    await page.getByRole('button', { name: 'Çıkış' }).click()
+    await expect(page.getByText('Giriş kaydı olmayan aracın çıkış kaydı olamaz')).toBeVisible()
+  })
+
+  test('successful EXIT shows success toast', async ({ page }) => {
+    await loginAsAdmin(page)
+    const now = Date.now()
+    const plate = `34S${(now % 900 + 100).toString()}`.slice(0, 7)
+    // First create ENTRY via UI
+    await page.goto('/vehicles')
+    await page.getByLabel('Plaka').fill(plate)
+    await page.getByRole('button', { name: 'Giriş' }).click()
+    await expect(page.getByText('Giriş kaydedildi')).toBeVisible()
+    // Then EXIT via UI
+    await page.getByLabel('Plaka').fill(plate)
+    await page.getByRole('button', { name: 'Çıkış' }).click()
+    await expect(page.getByText('Çıkış kaydedildi')).toBeVisible()
   })
 })
 

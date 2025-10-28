@@ -65,17 +65,18 @@ export default function VehicleForm() {
       }
       if (editing && editing.action === action) {
         await api.patch(`/vehicle-events/${editing.id}`, payload)
+        message.success(action === 'EXIT' ? 'Çıkış güncellendi' : 'Giriş güncellendi')
       } else {
         // UI guard: if switching to EXIT and time equals an existing ENTRY time for same day, block
         if (action === 'EXIT') {
           try {
-            const day = dayjs(values.at || dayjs())
-            const from = day.startOf('day').toDate().toISOString()
-            const to = day.endOf('day').toDate().toISOString()
+            const d = dayjs(values.at || dayjs())
+            const from = d.startOf('day').toDate().toISOString()
+            const to = d.endOf('day').toDate().toISOString()
             const res = await api.get<{ data: VehicleEvent[]; total: number }>(`/vehicle-events`, {
               params: { plate: payload.plate, action: 'ENTRY', dateFrom: from, dateTo: to, pageSize: 100 },
             })
-            const same = (res.data?.data || []).some(e => dayjs(e.at).valueOf() === day.valueOf())
+            const same = (res.data?.data || []).some(e => dayjs(e.at).valueOf() === d.valueOf())
             if (same) {
               message.error('Giriş saati ile Çıkış saati aynı olamaz!')
               return
@@ -83,10 +84,15 @@ export default function VehicleForm() {
           } catch {}
         }
         await api.post('/vehicle-events', payload)
+        message.success(action === 'EXIT' ? 'Çıkış kaydedildi' : 'Giriş kaydedildi')
       }
       form.resetFields()
       setEditing(null)
       await loadActive()
+    } catch (e: any) {
+      const serverMsg = e?.response?.data?.message
+      const text = Array.isArray(serverMsg) ? serverMsg[0] : (serverMsg || 'Hata oluştu')
+      message.error(text.toString())
     } finally {
       setLoading(false)
     }
