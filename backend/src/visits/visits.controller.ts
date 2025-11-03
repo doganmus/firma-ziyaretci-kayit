@@ -23,6 +23,7 @@ export class VisitsController {
       hasVehicle: typeof q.hasVehicle === 'string' ? q.hasVehicle === 'true' : undefined,
       plate: q.plate,
       visitedPerson: q.visitedPerson,
+      active: typeof q.active === 'string' ? q.active === 'true' : undefined,
       sortKey: q.sortKey,
       sortOrder: q.sortOrder,
       page: q.page,

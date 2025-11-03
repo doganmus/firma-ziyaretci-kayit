@@ -31,6 +31,11 @@ export class QueryVisitsDto {
   @IsString()
   visitedPerson?: string;
 
+  // Filter for active visits (exit_at IS NULL)
+  @IsOptional()
+  @IsBooleanString()
+  active?: string; // 'true' | 'false'
+
   // Sorting and pagination
   @IsOptional()
   @IsString()

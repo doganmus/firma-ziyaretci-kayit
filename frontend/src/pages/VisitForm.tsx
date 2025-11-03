@@ -59,9 +59,12 @@ export default function VisitForm() {
 
   // Load current active (not exited) visits to show in the table below
   const loadActiveVehicles = async () => {
-    const res = await api.get<{ data: Visit[]; total: number }>('/visits')
+    const res = await api.get<{ data: Visit[]; total: number }>('/visits', { 
+      params: { active: true, pageSize: 1000 } // Backend filters for exit_at IS NULL
+    })
     const rows = Array.isArray((res.data as any)?.data) ? (res.data as any).data as Visit[] : ([] as Visit[])
-    setActiveVisitors(rows.filter(v => !v.exit_at))
+    // Backend already filters for active visits, no need for client-side filtering
+    setActiveVisitors(rows)
   }
 
   useEffect(() => {

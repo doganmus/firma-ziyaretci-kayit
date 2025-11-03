@@ -17,6 +17,7 @@ export class VisitsService {
     hasVehicle?: boolean;
     plate?: string;
     visitedPerson?: string;
+    active?: boolean;
     sortKey?: string;
     sortOrder?: string;
     page?: number;
@@ -30,6 +31,11 @@ export class VisitsService {
     if (typeof filters?.hasVehicle === 'boolean') qb.andWhere('v.has_vehicle = :hv', { hv: filters.hasVehicle });
     if (filters?.plate) qb.andWhere("REPLACE(UPPER(v.vehicle_plate), ' ', '') LIKE :p", { p: `%${filters.plate.replace(/\s+/g, '').toUpperCase()}%` });
     if (filters?.visitedPerson) qb.andWhere('v.visited_person_full_name ILIKE :vp', { vp: `%${filters.visitedPerson}%` });
+    
+    // Filter for active visits (exit_at IS NULL)
+    if (typeof filters?.active === 'boolean' && filters.active) {
+      qb.andWhere('v.exit_at IS NULL');
+    }
 
     // Sorting
     const sortable = new Set(['entry_at','exit_at','visitor_full_name','visited_person_full_name','company_name']);
@@ -37,9 +43,10 @@ export class VisitsService {
     const sortOrder = (filters?.sortOrder === 'asc') ? 'ASC' : 'DESC';
     qb.orderBy(`v.${sortKey}`, sortOrder as 'ASC'|'DESC');
 
-    // Pagination
+    // Pagination - active visits may need higher limit
     const page = Math.max(1, Number(filters?.page || 1));
-    const pageSize = Math.max(1, Math.min(100, Number(filters?.pageSize || 10)));
+    const maxPageSize = filters?.active ? 1000 : 100; // Higher limit for active visits
+    const pageSize = Math.max(1, Math.min(maxPageSize, Number(filters?.pageSize || 10)));
     qb.skip((page - 1) * pageSize).take(pageSize);
 
     const [data, total] = await qb.getManyAndCount();
