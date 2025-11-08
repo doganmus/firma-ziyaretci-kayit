@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { api } from '../api/client'
-import { Form, Input, Button, Card, Typography, Table, Row, Col, Select, DatePicker, Space, message } from 'antd'
+import { Form, Input, Button, Card, Typography, Table, Row, Col, Select, DatePicker, Space, message, AutoComplete } from 'antd'
 import dayjs, { Dayjs } from 'dayjs'
 
 const { Title } = Typography
@@ -20,6 +20,7 @@ type VehicleEvent = {
   at: string
   district?: string | null
   vehicle_type?: string | null
+  load_status?: 'DOLU' | 'BOS' | null
   note?: string | null
 }
 
@@ -28,8 +29,13 @@ const TR_PLATE_REGEX = /^(0[1-9]|[1-7][0-9]|80|81)(?:[A-Z][0-9]{4,5}|[A-Z]{2}[0-
 export default function VehicleForm() {
   const [loading, setLoading] = useState(false)
   const [active, setActive] = useState<VehicleEvent[]>([])
+  const [preview, setPreview] = useState<VehicleEvent | null>(null)
   const [editing, setEditing] = useState<{ id: string; action: 'ENTRY' | 'EXIT' } | null>(null)
   const [form] = Form.useForm<FormValues>()
+  const [plateOptions, setPlateOptions] = useState<string[]>([])
+  const [districts, setDistricts] = useState<string[]>([])
+  const previewTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const plateSearchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const loadActive = async (forDate?: dayjs.Dayjs | null) => {
     const d = forDate || form.getFieldValue('at') || dayjs()
@@ -42,8 +48,64 @@ export default function VehicleForm() {
 
   useEffect(() => {
     loadActive()
+    loadDistricts()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  useEffect(() => {
+    if (preview) {
+      if (previewTimeoutRef.current) {
+        clearTimeout(previewTimeoutRef.current)
+      }
+      previewTimeoutRef.current = setTimeout(() => {
+        setPreview(null)
+      }, 60000) // 1 minute
+    }
+    return () => {
+      if (previewTimeoutRef.current) {
+        clearTimeout(previewTimeoutRef.current)
+      }
+    }
+  }, [preview])
+
+  useEffect(() => {
+    return () => {
+      if (plateSearchTimeoutRef.current) {
+        clearTimeout(plateSearchTimeoutRef.current)
+      }
+    }
+  }, [])
+
+  const loadDistricts = async () => {
+    try {
+      const res = await api.get<{ data: string[] }>('/vehicle-events/districts')
+      setDistricts(res.data.data || [])
+    } catch (e) {
+      console.error('Failed to load districts', e)
+    }
+  }
+
+  const searchPlates = (searchText: string) => {
+    if (plateSearchTimeoutRef.current) {
+      clearTimeout(plateSearchTimeoutRef.current)
+    }
+    if (!searchText || searchText.length < 2) {
+      setPlateOptions([])
+      return
+    }
+    plateSearchTimeoutRef.current = setTimeout(async () => {
+      try {
+        const res = await api.get<{ data: VehicleEvent[]; total: number }>('/vehicle-events', {
+          params: { plate: searchText, pageSize: 20 }
+        })
+        const uniquePlates = Array.from(new Set((res.data.data || []).map(e => e.plate)))
+        setPlateOptions(uniquePlates)
+      } catch (e) {
+        console.error('Failed to search plates', e)
+        setPlateOptions([])
+      }
+    }, 300)
+  }
 
   const onValuesChange = (_: any, all: FormValues) => {
     if (all?.at) {
@@ -51,18 +113,33 @@ export default function VehicleForm() {
     }
   }
 
-  const submit = async (action: 'ENTRY' | 'EXIT') => {
+  const submit = async (action: 'ENTRY' | 'EXIT', loadStatus: 'DOLU' | 'BOS') => {
     setLoading(true)
     try {
       const values = await form.validateFields()
+      const normalizedPlate = (values.plate ?? '').replace(/\s+/g, '').toUpperCase()
       const payload: any = {
         action,
-        plate: (values.plate ?? '').replace(/\s+/g, '').toUpperCase(),
+        plate: normalizedPlate,
         district: values.district || undefined,
         vehicle_type: values.vehicle_type || undefined,
+        load_status: loadStatus,
         note: values.note || undefined,
         at: values.at ? dayjs(values.at).toISOString() : dayjs().toISOString(),
       }
+      
+      // Show preview
+      const previewData: VehicleEvent = {
+        id: 'preview',
+        plate: normalizedPlate,
+        action,
+        at: payload.at,
+        district: values.district || null,
+        vehicle_type: values.vehicle_type || null,
+        load_status: loadStatus,
+        note: values.note || null,
+      }
+      setPreview(previewData)
       if (editing && editing.action === action) {
         await api.patch(`/vehicle-events/${editing.id}`, payload)
         message.success(action === 'EXIT' ? 'Çıkış güncellendi' : 'Giriş güncellendi')
@@ -79,12 +156,14 @@ export default function VehicleForm() {
             const same = (res.data?.data || []).some(e => dayjs(e.at).valueOf() === d.valueOf())
             if (same) {
               message.error('Giriş saati ile Çıkış saati aynı olamaz!')
+              setPreview(null)
               return
             }
           } catch {}
         }
         await api.post('/vehicle-events', payload)
-        message.success(action === 'EXIT' ? 'Çıkış kaydedildi' : 'Giriş kaydedildi')
+        const statusText = loadStatus === 'DOLU' ? ' (DOLU)' : ' (BOŞ)'
+        message.success(action === 'EXIT' ? `Çıkış${statusText} kaydedildi` : `Giriş${statusText} kaydedildi`)
       }
       form.resetFields()
       setEditing(null)
@@ -100,7 +179,17 @@ export default function VehicleForm() {
 
   const columns: any[] = [
     { title: 'Plaka', dataIndex: 'plate' },
-    { title: 'İşlem', dataIndex: 'action', render: (v: string) => v === 'ENTRY' ? 'GİRİŞ' : 'ÇIKIŞ' },
+    { 
+      title: 'İşlem', 
+      dataIndex: 'action', 
+      render: (v: string, record: VehicleEvent) => {
+        const actionText = v === 'ENTRY' ? 'GİRİŞ' : 'ÇIKIŞ'
+        if (record.load_status) {
+          return `${actionText} (${record.load_status})`
+        }
+        return actionText
+      }
+    },
     { title: 'Tarih', dataIndex: 'at', render: (v: string) => dayjs(v).format('DD.MM.YYYY HH:mm') },
     { title: 'İlçe', dataIndex: 'district' },
     { title: 'Araç Türü', dataIndex: 'vehicle_type' },
@@ -125,9 +214,16 @@ export default function VehicleForm() {
                     }
                   }
                 ]}
-                getValueFromEvent={(e) => (e?.target?.value ?? '').toLocaleUpperCase('tr-TR')}
               >
-                <Input placeholder="Örn: 34 ABC 1234" maxLength={12} />
+                <AutoComplete
+                  options={plateOptions.map(p => ({ value: p }))}
+                  onSearch={searchPlates}
+                  placeholder="Örn: 34 ABC 1234"
+                  filterOption={false}
+                  onChange={(value) => {
+                    form.setFieldValue('plate', value ? value.toUpperCase() : '')
+                  }}
+                />
               </Form.Item>
             </Col>
             <Col xs={24} md={12}>
@@ -140,7 +236,14 @@ export default function VehicleForm() {
         <Row gutter={[16,8]}>
             <Col xs={24} md={12}>
               <Form.Item label="İlçe" name="district" rules={[{ required: true, message: 'İlçe gerekli' }]}>
-                <Input placeholder="İlçe" />
+                <Select
+                  showSearch
+                  placeholder="İlçe seçiniz"
+                  options={districts.map(d => ({ value: d, label: d }))}
+                  filterOption={(input, option) =>
+                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                  }
+                />
               </Form.Item>
             </Col>
             <Col xs={24} md={12}>
@@ -159,32 +262,26 @@ export default function VehicleForm() {
             <Input.TextArea rows={3} placeholder="Notlar" />
           </Form.Item>
           <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <Space>
-              <Button onClick={() => submit('ENTRY')} loading={loading} type="primary">Giriş</Button>
-              <Button onClick={() => submit('EXIT')} loading={loading} danger>Çıkış</Button>
+            <Space direction="vertical" size="small">
+              <Space>
+                <Button onClick={() => submit('ENTRY', 'DOLU')} loading={loading} type="primary">Giriş Dolu</Button>
+                <Button onClick={() => submit('ENTRY', 'BOS')} loading={loading} type="primary">Giriş Boş</Button>
+              </Space>
+              <Space>
+                <Button onClick={() => submit('EXIT', 'DOLU')} loading={loading} danger>Çıkış Dolu</Button>
+                <Button onClick={() => submit('EXIT', 'BOS')} loading={loading} danger>Çıkış Boş</Button>
+              </Space>
             </Space>
           </div>
         </Form>
       </Card>
 
-      <Card style={{ marginTop: 16 }} title="İçerideki Araçlar (Çıkış Yapılmamış)">
+      <Card style={{ marginTop: 16 }} title="Kayıt Önizleme">
         <Table
           rowKey="id"
-          dataSource={active}
+          dataSource={preview ? [preview] : []}
           columns={columns as any}
           pagination={false}
-          onRow={(record) => ({
-            onClick: () => {
-              setEditing({ id: record.id, action: record.action })
-              form.setFieldsValue({
-                plate: record.plate,
-                at: record.at ? dayjs(record.at) : undefined,
-                district: record.district ?? undefined,
-                vehicle_type: record.vehicle_type ?? undefined,
-                note: record.note ?? undefined,
-              } as any)
-            }
-          })}
         />
       </Card>
     </div>

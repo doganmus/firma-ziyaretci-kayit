@@ -35,6 +35,9 @@ export class VehicleEvent {
   @Index()
   vehicle_type: string | null;
 
+  @Column({ type: 'varchar', length: 10, nullable: true })
+  load_status: 'DOLU' | 'BOS' | null;
+
   @Column({ type: 'text', nullable: true })
   note: string | null;
 
