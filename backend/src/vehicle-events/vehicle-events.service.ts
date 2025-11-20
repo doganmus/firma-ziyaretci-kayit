@@ -29,13 +29,11 @@ export class VehicleEventsService {
 
     if (typeof filters?.active === 'boolean') {
       if (filters.active) {
-        // Active = ENTRY with no subsequent EXIT on the same local day (TZ-aware) for same plate
-        const tz = process.env.BUSINESS_TZ || 'Europe/Istanbul';
+        // Active = ENTRY with no subsequent EXIT for same plate (regardless of date)
         qb.andWhere("e.action = 'ENTRY'")
           .andWhere(`NOT EXISTS (
             SELECT 1 FROM vehicle_events e2
             WHERE e2.plate = e.plate
-              AND (e2.at AT TIME ZONE '${tz}')::date = (e.at AT TIME ZONE '${tz}')::date
               AND e2.action = 'EXIT'
               AND e2.at > e.at
           )`);
@@ -68,18 +66,7 @@ export class VehicleEventsService {
     const normalizedPlate = (payload.plate ?? '').replace(/\s+/g, '').toUpperCase();
 
     if (payload.action === 'EXIT') {
-      // Aynı gün (TZ) aynı plaka için en az bir ENTRY var mı?
-      const tz = process.env.BUSINESS_TZ || 'Europe/Istanbul';
-      const hasEntry = await this.repo.createQueryBuilder('e')
-        .where(
-          `e.plate = :p AND e.action = 'ENTRY' AND (e.at AT TIME ZONE '${tz}')::date = (:at AT TIME ZONE '${tz}')::date`,
-          { p: normalizedPlate, at }
-        )
-        .getExists();
-      if (!hasEntry) {
-        throw new BadRequestException('Giriş kaydı olmayan aracın çıkış kaydı olamaz!');
-      }
-      // EXIT zamanı, aynı gün herhangi bir ENTRY ile birebir aynı olamaz
+      // EXIT zamanı, aynı plaka için herhangi bir ENTRY ile birebir aynı olamaz
       const sameTimeEntry = await this.repo.createQueryBuilder('e')
         .where(
           `e.plate = :p AND e.action = 'ENTRY' AND e.at = :at`,
