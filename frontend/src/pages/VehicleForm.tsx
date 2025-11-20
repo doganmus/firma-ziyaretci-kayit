@@ -31,12 +31,8 @@ export default function VehicleForm() {
   const [editing, setEditing] = useState<{ id: string; action: 'ENTRY' | 'EXIT' } | null>(null)
   const [form] = Form.useForm<FormValues>()
 
-  const loadActive = async (forDate?: dayjs.Dayjs | null) => {
-    const d = forDate || form.getFieldValue('at') || dayjs()
-    const day = dayjs(d)
-    const from = day.startOf('day').toDate().toISOString()
-    const to = day.endOf('day').toDate().toISOString()
-    const res = await api.get<{ data: VehicleEvent[]; total: number }>('/vehicle-events', { params: { active: true, pageSize: 100, dateFrom: from, dateTo: to } })
+  const loadActive = async () => {
+    const res = await api.get<{ data: VehicleEvent[]; total: number }>('/vehicle-events', { params: { active: true, pageSize: 100 } })
     setActive(Array.isArray((res.data as any)?.data) ? (res.data as any).data : [])
   }
 
@@ -46,9 +42,8 @@ export default function VehicleForm() {
   }, [])
 
   const onValuesChange = (_: any, all: FormValues) => {
-    if (all?.at) {
-      loadActive(all.at as any)
-    }
+    // Reload active vehicles when date changes (to refresh the list)
+    loadActive()
   }
 
   const submit = async (action: 'ENTRY' | 'EXIT') => {

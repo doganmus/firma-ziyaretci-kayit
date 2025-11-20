@@ -20,8 +20,11 @@ export class VehicleEventsService {
     page?: number;
     pageSize?: number;
   }) {
-    if (filters?.dateFrom) qb.andWhere('e.at >= :df', { df: new Date(filters.dateFrom) });
-    if (filters?.dateTo) qb.andWhere('e.at <= :dt', { dt: new Date(filters.dateTo) });
+    // Apply date filters only if NOT active (active vehicles should show regardless of entry date)
+    if (typeof filters?.active !== 'boolean' || !filters.active) {
+      if (filters?.dateFrom) qb.andWhere('e.at >= :df', { df: new Date(filters.dateFrom) });
+      if (filters?.dateTo) qb.andWhere('e.at <= :dt', { dt: new Date(filters.dateTo) });
+    }
     if (filters?.plate) qb.andWhere("REPLACE(UPPER(e.plate), ' ', '') LIKE :p", { p: `%${filters.plate.replace(/\s+/g, '').toUpperCase()}%` });
     if (filters?.action) qb.andWhere('e.action = :a', { a: filters.action });
     if (filters?.district) qb.andWhere('e.district ILIKE :d', { d: `%${filters.district}%` });
