@@ -61,7 +61,7 @@ export class VehicleEventsService {
     return { data, total };
   }
 
-  async create(payload: { action: 'ENTRY' | 'EXIT'; at: string; plate: string; district?: string | null; vehicle_type?: string | null; load_status?: 'DOLU' | 'BOS' | null; note?: string | null; }): Promise<VehicleEvent> {
+  async create(payload: { action: 'ENTRY' | 'EXIT'; at: string; plate: string; district?: string | null; vehicle_type?: string | null; note?: string | null; }): Promise<VehicleEvent> {
     const at = new Date(payload.at);
     if (Number.isNaN(at.getTime())) throw new BadRequestException('Invalid date');
     const date = at.toISOString().slice(0, 10);
@@ -98,13 +98,12 @@ export class VehicleEventsService {
       plate: normalizedPlate,
       district: payload.district ?? null,
       vehicle_type: payload.vehicle_type ?? null,
-      load_status: payload.load_status ?? null,
       note: payload.note ?? null,
     });
     return this.repo.save(entity);
   }
 
-  async update(id: string, payload: Partial<{ action: 'ENTRY' | 'EXIT'; at: string; plate: string; district?: string | null; vehicle_type?: string | null; load_status?: 'DOLU' | 'BOS' | null; note?: string | null; }>): Promise<VehicleEvent> {
+  async update(id: string, payload: Partial<{ action: 'ENTRY' | 'EXIT'; at: string; plate: string; district?: string | null; vehicle_type?: string | null; note?: string | null; }>): Promise<VehicleEvent> {
     const entity = await this.repo.findOne({ where: { id } });
     if (!entity) throw new BadRequestException('VehicleEvent not found');
     if (payload.action) entity.action = payload.action;
@@ -117,7 +116,6 @@ export class VehicleEventsService {
     if (payload.plate) entity.plate = payload.plate.replace(/\s+/g, '').toUpperCase();
     if (typeof payload.district !== 'undefined') entity.district = payload.district ?? null;
     if (typeof payload.vehicle_type !== 'undefined') entity.vehicle_type = payload.vehicle_type ?? null;
-    if (typeof payload.load_status !== 'undefined') entity.load_status = payload.load_status ?? null;
     if (typeof payload.note !== 'undefined') entity.note = payload.note ?? null;
     return this.repo.save(entity);
   }

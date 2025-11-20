@@ -12,7 +12,6 @@ type VehicleEvent = {
   at: string
   district?: string | null
   vehicle_type?: string | null
-  load_status?: 'DOLU' | 'BOS' | null
   note?: string | null
 }
 
@@ -63,18 +62,7 @@ export default function VehicleList() {
   const columns = useMemo(() => {
     const base: any[] = [
       { title: 'Plaka', dataIndex: 'plate', key: 'plate', sorter: (a: VehicleEvent, b: VehicleEvent) => a.plate.localeCompare(b.plate), sortOrder: sortKey === 'plate' ? sortOrder : null },
-      { 
-        title: 'İşlem', 
-        dataIndex: 'action', 
-        key: 'action', 
-        render: (v: string, record: VehicleEvent) => {
-          const actionText = v === 'ENTRY' ? 'GİRİŞ' : 'ÇIKIŞ'
-          if (record.load_status) {
-            return `${actionText} (${record.load_status})`
-          }
-          return actionText
-        }
-      },
+      { title: 'İşlem', dataIndex: 'action', key: 'action', render: (v: string) => v === 'ENTRY' ? 'GİRİŞ' : 'ÇIKIŞ' },
       { title: 'Tarih', dataIndex: 'at', key: 'at', render: (v: string) => dayjs(v).format('DD.MM.YYYY HH:mm'), sorter: (a: VehicleEvent, b: VehicleEvent) => dayjs(a.at).valueOf() - dayjs(b.at).valueOf(), sortOrder: sortKey === 'at' ? sortOrder : null },
       { title: 'İlçe', dataIndex: 'district', key: 'district' },
       { title: 'Araç Türü', dataIndex: 'vehicle_type', key: 'vehicle_type' },

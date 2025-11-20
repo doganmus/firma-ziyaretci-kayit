@@ -52,22 +52,6 @@ export class VehicleEventsController {
   update(@Param('id') id: string, @Body() body: UpdateVehicleEventDto) {
     return this.service.update(id, body as any);
   }
-
-  @Get('districts')
-  @Roles('ADMIN', 'OPERATOR', 'VIEWER')
-  getDistricts() {
-    const istanbulDistricts = [
-      'Adalar', 'Arnavutköy', 'Ataşehir', 'Avcılar', 'Bağcılar', 'Bahçelievler', 'Bakırköy', 'Başakşehir',
-      'Bayrampaşa', 'Beşiktaş', 'Beykoz', 'Beylikdüzü', 'Beyoğlu', 'Büyükçekmece', 'Çatalca', 'Çekmeköy',
-      'Esenler', 'Esenyurt', 'Eyüpsultan', 'Fatih', 'Gaziosmanpaşa', 'Güngören', 'Kadıköy', 'Kağıthane',
-      'Kartal', 'Küçükçekmece', 'Maltepe', 'Pendik', 'Sancaktepe', 'Sarıyer', 'Silivri', 'Sultanbeyli',
-      'Sultangazi', 'Şile', 'Şişli', 'Tuzla', 'Ümraniye', 'Üsküdar', 'Zeytinburnu'
-    ];
-    const kocaeliDistricts = [
-      'Başiskele', 'Çayırova', 'Darıca', 'Derince', 'Dilovası', 'Gebze', 'Gölcük', 'İzmit', 'Kandıra', 'Karamürsel', 'Kartepe', 'Körfez'
-    ];
-    return { data: [...istanbulDistricts, ...kocaeliDistricts].sort() };
-  }
 }
 
 

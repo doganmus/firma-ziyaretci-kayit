@@ -27,10 +27,6 @@ export class CreateVehicleEventDto {
   vehicle_type?: string | null;
 
   @IsOptional()
-  @IsIn(['DOLU', 'BOS'])
-  load_status?: 'DOLU' | 'BOS' | null;
-
-  @IsOptional()
   @IsString()
   note?: string | null;
 }
