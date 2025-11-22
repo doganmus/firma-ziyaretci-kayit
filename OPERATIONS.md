@@ -225,7 +225,14 @@ openssl req -x509 -newkey rsa:2048 -nodes -keyout certs/server.key -out certs/se
 
 ```bash
 # 1. Önce backend container'ında şifre hash'ini oluşturun:
+# NOT: Bash'te '!' karakteri sorun çıkarabilir, bu yüzden history expansion'ı kapatıyoruz:
+set +H
 docker compose exec backend node -e "const bcrypt=require('bcrypt'); bcrypt.hash('YeniSifre123!', 10).then(h=>console.log(h))"
+set -H  # History expansion'ı tekrar aç (opsiyonel)
+
+# VEYA şifreyi değişkene atayarak:
+NEW_PASSWORD='YeniSifre123!'
+docker compose exec backend node -e "const bcrypt=require('bcrypt'); bcrypt.hash('$NEW_PASSWORD', 10).then(h=>console.log(h))"
 
 # Çıktı örneği: $2b$10$rOzJqZqZqZqZqZqZqZqZqOZqZqZqZqZqZqZqZqZqZqZqZqZqZqZqZqZq
 
