@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, Logger } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import * as express from 'express';
@@ -86,7 +86,7 @@ async function bootstrap() {
 
   // Graceful shutdown handling
   const shutdownTimeout = process.env.SHUTDOWN_TIMEOUT ? Number(process.env.SHUTDOWN_TIMEOUT) : 30000; // 30 seconds default
-  const logger = app.get('LoggerService') || console;
+  const logger = new Logger('Bootstrap');
 
   const gracefulShutdown = async (signal: string) => {
     logger.log(`Received ${signal}, starting graceful shutdown...`);
@@ -104,7 +104,7 @@ async function bootstrap() {
       process.exit(0);
     } catch (error) {
       clearTimeout(shutdownTimer);
-      logger.error('Error during graceful shutdown', error);
+      logger.error('Error during graceful shutdown', error instanceof Error ? error.stack : String(error));
       process.exit(1);
     }
   };
@@ -115,12 +115,12 @@ async function bootstrap() {
 
   // Handle uncaught exceptions and unhandled rejections
   process.on('uncaughtException', (error) => {
-    logger.error('Uncaught exception', error);
+    logger.error('Uncaught exception', error instanceof Error ? error.stack : String(error));
     gracefulShutdown('uncaughtException');
   });
 
   process.on('unhandledRejection', (reason, promise) => {
-    logger.error('Unhandled rejection', { reason, promise });
+    logger.error('Unhandled rejection', reason instanceof Error ? reason.stack : String(reason));
     gracefulShutdown('unhandledRejection');
   });
 }
