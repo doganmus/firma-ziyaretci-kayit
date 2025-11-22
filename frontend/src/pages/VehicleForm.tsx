@@ -32,19 +32,19 @@ export default function VehicleForm() {
   const [form] = Form.useForm<FormValues>()
 
   const loadActive = async () => {
-    const res = await api.get<{ data: VehicleEvent[]; total: number }>('/vehicle-events', { params: { active: true, pageSize: 100 } })
-    setActive(Array.isArray((res.data as any)?.data) ? (res.data as any).data : [])
+    try {
+      const res = await api.get<{ data: VehicleEvent[]; total: number }>('/vehicle-events', { params: { active: true, pageSize: 100 } })
+      setActive(Array.isArray((res.data as any)?.data) ? (res.data as any).data : [])
+    } catch (error) {
+      console.error('Aktif araçlar yüklenirken hata:', error)
+      setActive([])
+    }
   }
 
   useEffect(() => {
     loadActive()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  const onValuesChange = (_: any, all: FormValues) => {
-    // Reload active vehicles when date changes (to refresh the list)
-    loadActive()
-  }
 
   const submit = async (action: 'ENTRY' | 'EXIT') => {
     setLoading(true)
@@ -81,9 +81,9 @@ export default function VehicleForm() {
         await api.post('/vehicle-events', payload)
         message.success(action === 'EXIT' ? 'Çıkış kaydedildi' : 'Giriş kaydedildi')
       }
+      await loadActive()
       form.resetFields()
       setEditing(null)
-      await loadActive()
     } catch (e: any) {
       const serverMsg = e?.response?.data?.message
       const text = Array.isArray(serverMsg) ? serverMsg[0] : (serverMsg || 'Hata oluştu')
@@ -105,7 +105,7 @@ export default function VehicleForm() {
   return (
     <div style={{ maxWidth: 960, margin: '24px auto' }}>
       <Card title="Araç Kayıt">
-        <Form form={form} layout="vertical" onValuesChange={onValuesChange} initialValues={{ at: dayjs() }}>
+        <Form form={form} layout="vertical" initialValues={{ at: dayjs() }}>
           <Row gutter={[16,8]}>
             <Col xs={24} md={12}>
               <Form.Item

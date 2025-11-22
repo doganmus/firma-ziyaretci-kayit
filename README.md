@@ -1,4 +1,4 @@
-﻿## Firma Ziyaretçi Giriş Kayıt Sistemi
+## Firma Ziyaretçi Giriş Kayıt Sistemi
 
 Ziyaretçi giriş-çıkışlarının kayıt altına alındığı, raporlanabildiği ve kullanıcı/rol yönetimi olan bir web uygulaması. PostgreSQL, NestJS ve React üzerine kuruludur ve Docker Compose ile containerize edilir.
 
@@ -32,14 +32,38 @@ Ziyaretçi giriş-çıkışlarının kayıt altına alındığı, raporlanabildi
 ### 1) Ortam değişkenleri
 Proje kökünde bir .env dosyası oluşturun:
 
-`ash
+**Hızlı Başlangıç:**
+```bash
+# Linux/Mac
+cp .env.example .env
+
+# Windows
+Copy-Item .env.example .env
+```
+
+**Manuel Oluşturma:**
+```env
 POSTGRES_DB=firmaziyaret
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
 PGADMIN_EMAIL=admin@example.com
 PGADMIN_PASSWORD=admin
-JWT_SECRET=super-secret-change-me
-`
+JWT_SECRET=super-secret-change-me  # Minimum 32 karakter, önerilen: 64+
+```
+
+**JWT_SECRET Güvenli Oluşturma (Önerilen):**
+```powershell
+# Windows
+.\scripts\generate-jwt-secret.ps1
+
+# Linux/Mac
+./scripts/generate-jwt-secret.sh
+```
+
+**Production için FRONTEND_URL:**
+```env
+FRONTEND_URL=https://yourdomain.com
+```
 
 ### 2) Çalıştırma (Windows notu)
 `powershell
@@ -88,7 +112,7 @@ npm test
 - Mimari: ARCHITECTURE.md
 - API sözleşmesi: API_SPEC.md
 - Operasyonlar ve komutlar: OPERATIONS.md
- - Ops scriptleri: scripts/*.ps1 (generate-ssl, reload-nginx, backup-db, restore-db, ops-status)
+ - Ops scriptleri: scripts/*.ps1 (generate-ssl, generate-jwt-secret, reload-nginx, backup-db, restore-db, ops-status)
 
 ## Notlar
 - TR plaka doğrulaması katmanlıdır (DTO + Service + DB CHECK) ve boşluklar kaldırıldıktan sonra büyük harfle kontrol edilir.

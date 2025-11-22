@@ -100,10 +100,55 @@ docker compose up -d
 - Dosya URL'leri /uploads/... şeklinde yayınlanır; Nginx bunları backend'e proxy eder.
 
 ### Ortam Değişkenleri (.env)
-- POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD: PostgreSQL ayarları
-- PGADMIN_EMAIL, PGADMIN_PASSWORD: pgAdmin giriş bilgileri
-- JWT_SECRET: Backend için JWT imzalama anahtarı (zorunlu)
-- ALLOWED_ORIGINS: (opsiyonel) geliştirme modunda CORS izinli kökenler (virgülle)
+- **Zorunlu Değişkenler:**
+  - `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`: PostgreSQL ayarları
+  - `NODE_ENV`: Ortam tipi (`production`, `development`, `test`)
+  - `JWT_SECRET`: Backend için JWT imzalama anahtarı (minimum 32 karakter, önerilen: 64+)
+  - `DATABASE_URL`: PostgreSQL bağlantı string'i
+  - Production'da: `FRONTEND_URL` veya `ALLOWED_ORIGINS` (CORS için)
+- **Opsiyonel Değişkenler:**
+  - `PORT`: Backend port numarası (varsayılan: 3000)
+  - `FRONTEND_URL`: Production'da tek frontend URL'i (örn: `https://example.com`)
+  - `ALLOWED_ORIGINS`: Virgülle ayrılmış izinli origin'ler (development veya production)
+  - `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD`, `SEED_ADMIN_NAME`: İlk admin kullanıcı seed'i
+  - `PGADMIN_EMAIL`, `PGADMIN_PASSWORD`: pgAdmin giriş bilgileri (sadece development/staging)
+  - `BUSINESS_TZ`: İş saatleri için timezone (IANA format, örn: `Europe/Istanbul`)
+- **Not:** Tüm environment variable'lar startup'ta validate edilir. Eksik veya geçersiz değişkenlerde uygulama başlamaz. `.env.example` dosyasını referans olarak kullanabilirsiniz.
+
+### JWT_SECRET Güvenli Oluşturma
+- **Otomatik Script (Önerilen):**
+  ```powershell
+  # Windows
+  .\scripts\generate-jwt-secret.ps1
+  
+  # Linux/Mac
+  ./scripts/generate-jwt-secret.sh
+  ```
+- Script özellikleri:
+  - Cryptographically secure random string (64+ karakter)
+  - Otomatik .env backup oluşturma
+  - Mevcut JWT_SECRET'ı güvenli şekilde değiştirme
+- **Önemli Notlar:**
+  - JWT_SECRET değişikliği tüm aktif kullanıcı session'larını geçersiz kılar
+  - Production'da maintenance window'da yapılmalı
+  - Backend container'ı yeniden başlatılmalı
+  - Yeni secret güvenli bir yerde saklanmalı
+
+### FRONTEND_URL Yapılandırması (Production)
+- Production ortamında frontend'in erişilebilir olduğu URL'i belirtin:
+  ```env
+  FRONTEND_URL=https://yourdomain.com
+  ```
+- **Yapılandırma Adımları:**
+  1. Production domain'i belirleyin
+  2. `.env` dosyasına `FRONTEND_URL=https://yourdomain.com` ekleyin
+  3. Backend container'ını yeniden başlatın: `docker compose restart backend`
+  4. CORS yapılandırmasının aktif olduğunu doğrulayın
+- **Alternatif:** Birden fazla origin için `ALLOWED_ORIGINS` kullanın:
+  ```env
+  ALLOWED_ORIGINS=https://yourdomain.com,https://www.yourdomain.com
+  ```
+- **Not:** FRONTEND_URL veya ALLOWED_ORIGINS yoksa CORS devre dışı kalır ve frontend backend'e erişemeyebilir.
 
 ### Veritabanı
 - Bağlantı: postgres://:@db:5432/
@@ -116,8 +161,19 @@ docker compose up -d
 Get-Content backup.sql | & "C:\Program Files\Docker\Docker\resources\bin\docker.exe" compose exec -T db psql -U  
 `
 
+### Production Deployment Checklist
+- [ ] `.env` dosyası oluşturuldu ve tüm zorunlu değişkenler ayarlandı
+- [ ] JWT_SECRET güvenli bir şekilde oluşturuldu (64+ karakter, `generate-jwt-secret` script kullanıldı)
+- [ ] FRONTEND_URL production domain ile yapılandırıldı
+- [ ] SSL sertifikaları yüklendi (production için)
+- [ ] Database migration'ları çalıştırıldı
+- [ ] Backend ve frontend container'ları başlatıldı
+- [ ] Health check endpoint'leri test edildi (`/health`, `/health/detailed`)
+- [ ] Frontend'den backend'e API çağrıları test edildi
+- [ ] Login işlemi test edildi
+
 ### TypeORM Migration
-- Prod’da `synchronize=false` kullanılır; migration hatası durumda başlatma başarısız olur.
+- Prod'da `synchronize=false` kullanılır; migration hatası durumda başlatma başarısız olur.
   - Migration üret/çalıştır:
   - `npm run typeorm migration:generate -n init`
   - `npm run typeorm migration:run`

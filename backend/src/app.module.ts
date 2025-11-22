@@ -1,5 +1,5 @@
 import { Module, MiddlewareConsumer, OnApplicationBootstrap } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_FILTER } from '@nestjs/core';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HealthController } from './health.controller';
@@ -13,6 +13,7 @@ import { AuditModule } from './audit/audit.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { AuditInterceptor } from './audit/audit.interceptor';
 import { RequestLoggerMiddleware } from './common/request-logger.middleware';
+import { HttpExceptionFilter } from './common/http-exception.filter';
 import { SettingsModule } from './settings/settings.module';
 import { OpsModule } from './ops/ops.module';
 import { UsersService } from './users/users.service';
@@ -53,6 +54,8 @@ import { ConfigModule } from '@nestjs/config';
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     // Global audit interceptor (lightweight, sadece metadata)
     { provide: APP_INTERCEPTOR, useClass: AuditInterceptor },
+    // Global exception filter (consistent error responses, production-safe)
+    { provide: APP_FILTER, useClass: HttpExceptionFilter },
   ],
 })
 export class AppModule implements OnApplicationBootstrap {

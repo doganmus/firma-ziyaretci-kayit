@@ -2,8 +2,14 @@ FROM node:20-alpine AS build
 WORKDIR /app
 ARG VITE_API_URL
 ENV VITE_API_URL=$VITE_API_URL
+
+# Install dependencies - fix rollup optional dependencies issue
 COPY package*.json ./
-RUN npm install
+RUN rm -rf node_modules package-lock.json && \
+    npm install --legacy-peer-deps --no-optional && \
+    npm install @rollup/rollup-linux-x64-musl --save-optional --legacy-peer-deps || true && \
+    npm install --legacy-peer-deps
+
 COPY . .
 RUN npm run build
 

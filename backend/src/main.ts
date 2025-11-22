@@ -7,25 +7,53 @@ import helmet from 'helmet';
 import * as express from 'express';
 import { join } from 'path';
 import cookieParser from 'cookie-parser';
+import { validateEnvOrExit } from './config/env.validation';
 
 // App bootstrap entry. Sets security headers, validation rules,
 // static file serving for uploads, API docs, and starts the server.
 
 async function bootstrap() {
+  // Validate all environment variables before starting the app
+  validateEnvOrExit();
+
   const app = await NestFactory.create(AppModule);
-  if (!process.env.JWT_SECRET) {
-    // Fail fast if JWT secret is missing in non-test environments
-    // eslint-disable-next-line no-console
-    console.error('[config] JWT_SECRET is required');
-    process.exit(1);
-  }
+  
   // Add common security HTTP headers
   app.use(helmet());
   app.use(cookieParser());
-  // Allow frontend origins only in development via ALLOWED_ORIGINS env (comma-separated)
-  if (process.env.NODE_ENV !== 'production') {
+  
+  // CORS configuration for both development and production
+  const isProduction = process.env.NODE_ENV === 'production';
+  
+  if (isProduction) {
+    // Production: Use FRONTEND_URL or ALLOWED_ORIGINS
+    let allowedOrigins: string[] = [];
+    
+    if (process.env.FRONTEND_URL) {
+      allowedOrigins = [process.env.FRONTEND_URL];
+    } else if (process.env.ALLOWED_ORIGINS) {
+      allowedOrigins = process.env.ALLOWED_ORIGINS.split(',').map((s) => s.trim());
+    }
+    
+    if (allowedOrigins.length > 0) {
+      app.enableCors({
+        origin: allowedOrigins,
+        credentials: true,
+        methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization'],
+        maxAge: 86400, // 24 hours
+      });
+    }
+  } else {
+    // Development: Use ALLOWED_ORIGINS or default to localhost
     const allowed = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173').split(',').map((s) => s.trim());
-    app.enableCors({ origin: allowed, credentials: true });
+    app.enableCors({
+      origin: allowed,
+      credentials: true,
+      methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+      maxAge: 86400,
+    });
   }
   // Validate all incoming requests and strip unknown fields
   app.useGlobalPipes(new ValidationPipe({
