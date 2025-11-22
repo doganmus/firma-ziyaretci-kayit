@@ -71,8 +71,8 @@ export class UsersController {
   async changeMyPassword(@Req() req: any, @Body() body: { currentPassword: string; newPassword: string }) {
     const userId = req.user?.userId as string | undefined;
     if (!userId) throw new BadRequestException('Unauthorized');
-    if (!body?.currentPassword || !body?.newPassword || body.newPassword.length < 6) {
-      throw new BadRequestException('Yeni şifre en az 6 karakter olmalı');
+    if (!body?.currentPassword || !body?.newPassword) {
+      throw new BadRequestException('Mevcut şifre ve yeni şifre gereklidir');
     }
     const me = await this.users.findById(userId);
     if (!me) throw new BadRequestException('User not found');

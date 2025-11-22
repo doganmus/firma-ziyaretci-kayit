@@ -35,6 +35,13 @@ import { ConfigModule } from '@nestjs/config';
       autoLoadEntities: true,
       // Prod'da migrations; local'de senkronizasyon açılabilir
       synchronize: process.env.NODE_ENV !== 'production',
+      // Connection pool configuration
+      extra: {
+        max: process.env.DB_POOL_MAX ? Number(process.env.DB_POOL_MAX) : 10, // Maximum pool size
+        min: process.env.DB_POOL_MIN ? Number(process.env.DB_POOL_MIN) : 2, // Minimum pool size
+        idleTimeoutMillis: 30000, // 30 seconds
+        connectionTimeoutMillis: 10000, // 10 seconds
+      },
     }),
     // Basic rate limiting: up to 120 requests per minute per client
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 120 }]),
@@ -59,6 +66,8 @@ import { ConfigModule } from '@nestjs/config';
   ],
 })
 export class AppModule implements OnApplicationBootstrap {
+  private readonly logger = new Logger(AppModule.name);
+
   constructor(private readonly usersService: UsersService) {}
 
   configure(consumer: MiddlewareConsumer) {
@@ -79,8 +88,7 @@ export class AppModule implements OnApplicationBootstrap {
         const password = process.env.SEED_ADMIN_PASSWORD;
         const fullName = process.env.SEED_ADMIN_NAME || 'Admin';
         if (!email || !password) {
-          // eslint-disable-next-line no-console
-          console.warn('[bootstrap] Skipping admin seed: SEED_ADMIN_EMAIL/PASSWORD not set');
+          this.logger.warn('Skipping admin seed: SEED_ADMIN_EMAIL/PASSWORD not set');
           return;
         }
         const password_hash = await bcrypt.hash(password, 10);
@@ -90,12 +98,10 @@ export class AppModule implements OnApplicationBootstrap {
           full_name: fullName,
           role: 'ADMIN' as UserRole,
         });
-        // eslint-disable-next-line no-console
-        console.log(`[bootstrap] Created default ADMIN user: ${email}`);
+        this.logger.log(`Created default ADMIN user: ${email}`);
       }
     } catch (err) {
-      // eslint-disable-next-line no-console
-      console.error('[bootstrap] Failed to bootstrap default admin user:', err);
+      this.logger.error('Failed to bootstrap default admin user', err instanceof Error ? err.stack : String(err));
     }
   }
 }

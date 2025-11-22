@@ -1,5 +1,6 @@
 import { IsEmail, IsIn, IsString, Length } from 'class-validator';
 import { UserRole } from '../user.entity';
+import { IsStrongPassword } from '../../common/validators/password-strength.validator';
 
 const ROLES: UserRole[] = ['ADMIN', 'OPERATOR', 'VIEWER'];
 
@@ -8,9 +9,9 @@ export class CreateUserDto {
   @IsEmail()
   email!: string;
 
-  // Initial password for the user (min 6 characters)
+  // Initial password for the user (min 8 characters, must include uppercase, lowercase, digit, and special character)
   @IsString()
-  @Length(6, 255)
+  @IsStrongPassword()
   password!: string;
 
   // Full name displayed in the UI

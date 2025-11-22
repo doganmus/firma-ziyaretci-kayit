@@ -43,10 +43,14 @@ export default function AdminUsers() {
   useEffect(() => { load() }, [])
   useEffect(() => { setFiltered(applyFilters(users, searchEmail, searchName)) }, [users, searchEmail, searchName])
 
-  // Create a new user (validates email and password length first)
+  // Create a new user (validates email and password strength first)
   const createUser = async (values: { email: string; full_name: string; password: string; role: string }) => {
     if (!EMAIL_RE.test(values.email)) { message.error('Geçersiz e-posta'); return }
-    if ((values.password || '').length < 6) { message.error('Şifre en az 6 karakter'); return }
+    // Password strength validation is handled by backend, but we can show a helpful message
+    if (!values.password || values.password.length < 8) { 
+      message.error('Şifre en az 8 karakter olmalı ve büyük harf, küçük harf, sayı ve özel karakter içermelidir'); 
+      return 
+    }
     setCreating(true)
     try {
       await api.post('/admin/users', values)
@@ -75,7 +79,11 @@ export default function AdminUsers() {
   const setRowPassword = (id: string, val: string) => setRowPasswords(prev => ({ ...prev, [id]: val }))
   const saveRowPassword = async (id: string) => {
     const p = rowPasswords[id] || ''
-    if (p.length < 6) { message.error('Şifre en az 6 karakter olmalı'); return }
+    // Password strength validation is handled by backend, but we can show a helpful message
+    if (!p || p.length < 8) { 
+      message.error('Şifre en az 8 karakter olmalı ve büyük harf, küçük harf, sayı ve özel karakter içermelidir'); 
+      return 
+    }
     await updateUser(id, { password: p })
     setRowPasswords(prev => ({ ...prev, [id]: '' }))
   }

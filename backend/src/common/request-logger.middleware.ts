@@ -1,10 +1,12 @@
-import { Injectable, NestMiddleware } from '@nestjs/common';
+import { Injectable, NestMiddleware, Logger } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class RequestLoggerMiddleware implements NestMiddleware {
+  private readonly logger = new Logger(RequestLoggerMiddleware.name);
+
   // Adds a unique id to each request, measures how long it takes,
-  // and prints a simple JSON log when the response finishes.
+  // and prints a structured log when the response finishes.
   use(req: any, res: any, next: () => void) {
     const start = Date.now();
     const requestId = req.headers['x-request-id'] || uuidv4();
@@ -13,8 +15,7 @@ export class RequestLoggerMiddleware implements NestMiddleware {
 
     res.on('finish', () => {
       const durationMs = Date.now() - start;
-      const log = {
-        level: 'info',
+      const logContext = {
         requestId,
         method: req.method,
         url: req.originalUrl || req.url,
@@ -22,8 +23,7 @@ export class RequestLoggerMiddleware implements NestMiddleware {
         durationMs,
         user: req.user ? { id: req.user.userId, role: req.user.role } : null,
       };
-      // eslint-disable-next-line no-console
-      console.log(JSON.stringify(log));
+      this.logger.log(logContext);
     });
 
     next();

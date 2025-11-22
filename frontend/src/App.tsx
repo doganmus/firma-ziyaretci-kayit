@@ -202,10 +202,7 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
   const onPasswordSubmit = async () => {
     try {
       const vals = await pwdForm.validateFields()
-      if ((vals.newPassword || '').length < 6) {
-        message.error('Yeni şifre en az 6 karakter olmalı');
-        return
-      }
+      // Password strength validation is handled by backend
       if (vals.newPassword !== vals.confirm) {
         message.error('Yeni şifre ve tekrar aynı olmalı');
         return

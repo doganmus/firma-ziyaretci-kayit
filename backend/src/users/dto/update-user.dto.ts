@@ -1,5 +1,6 @@
 import { IsIn, IsOptional, IsString, Length } from 'class-validator';
 import { UserRole } from '../user.entity';
+import { IsStrongPassword } from '../../common/validators/password-strength.validator';
 
 const ROLES: UserRole[] = ['ADMIN', 'OPERATOR', 'VIEWER'];
 
@@ -10,10 +11,10 @@ export class UpdateUserDto {
   @Length(2, 150)
   full_name?: string;
 
-  // Optional password change
+  // Optional password change (min 8 characters, must include uppercase, lowercase, digit, and special character)
   @IsOptional()
   @IsString()
-  @Length(6, 255)
+  @IsStrongPassword()
   password?: string;
 
   // Optional role change

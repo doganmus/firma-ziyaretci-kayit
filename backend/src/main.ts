@@ -8,6 +8,8 @@ import * as express from 'express';
 import { join } from 'path';
 import cookieParser from 'cookie-parser';
 import { validateEnvOrExit } from './config/env.validation';
+import { WinstonModule } from 'nest-winston';
+import { createWinstonConfig } from './common/logger.config';
 
 // App bootstrap entry. Sets security headers, validation rules,
 // static file serving for uploads, API docs, and starts the server.
@@ -16,7 +18,9 @@ async function bootstrap() {
   // Validate all environment variables before starting the app
   validateEnvOrExit();
 
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: WinstonModule.createLogger(createWinstonConfig()),
+  });
   
   // Add common security HTTP headers
   app.use(helmet());
@@ -79,6 +83,46 @@ async function bootstrap() {
 
   const port = process.env.PORT ? Number(process.env.PORT) : 3000;
   await app.listen(port);
+
+  // Graceful shutdown handling
+  const shutdownTimeout = process.env.SHUTDOWN_TIMEOUT ? Number(process.env.SHUTDOWN_TIMEOUT) : 30000; // 30 seconds default
+  const logger = app.get('LoggerService') || console;
+
+  const gracefulShutdown = async (signal: string) => {
+    logger.log(`Received ${signal}, starting graceful shutdown...`);
+
+    const shutdownTimer = setTimeout(() => {
+      logger.error('Graceful shutdown timeout exceeded, forcing exit');
+      process.exit(1);
+    }, shutdownTimeout);
+
+    try {
+      // Close HTTP server (stop accepting new connections)
+      await app.close();
+      clearTimeout(shutdownTimer);
+      logger.log('Graceful shutdown completed');
+      process.exit(0);
+    } catch (error) {
+      clearTimeout(shutdownTimer);
+      logger.error('Error during graceful shutdown', error);
+      process.exit(1);
+    }
+  };
+
+  // Listen for termination signals
+  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+  process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
+  // Handle uncaught exceptions and unhandled rejections
+  process.on('uncaughtException', (error) => {
+    logger.error('Uncaught exception', error);
+    gracefulShutdown('uncaughtException');
+  });
+
+  process.on('unhandledRejection', (reason, promise) => {
+    logger.error('Unhandled rejection', { reason, promise });
+    gracefulShutdown('unhandledRejection');
+  });
 }
 
 bootstrap();

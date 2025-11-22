@@ -99,9 +99,61 @@ export function validateEnv(): ValidationResult {
     }
   }
 
-  // SEED_ADMIN_PASSWORD - Optional, but if provided must be at least 8 characters
-  if (process.env.SEED_ADMIN_PASSWORD && process.env.SEED_ADMIN_PASSWORD.length < 8) {
-    errors.push('SEED_ADMIN_PASSWORD must be at least 8 characters long');
+  // SEED_ADMIN_PASSWORD - Optional, but if provided must meet password strength requirements
+  if (process.env.SEED_ADMIN_PASSWORD) {
+    const password = process.env.SEED_ADMIN_PASSWORD;
+    if (password.length < 8) {
+      errors.push('SEED_ADMIN_PASSWORD must be at least 8 characters long');
+    } else {
+      // Check password strength: uppercase, lowercase, digit, special character
+      const hasUpper = /[A-Z]/.test(password);
+      const hasLower = /[a-z]/.test(password);
+      const hasDigit = /[0-9]/.test(password);
+      const hasSpecial = /[!@#$%^&*()_+\-=\[\]{}|;:,.<>?]/.test(password);
+      if (!hasUpper || !hasLower || !hasDigit || !hasSpecial) {
+        errors.push('SEED_ADMIN_PASSWORD must include uppercase, lowercase, digit, and special character');
+      }
+    }
+  }
+
+  // JWT_EXPIRATION - Optional, but if provided must be a valid format (e.g., '24h', '12h', '1d')
+  if (process.env.JWT_EXPIRATION) {
+    const expirationRegex = /^\d+[hdms]$/;
+    if (!expirationRegex.test(process.env.JWT_EXPIRATION)) {
+      errors.push('JWT_EXPIRATION must be in format: <number><unit> (e.g., 24h, 12h, 1d, 30m, 3600s)');
+    }
+  }
+
+  // LOG_LEVEL - Optional, but if provided must be a valid log level
+  if (process.env.LOG_LEVEL) {
+    const validLevels = ['error', 'warn', 'info', 'debug', 'verbose'];
+    if (!validLevels.includes(process.env.LOG_LEVEL.toLowerCase())) {
+      errors.push(`LOG_LEVEL must be one of: ${validLevels.join(', ')}`);
+    }
+  }
+
+  // DB_POOL_MAX - Optional, but if provided must be a positive number
+  if (process.env.DB_POOL_MAX) {
+    const poolMax = Number(process.env.DB_POOL_MAX);
+    if (isNaN(poolMax) || poolMax < 1) {
+      errors.push('DB_POOL_MAX must be a positive number');
+    }
+  }
+
+  // DB_POOL_MIN - Optional, but if provided must be a positive number
+  if (process.env.DB_POOL_MIN) {
+    const poolMin = Number(process.env.DB_POOL_MIN);
+    if (isNaN(poolMin) || poolMin < 1) {
+      errors.push('DB_POOL_MIN must be a positive number');
+    }
+  }
+
+  // SHUTDOWN_TIMEOUT - Optional, but if provided must be a positive number >= 1000 (milliseconds)
+  if (process.env.SHUTDOWN_TIMEOUT) {
+    const timeout = Number(process.env.SHUTDOWN_TIMEOUT);
+    if (isNaN(timeout) || timeout < 1000) {
+      errors.push('SHUTDOWN_TIMEOUT must be a positive number >= 1000 (milliseconds)');
+    }
   }
 
   // BUSINESS_TZ - Optional, but if provided should be a valid IANA timezone
