@@ -1,4 +1,4 @@
-import { Module, MiddlewareConsumer, OnApplicationBootstrap } from '@nestjs/common';
+import { Module, MiddlewareConsumer, OnApplicationBootstrap, Logger } from '@nestjs/common';
 import { APP_GUARD, APP_FILTER } from '@nestjs/core';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';

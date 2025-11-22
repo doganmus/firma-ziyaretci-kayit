@@ -22,7 +22,8 @@ export function createWinstonConfig(): WinstonModuleOptions {
         : winston.format.combine(
             winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
             winston.format.colorize(),
-            winston.format.printf(({ timestamp, level, message, context, ...meta }) => {
+            winston.format.printf((info: any) => {
+              const { timestamp, level, message, context, ...meta } = info;
               const contextStr = context ? `[${context}]` : '';
               const metaStr = Object.keys(meta).length ? JSON.stringify(meta, null, 2) : '';
               return `${timestamp} ${level} ${contextStr} ${message} ${metaStr}`;
