@@ -219,6 +219,46 @@ openssl req -x509 -newkey rsa:2048 -nodes -keyout certs/server.key -out certs/se
 - pgAdmin bağlanamıyor
   - db servisinin sağlıklı olduğundan emin olun; healthcheck çıkışlarını kontrol edin
 
+### Admin Şifre Sıfırlama
+
+**Yöntem 1: Node.js Script (Önerilen)**
+
+Backend container'ı içinde çalıştırın:
+
+```bash
+# Backend container'ına girin
+docker compose exec backend sh
+
+# Script'i çalıştırın (email ve yeni şifre ile)
+node scripts/reset-admin-password.js admin@example.com YeniSifre123!
+
+# Container'dan çıkın
+exit
+```
+
+**Yöntem 2: Veritabanına Direkt Erişim**
+
+```bash
+# PostgreSQL container'ına girin
+docker compose exec db psql -U postgres -d firmaziyaret
+
+# Veritabanında admin kullanıcısını kontrol edin
+SELECT id, email, role FROM users WHERE role = 'ADMIN';
+
+# Şifre hash'ini güncellemek için backend container'ında bcrypt hash oluşturun:
+docker compose exec backend node -e "const bcrypt=require('bcrypt'); bcrypt.hash('YeniSifre123!', 10).then(h=>console.log(h))"
+
+# Çıkan hash'i kullanarak UPDATE yapın (psql içinde):
+UPDATE users 
+SET password_hash = '$2b$10$OLUSTURULAN_HASH_BURAYA', updated_at = NOW()
+WHERE email = 'admin@example.com';
+
+# Çıkış
+\q
+```
+
+**Not:** Yeni şifre en az 8 karakter olmalı ve büyük harf, küçük harf, sayı ve özel karakter içermelidir.
+
 ### Üretim Notları (ileri aşama)
 - Nginx reverse proxy ile rontend ve ackend tek host üzerinden sunulur
 - HTTPS sertifikaları (Let's Encrypt) ve güvenlik başlıkları
