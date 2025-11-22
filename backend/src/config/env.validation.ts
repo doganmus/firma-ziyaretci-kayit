@@ -99,11 +99,12 @@ export function validateEnv(): ValidationResult {
     }
   }
 
-  // SEED_ADMIN_PASSWORD - Optional, but if provided must meet password strength requirements
+  // SEED_ADMIN_PASSWORD - Optional, but if provided should meet password strength requirements
+  // Note: This is a warning, not an error, to avoid breaking existing deployments
   if (process.env.SEED_ADMIN_PASSWORD) {
     const password = process.env.SEED_ADMIN_PASSWORD;
     if (password.length < 8) {
-      errors.push('SEED_ADMIN_PASSWORD must be at least 8 characters long');
+      console.warn('[config] WARNING: SEED_ADMIN_PASSWORD should be at least 8 characters long for security');
     } else {
       // Check password strength: uppercase, lowercase, digit, special character
       const hasUpper = /[A-Z]/.test(password);
@@ -111,7 +112,7 @@ export function validateEnv(): ValidationResult {
       const hasDigit = /[0-9]/.test(password);
       const hasSpecial = /[!@#$%^&*()_+\-=\[\]{}|;:,.<>?]/.test(password);
       if (!hasUpper || !hasLower || !hasDigit || !hasSpecial) {
-        errors.push('SEED_ADMIN_PASSWORD must include uppercase, lowercase, digit, and special character');
+        console.warn('[config] WARNING: SEED_ADMIN_PASSWORD should include uppercase, lowercase, digit, and special character for better security');
       }
     }
   }
