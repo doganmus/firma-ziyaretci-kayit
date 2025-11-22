@@ -221,9 +221,49 @@ openssl req -x509 -newkey rsa:2048 -nodes -keyout certs/server.key -out certs/se
 
 ### Admin Şifre Sıfırlama
 
-**Yöntem 1: Node.js Script (Önerilen)**
+**Yöntem 1: Veritabanına Direkt Erişim (Önerilen - En Hızlı)**
 
-Backend container'ı içinde çalıştırın:
+```bash
+# 1. Önce backend container'ında şifre hash'ini oluşturun:
+docker compose exec backend node -e "const bcrypt=require('bcrypt'); bcrypt.hash('YeniSifre123!', 10).then(h=>console.log(h))"
+
+# Çıktı örneği: $2b$10$rOzJqZqZqZqZqZqZqZqZqOZqZqZqZqZqZqZqZqZqZqZqZqZqZqZqZqZq
+
+# 2. PostgreSQL container'ına girin:
+docker compose exec db psql -U postgres -d firmaziyaret
+
+# 3. Mevcut admin kullanıcılarını kontrol edin:
+SELECT id, email, role FROM users WHERE role = 'ADMIN';
+
+# 4. Eğer admin kullanıcısı yoksa, yeni bir tane oluşturun:
+# (Yukarıdaki hash'i kullanarak)
+INSERT INTO users (id, email, password_hash, full_name, role, created_at, updated_at)
+VALUES (
+  gen_random_uuid(),
+  'admin@example.com',
+  '$2b$10$YUKARIDAKI_HASH_BURAYA',  -- Yukarıdaki komuttan aldığınız hash'i buraya yapıştırın
+  'Admin',
+  'ADMIN',
+  NOW(),
+  NOW()
+);
+
+# 5. Eğer admin kullanıcısı varsa, şifresini güncelleyin:
+UPDATE users 
+SET password_hash = '$2b$10$YUKARIDAKI_HASH_BURAYA',  -- Yukarıdaki komuttan aldığınız hash'i buraya yapıştırın
+    updated_at = NOW()
+WHERE email = 'admin@example.com';
+
+# 6. Güncellemeyi kontrol edin:
+SELECT id, email, role, updated_at FROM users WHERE email = 'admin@example.com';
+
+# 7. Çıkış:
+\q
+```
+
+**Yöntem 2: Node.js Script (Geliştirme Ortamı İçin)**
+
+Eğer backend container'ında scripts klasörü varsa (development ortamı):
 
 ```bash
 # Backend container'ına girin
@@ -234,27 +274,6 @@ node scripts/reset-admin-password.js admin@example.com YeniSifre123!
 
 # Container'dan çıkın
 exit
-```
-
-**Yöntem 2: Veritabanına Direkt Erişim**
-
-```bash
-# PostgreSQL container'ına girin
-docker compose exec db psql -U postgres -d firmaziyaret
-
-# Veritabanında admin kullanıcısını kontrol edin
-SELECT id, email, role FROM users WHERE role = 'ADMIN';
-
-# Şifre hash'ini güncellemek için backend container'ında bcrypt hash oluşturun:
-docker compose exec backend node -e "const bcrypt=require('bcrypt'); bcrypt.hash('YeniSifre123!', 10).then(h=>console.log(h))"
-
-# Çıkan hash'i kullanarak UPDATE yapın (psql içinde):
-UPDATE users 
-SET password_hash = '$2b$10$OLUSTURULAN_HASH_BURAYA', updated_at = NOW()
-WHERE email = 'admin@example.com';
-
-# Çıkış
-\q
 ```
 
 **Not:** Yeni şifre en az 8 karakter olmalı ve büyük harf, küçük harf, sayı ve özel karakter içermelidir.
