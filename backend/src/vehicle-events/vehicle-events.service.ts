@@ -50,8 +50,10 @@ export class VehicleEventsService {
     const sortOrder = (filters?.sortOrder === 'asc') ? 'ASC' : 'DESC';
     qb.orderBy(`e.${sortKey}`, sortOrder as 'ASC'|'DESC');
 
+    // Pagination - active vehicles should show all records regardless of date, so use very high limit
     const page = Math.max(1, Number(filters?.page || 1));
-    const pageSize = Math.max(1, Math.min(100, Number(filters?.pageSize || 10)));
+    const maxPageSize = filters?.active ? 10000 : 100; // Very high limit for active vehicles to show all regardless of date
+    const pageSize = Math.max(1, Math.min(maxPageSize, Number(filters?.pageSize || 10)));
     qb.skip((page - 1) * pageSize).take(pageSize);
   }
 

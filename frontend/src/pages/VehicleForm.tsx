@@ -33,7 +33,7 @@ export default function VehicleForm() {
 
   const loadActive = async () => {
     try {
-      const res = await api.get<{ data: VehicleEvent[]; total: number }>('/vehicle-events', { params: { active: true, pageSize: 100 } })
+      const res = await api.get<{ data: VehicleEvent[]; total: number }>('/vehicle-events', { params: { active: true, pageSize: 10000 } })
       setActive(Array.isArray((res.data as any)?.data) ? (res.data as any).data : [])
     } catch (error) {
       console.error('Aktif araçlar yüklenirken hata:', error)
