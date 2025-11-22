@@ -32,12 +32,13 @@ export class VehicleEventsService {
 
     if (typeof filters?.active === 'boolean') {
       if (filters.active) {
-        // Active = ENTRY with no subsequent EXIT for same plate (regardless of date)
+        // Active = ENTRY with no EXIT on the same day for same plate
         qb.andWhere("e.action = 'ENTRY'")
           .andWhere(`NOT EXISTS (
             SELECT 1 FROM vehicle_events e2
             WHERE e2.plate = e.plate
               AND e2.action = 'EXIT'
+              AND e2.date = e.date
               AND e2.at > e.at
           )`);
       } else {
