@@ -35,6 +35,10 @@ export default function AdminUsers() {
       const res = await api.get<User[]>('/admin/users')
       setUsers(res.data)
       setFiltered(applyFilters(res.data, searchEmail, searchName))
+    } catch (error: any) {
+      const errorMsg = error?.response?.data?.message
+      const msg = Array.isArray(errorMsg) ? errorMsg[0] : (errorMsg || 'Kullanıcılar yüklenirken hata oluştu')
+      message.error(msg)
     } finally {
       setLoading(false)
     }
@@ -57,6 +61,10 @@ export default function AdminUsers() {
       form.resetFields()
       await load()
       message.success('Kullanıcı eklendi')
+    } catch (error: any) {
+      const errorMsg = error?.response?.data?.message
+      const msg = Array.isArray(errorMsg) ? errorMsg[0] : (errorMsg || 'Kullanıcı eklenirken hata oluştu')
+      message.error(msg)
     } finally {
       setCreating(false)
     }
@@ -64,16 +72,28 @@ export default function AdminUsers() {
 
   // Update a user's fields (role, name, password)
   const updateUser = async (id: string, data: Partial<{ full_name: string; password: string; role: string }>) => {
-    await api.patch(`/admin/users/${id}`, data)
-    await load()
-    message.success('Güncellendi')
+    try {
+      await api.patch(`/admin/users/${id}`, data)
+      await load()
+      message.success('Güncellendi')
+    } catch (error: any) {
+      const errorMsg = error?.response?.data?.message
+      const msg = Array.isArray(errorMsg) ? errorMsg[0] : (errorMsg || 'Güncelleme sırasında hata oluştu')
+      message.error(msg)
+    }
   }
 
   // Delete a user by id
   const removeUser = async (id: string) => {
-    await api.delete(`/admin/users/${id}`)
-    await load()
-    message.success('Silindi')
+    try {
+      await api.delete(`/admin/users/${id}`)
+      await load()
+      message.success('Silindi')
+    } catch (error: any) {
+      const errorMsg = error?.response?.data?.message
+      const msg = Array.isArray(errorMsg) ? errorMsg[0] : (errorMsg || 'Silme sırasında hata oluştu')
+      message.error(msg)
+    }
   }
 
   const setRowPassword = (id: string, val: string) => setRowPasswords(prev => ({ ...prev, [id]: val }))
@@ -84,8 +104,12 @@ export default function AdminUsers() {
       message.error('Şifre en az 8 karakter olmalı ve büyük harf, küçük harf, sayı ve özel karakter içermelidir'); 
       return 
     }
-    await updateUser(id, { password: p })
-    setRowPasswords(prev => ({ ...prev, [id]: '' }))
+    try {
+      await updateUser(id, { password: p })
+      setRowPasswords(prev => ({ ...prev, [id]: '' }))
+    } catch (error: any) {
+      // Hata zaten updateUser içinde gösteriliyor, burada ek bir işlem yapmaya gerek yok
+    }
   }
 
   // Table columns for users management
