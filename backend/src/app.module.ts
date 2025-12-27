@@ -19,6 +19,7 @@ import { OpsModule } from './ops/ops.module';
 import { UsersService } from './users/users.service';
 import { VehicleLogsModule } from './vehicle-logs/vehicle-logs.module';
 import { VehicleEventsModule } from './vehicle-events/vehicle-events.module';
+import { VehicleRecordsModule } from './vehicle-records/vehicle-records.module';
 import { UserRole } from './users/user.entity';
 import * as bcrypt from 'bcrypt';
 import { ConfigModule } from '@nestjs/config';
@@ -54,6 +55,7 @@ import { ConfigModule } from '@nestjs/config';
     OpsModule,
     VehicleLogsModule,
     VehicleEventsModule,
+    VehicleRecordsModule,
   ],
   controllers: [HealthController, MetricsController],
   providers: [
@@ -68,7 +70,7 @@ import { ConfigModule } from '@nestjs/config';
 export class AppModule implements OnApplicationBootstrap {
   private readonly logger = new Logger(AppModule.name);
 
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   configure(consumer: MiddlewareConsumer) {
     // Log each request with a unique request id and timing

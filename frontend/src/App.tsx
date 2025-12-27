@@ -4,6 +4,7 @@ import Login from './pages/Login'
 import VisitForm from './pages/VisitForm'
 import VehicleForm from './pages/VehicleForm'
 import VehicleList from './pages/VehicleList'
+import VehicleFormAndList from './pages/VehicleFormAndList'
 import VisitList from './pages/VisitList'
 import Reports from './pages/Reports'
 import Dashboard from './pages/Dashboard'
@@ -18,7 +19,7 @@ import { api } from './api/client'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
-import { SunOutlined, MoonOutlined, MenuOutlined, LogoutOutlined, UserOutlined, FormOutlined, UnorderedListOutlined, BarChartOutlined, SettingOutlined, TeamOutlined, PictureOutlined } from '@ant-design/icons'
+import { SunOutlined, MoonOutlined, MenuOutlined, LogoutOutlined, UserOutlined, FormOutlined, UnorderedListOutlined, BarChartOutlined, SettingOutlined, TeamOutlined, PictureOutlined, CarOutlined } from '@ant-design/icons'
 
 const { Header, Content, Sider } = Layout
 
@@ -56,7 +57,7 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
         const s = JSON.parse(cached)
         return { name: s.brandName ?? null, logoUrl: s.brandLogoUrl ?? null }
       }
-    } catch {}
+    } catch { }
     return { name: null, logoUrl: null }
   })
   const [maintenance, setMaintenance] = useState(false)
@@ -85,7 +86,7 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
           })
           schedule()
         }, ms)
-      } catch {}
+      } catch { }
     }
     schedule()
     return () => clearTimeout(timer)
@@ -101,18 +102,18 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
         } else {
           setBrand({ name: null, logoUrl: null })
         }
-      } catch {}
+      } catch { }
     }
     window.addEventListener('brandSettingsChanged', handler as any)
     return () => window.removeEventListener('brandSettingsChanged', handler as any)
   }, [])
   // Load public settings (maintenance flag) once
   useEffect(() => {
-    ;(async () => {
+    ; (async () => {
       try {
         const s = await api.get('/settings/public')
         setMaintenance(!!s.data.maintenanceMode)
-      } catch {}
+      } catch { }
     })()
   }, [])
   // Build sidebar items based on user role
@@ -129,6 +130,7 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
       items.push({ key: '/vehicles', icon: <FormOutlined />, label: <Link to="/vehicles">Araç Kayıt</Link>, title: 'Araç Kayıt' })
     }
     items.push({ key: '/vehicles/list', icon: <UnorderedListOutlined />, label: <Link to="/vehicles/list">Araç Kayıtları</Link>, title: 'Araç Kayıtları' })
+    items.push({ key: '/vehicles/all', icon: <CarOutlined />, label: <Link to="/vehicles/all">Araç Kayıt ve Liste</Link>, title: 'Araç Kayıt ve Liste' })
     if (role === 'ADMIN') {
       items.push({
         key: 'admin',
@@ -196,7 +198,7 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
     const path = location.pathname
     const map: Record<string, string> = { '/': 'Kayıt', '/dashboard': 'Dashboard', '/list': 'Kayıtlar', '/reports': 'Rapor' }
     const title = path.startsWith('/admin') ? 'Admin' : (map[path] || 'Uygulama')
-    try { document.title = `${title} · Ziyaretçi Kayıt` } catch {}
+    try { document.title = `${title} · Ziyaretçi Kayıt` } catch { }
   }, [location.pathname])
 
   const onPasswordSubmit = async () => {
@@ -251,125 +253,125 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
         a.skip-link:focus{ left:8px; top:8px; background:#1677ff; color:#fff; padding:6px 10px; border-radius:4px; z-index:1000; text-decoration:none; }
       `}</style>
       <Layout style={{ minHeight: '100vh' }}>
-      <a className="skip-link" href="#mainContent">
-        İçeriğe atla
-      </a>
-      <Sider collapsible collapsed={siderCollapsed} onCollapse={setSiderCollapsed} trigger={null} width={200} theme={themeName === 'dark' ? 'dark' : 'light'}>
-        <div style={{ height: 64, background: headerBg, display: 'flex', alignItems: 'center', paddingLeft: 8 }}>
-          <Button
-            type="text"
-            aria-label="Menü"
-            onClick={() => setSiderCollapsed((c) => !c)}
-            icon={<MenuOutlined style={{ fontSize: 20, color: themeName === 'dark' ? '#fff' : '#000' }} />}
-            style={{ height: 48, width: 48 }}
-          />
-        </div>
-        <Menu
-          mode="inline"
-          theme={themeName === 'dark' ? 'dark' : 'light'}
-          selectedKeys={selectedKeys}
-          openKeys={openKeys}
-          onOpenChange={(keys) => setOpenKeys(keys as string[])}
-          inlineCollapsed={siderCollapsed}
-          items={menuItems}
-          style={{ borderRight: 0 }}
-        />
-      </Sider>
-      <Layout>
-        <Header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: headerBg, padding: '0 8px' }}>
-          <Space size={4}>
-            {brand.logoUrl ? (
-              <img src={brand.logoUrl} alt="Logo" style={{ height: 28 }} />
-            ) : (
-              <div style={{ fontWeight: 600, color: themeName === 'dark' ? '#fff' : '#000' }}>{brand.name || 'Firma'}</div>
-            )}
-          </Space>
-          <Space>
-            <Tooltip title={themeName === 'dark' ? 'Açık moda geç' : 'Koyu moda geç'}>
-              <Button
-                shape="circle"
-                size="large"
-                aria-label="Tema"
-                onClick={toggleTheme}
-                style={{
-                  backgroundColor: themeName === 'dark' ? '#fff' : '#000',
-                  color: themeName === 'dark' ? '#000' : '#fff',
-                  border: 'none'
-                }}
-                icon={themeName === 'dark' ? <SunOutlined style={{ fontSize: 18 }} /> : <MoonOutlined style={{ fontSize: 18 }} />}
-              />
-            </Tooltip>
-            <Dropdown menu={profileMenu} placement="bottomRight" trigger={['click']}>
-              <Button type="text" icon={<UserOutlined />} style={{ color: themeName === 'dark' ? '#fff' : '#000' }}>
-                Profil
-              </Button>
-            </Dropdown>
-            <Tooltip title="Çıkış">
-              <Button
-                type="primary"
-                onClick={logout}
-                icon={<LogoutOutlined />}
-              >
-                Çıkış
-              </Button>
-            </Tooltip>
-          </Space>
-        </Header>
-        <Modal
-          open={pwdOpen}
-          title="Şifre Değiştir"
-          onOk={onPasswordSubmit}
-          okText="Kaydet"
-          cancelText="İptal"
-          onCancel={() => setPwdOpen(false)}
-          confirmLoading={pwdLoading}
-        >
-          <AntForm form={pwdForm} layout="vertical">
-            <AntForm.Item name="currentPassword" label="Mevcut Şifre" rules={[{ required: true, message: 'Zorunlu alan' }]}>
-              <AntInput.Password autoComplete="current-password" />
-            </AntForm.Item>
-            <AntForm.Item name="newPassword" label="Yeni Şifre" rules={[{ required: true, message: 'Zorunlu alan' }, { min: 6, message: 'En az 6 karakter' }]}>
-              <AntInput.Password autoComplete="new-password" />
-            </AntForm.Item>
-            <AntForm.Item name="confirm" label="Yeni Şifre (Tekrar)" dependencies={["newPassword"]} rules={[{ required: true, message: 'Zorunlu alan' }]}>
-              <AntInput.Password autoComplete="new-password" />
-            </AntForm.Item>
-          </AntForm>
-        </Modal>
-        <Modal
-          open={sessionOpen}
-          title="Oturum Ayarları"
-          onOk={() => setSessionOpen(false)}
-          okText="Kapat"
-          cancelButtonProps={{ style: { display: 'none' } }}
-          onCancel={() => setSessionOpen(false)}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div>Tema</div>
-            <AntSwitch
-              checked={themeName === 'dark'}
-              onChange={(checked) => setThemeName(checked ? 'dark' : 'light')}
-              checkedChildren="Koyu"
-              unCheckedChildren="Açık"
+        <a className="skip-link" href="#mainContent">
+          İçeriğe atla
+        </a>
+        <Sider collapsible collapsed={siderCollapsed} onCollapse={setSiderCollapsed} trigger={null} width={200} theme={themeName === 'dark' ? 'dark' : 'light'}>
+          <div style={{ height: 64, background: headerBg, display: 'flex', alignItems: 'center', paddingLeft: 8 }}>
+            <Button
+              type="text"
+              aria-label="Menü"
+              onClick={() => setSiderCollapsed((c) => !c)}
+              icon={<MenuOutlined style={{ fontSize: 20, color: themeName === 'dark' ? '#fff' : '#000' }} />}
+              style={{ height: 48, width: 48 }}
             />
           </div>
-          <Divider />
-          <Button danger onClick={logout} icon={<LogoutOutlined />}>Oturumu Kapat</Button>
-        </Modal>
-        <Content id="mainContent" role="main" tabIndex={-1} ref={mainRef as any} aria-label="Ana içerik" style={{ padding: 16 }}>
-          {maintenance && role !== 'ADMIN' && (
-            <Alert
-              type="warning"
-              showIcon
-              banner
-              message="Sistem bakım modunda, değişiklik yapılamaz. Görünüm kısıtlıdır."
-              style={{ marginBottom: 12 }}
-            />
-          )}
-          {children}
-        </Content>
+          <Menu
+            mode="inline"
+            theme={themeName === 'dark' ? 'dark' : 'light'}
+            selectedKeys={selectedKeys}
+            openKeys={openKeys}
+            onOpenChange={(keys) => setOpenKeys(keys as string[])}
+            inlineCollapsed={siderCollapsed}
+            items={menuItems}
+            style={{ borderRight: 0 }}
+          />
+        </Sider>
+        <Layout>
+          <Header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: headerBg, padding: '0 8px' }}>
+            <Space size={4}>
+              {brand.logoUrl ? (
+                <img src={brand.logoUrl} alt="Logo" style={{ height: 28 }} />
+              ) : (
+                <div style={{ fontWeight: 600, color: themeName === 'dark' ? '#fff' : '#000' }}>{brand.name || 'Firma'}</div>
+              )}
+            </Space>
+            <Space>
+              <Tooltip title={themeName === 'dark' ? 'Açık moda geç' : 'Koyu moda geç'}>
+                <Button
+                  shape="circle"
+                  size="large"
+                  aria-label="Tema"
+                  onClick={toggleTheme}
+                  style={{
+                    backgroundColor: themeName === 'dark' ? '#fff' : '#000',
+                    color: themeName === 'dark' ? '#000' : '#fff',
+                    border: 'none'
+                  }}
+                  icon={themeName === 'dark' ? <SunOutlined style={{ fontSize: 18 }} /> : <MoonOutlined style={{ fontSize: 18 }} />}
+                />
+              </Tooltip>
+              <Dropdown menu={profileMenu} placement="bottomRight" trigger={['click']}>
+                <Button type="text" icon={<UserOutlined />} style={{ color: themeName === 'dark' ? '#fff' : '#000' }}>
+                  Profil
+                </Button>
+              </Dropdown>
+              <Tooltip title="Çıkış">
+                <Button
+                  type="primary"
+                  onClick={logout}
+                  icon={<LogoutOutlined />}
+                >
+                  Çıkış
+                </Button>
+              </Tooltip>
+            </Space>
+          </Header>
+          <Modal
+            open={pwdOpen}
+            title="Şifre Değiştir"
+            onOk={onPasswordSubmit}
+            okText="Kaydet"
+            cancelText="İptal"
+            onCancel={() => setPwdOpen(false)}
+            confirmLoading={pwdLoading}
+          >
+            <AntForm form={pwdForm} layout="vertical">
+              <AntForm.Item name="currentPassword" label="Mevcut Şifre" rules={[{ required: true, message: 'Zorunlu alan' }]}>
+                <AntInput.Password autoComplete="current-password" />
+              </AntForm.Item>
+              <AntForm.Item name="newPassword" label="Yeni Şifre" rules={[{ required: true, message: 'Zorunlu alan' }, { min: 6, message: 'En az 6 karakter' }]}>
+                <AntInput.Password autoComplete="new-password" />
+              </AntForm.Item>
+              <AntForm.Item name="confirm" label="Yeni Şifre (Tekrar)" dependencies={["newPassword"]} rules={[{ required: true, message: 'Zorunlu alan' }]}>
+                <AntInput.Password autoComplete="new-password" />
+              </AntForm.Item>
+            </AntForm>
+          </Modal>
+          <Modal
+            open={sessionOpen}
+            title="Oturum Ayarları"
+            onOk={() => setSessionOpen(false)}
+            okText="Kapat"
+            cancelButtonProps={{ style: { display: 'none' } }}
+            onCancel={() => setSessionOpen(false)}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>Tema</div>
+              <AntSwitch
+                checked={themeName === 'dark'}
+                onChange={(checked) => setThemeName(checked ? 'dark' : 'light')}
+                checkedChildren="Koyu"
+                unCheckedChildren="Açık"
+              />
+            </div>
+            <Divider />
+            <Button danger onClick={logout} icon={<LogoutOutlined />}>Oturumu Kapat</Button>
+          </Modal>
+          <Content id="mainContent" role="main" tabIndex={-1} ref={mainRef as any} aria-label="Ana içerik" style={{ padding: 16 }}>
+            {maintenance && role !== 'ADMIN' && (
+              <Alert
+                type="warning"
+                showIcon
+                banner
+                message="Sistem bakım modunda, değişiklik yapılamaz. Görünüm kısıtlıdır."
+                style={{ marginBottom: 12 }}
+              />
+            )}
+            {children}
+          </Content>
+        </Layout>
       </Layout>
-    </Layout>
     </>
   )
 }
@@ -381,7 +383,7 @@ export default function App() {
     localStorage.setItem('theme', themeName)
     try {
       document.documentElement.setAttribute('data-theme', themeName)
-    } catch {}
+    } catch { }
   }, [themeName])
 
   // React to brand settings change (from Admin)
@@ -394,7 +396,7 @@ export default function App() {
           // Nothing else required; Shell reads from localStorage on mount. Force a rerender:
           setThemeName((prev) => prev)
         }
-      } catch {}
+      } catch { }
     }
     window.addEventListener('brandSettingsChanged', handler as any)
     return () => window.removeEventListener('brandSettingsChanged', handler as any)
@@ -423,6 +425,7 @@ export default function App() {
               <Route path="/list" element={<RequireAuth><VisitList /></RequireAuth>} />
               <Route path="/vehicles" element={<RequireAuth><VehicleForm /></RequireAuth>} />
               <Route path="/vehicles/list" element={<RequireAuth><VehicleList /></RequireAuth>} />
+              <Route path="/vehicles/all" element={<RequireAuth><VehicleFormAndList /></RequireAuth>} />
               <Route path="/new" element={<Navigate to="/dashboard" replace />} />
               <Route path="/reports" element={<RequireAuth><Reports /></RequireAuth>} />
               <Route path="/admin" element={role === 'ADMIN' ? <RequireAuth><AdminLayout /></RequireAuth> : <Navigate to="/list" replace />}>
