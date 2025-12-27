@@ -1,0 +1,156 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - link "İçeriğe atla" [ref=e4] [cursor=pointer]:
+    - /url: "#mainContent"
+  - complementary [ref=e5]:
+    - generic [ref=e6]:
+      - button "Menü" [ref=e8] [cursor=pointer]:
+        - img "menu" [ref=e10]:
+          - img [ref=e11]
+      - menu [ref=e13]:
+        - menuitem "bar-chart Dashboard" [ref=e14] [cursor=pointer]:
+          - img "bar-chart" [ref=e15]:
+            - img [ref=e16]
+          - link "Dashboard" [ref=e19]:
+            - /url: /dashboard
+        - menuitem "form Ziyaretçi Kayıt" [ref=e20] [cursor=pointer]:
+          - img "form" [ref=e21]:
+            - img [ref=e22]
+          - link "Ziyaretçi Kayıt" [ref=e26]:
+            - /url: /visit
+        - menuitem "unordered-list Ziyaret Kayıtları" [ref=e27] [cursor=pointer]:
+          - img "unordered-list" [ref=e28]:
+            - img [ref=e29]
+          - link "Ziyaret Kayıtları" [ref=e32]:
+            - /url: /list
+        - menuitem "form Araç Kayıt" [ref=e33] [cursor=pointer]:
+          - img "form" [ref=e34]:
+            - img [ref=e35]
+          - link "Araç Kayıt" [ref=e39]:
+            - /url: /vehicles
+        - menuitem "unordered-list Araç Kayıtları" [ref=e40] [cursor=pointer]:
+          - img "unordered-list" [ref=e41]:
+            - img [ref=e42]
+          - link "Araç Kayıtları" [ref=e45]:
+            - /url: /vehicles/list
+        - menuitem "setting Admin" [ref=e46] [cursor=pointer]:
+          - img "setting" [ref=e47]:
+            - img [ref=e48]
+          - generic [ref=e50]: Admin
+  - generic [ref=e51]:
+    - banner [ref=e52]:
+      - generic [ref=e55]: Firma
+      - generic [ref=e56]:
+        - button "Tema" [ref=e58] [cursor=pointer]:
+          - img "moon" [ref=e60]:
+            - img [ref=e61]
+        - button "user Profil" [ref=e64] [cursor=pointer]:
+          - img "user" [ref=e66]:
+            - img [ref=e67]
+          - generic [ref=e69]: Profil
+        - button "logout Çıkış" [ref=e71] [cursor=pointer]:
+          - img "logout" [ref=e73]:
+            - img [ref=e74]
+          - generic [ref=e76]: Çıkış
+    - main "Ana içerik" [ref=e77]:
+      - generic [ref=e78]:
+        - generic [ref=e79]:
+          - generic [ref=e82]: Araç Kayıt
+          - generic [ref=e84]:
+            - generic [ref=e85]:
+              - generic [ref=e88]:
+                - generic "Plaka" [ref=e90]: "* Plaka"
+                - textbox "* Plaka" [ref=e94]:
+                  - /placeholder: "Örn: 34 ABC 1234"
+              - generic [ref=e97]:
+                - generic "Tarih" [ref=e99]: "* Tarih"
+                - generic [ref=e104]:
+                  - textbox "* Tarih" [ref=e105]:
+                    - /placeholder: 25.10.2025 15:00
+                    - text: 22.12.2025 22:38
+                  - generic:
+                    - img "calendar":
+                      - img
+                  - button "close-circle" [ref=e106] [cursor=pointer]:
+                    - img "close-circle" [ref=e107]:
+                      - img [ref=e108]
+            - generic [ref=e110]:
+              - generic [ref=e113]:
+                - generic "İlçe" [ref=e115]: "* İlçe"
+                - textbox "* İlçe" [ref=e119]:
+                  - /placeholder: İlçe
+              - generic [ref=e122]:
+                - generic "Araç Türü" [ref=e124]: "* Araç Türü"
+                - generic [ref=e128] [cursor=pointer]:
+                  - generic [ref=e130]:
+                    - combobox "* Araç Türü" [ref=e132]
+                    - generic: Seçiniz
+                  - generic:
+                    - img:
+                      - img
+            - generic [ref=e134]:
+              - generic "Not" [ref=e136]
+              - textbox "Not" [ref=e140]:
+                - /placeholder: Notlar
+            - generic [ref=e142]:
+              - button "Giriş" [active] [ref=e144] [cursor=pointer]:
+                - generic [ref=e145]: Giriş
+              - button "Çıkış" [ref=e147] [cursor=pointer]:
+                - generic [ref=e148]: Çıkış
+        - generic [ref=e149]:
+          - generic [ref=e152]: İçerideki Araçlar (Çıkış Yapılmamış)
+          - table [ref=e160]:
+            - rowgroup [ref=e161]:
+              - row "Plaka İşlem Tarih İlçe Araç Türü Not" [ref=e162]:
+                - columnheader "Plaka" [ref=e163]
+                - columnheader "İşlem" [ref=e164]
+                - columnheader "Tarih" [ref=e165]
+                - columnheader "İlçe" [ref=e166]
+                - columnheader "Araç Türü" [ref=e167]
+                - columnheader "Not" [ref=e168]
+            - rowgroup [ref=e169]:
+              - row "34STU748 GİRİŞ 22.12.2025 22:38 Test İlçe BINEK" [ref=e170]:
+                - cell "34STU748" [ref=e171]
+                - cell "GİRİŞ" [ref=e172]
+                - cell "22.12.2025 22:38" [ref=e173]
+                - cell "Test İlçe" [ref=e174]
+                - cell "BINEK" [ref=e175]
+                - cell [ref=e176]
+              - row "34MNO075 GİRİŞ 22.12.2025 22:38 Test İlçe BINEK" [ref=e177]:
+                - cell "34MNO075" [ref=e178]
+                - cell "GİRİŞ" [ref=e179]
+                - cell "22.12.2025 22:38" [ref=e180]
+                - cell "Test İlçe" [ref=e181]
+                - cell "BINEK" [ref=e182]
+                - cell [ref=e183]
+              - row "34JKL074 GİRİŞ 22.12.2025 22:38 Test İlçe BINEK" [ref=e184]:
+                - cell "34JKL074" [ref=e185]
+                - cell "GİRİŞ" [ref=e186]
+                - cell "22.12.2025 22:38" [ref=e187]
+                - cell "Test İlçe" [ref=e188]
+                - cell "BINEK" [ref=e189]
+                - cell [ref=e190]
+              - row "34GHI984 GİRİŞ 22.12.2025 22:38 Test İlçe BINEK" [ref=e191]:
+                - cell "34GHI984" [ref=e192]
+                - cell "GİRİŞ" [ref=e193]
+                - cell "22.12.2025 22:38" [ref=e194]
+                - cell "Test İlçe" [ref=e195]
+                - cell "BINEK" [ref=e196]
+                - cell [ref=e197]
+              - row "34DEF914 GİRİŞ 22.12.2025 22:38 Test İlçe BINEK" [ref=e198]:
+                - cell "34DEF914" [ref=e199]
+                - cell "GİRİŞ" [ref=e200]
+                - cell "22.12.2025 22:38" [ref=e201]
+                - cell "Test İlçe" [ref=e202]
+                - cell "BINEK" [ref=e203]
+                - cell [ref=e204]
+              - row "34ABC705 GİRİŞ 22.12.2025 22:38 Test İlçe BINEK" [ref=e205]:
+                - cell "34ABC705" [ref=e206]
+                - cell "GİRİŞ" [ref=e207]
+                - cell "22.12.2025 22:38" [ref=e208]
+                - cell "Test İlçe" [ref=e209]
+                - cell "BINEK" [ref=e210]
+                - cell [ref=e211]
+```

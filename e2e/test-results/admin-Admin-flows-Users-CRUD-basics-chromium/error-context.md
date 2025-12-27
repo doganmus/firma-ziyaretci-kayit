@@ -1,0 +1,175 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - link "İçeriğe atla" [ref=e4] [cursor=pointer]:
+    - /url: "#mainContent"
+  - complementary [ref=e5]:
+    - generic [ref=e6]:
+      - button "Menü" [ref=e8] [cursor=pointer]:
+        - img "menu" [ref=e10]:
+          - img [ref=e11]
+      - menu [ref=e13]:
+        - menuitem "bar-chart Dashboard" [ref=e14] [cursor=pointer]:
+          - img "bar-chart" [ref=e15]:
+            - img [ref=e16]
+          - link "Dashboard" [ref=e19]:
+            - /url: /dashboard
+        - menuitem "form Ziyaretçi Kayıt" [ref=e20] [cursor=pointer]:
+          - img "form" [ref=e21]:
+            - img [ref=e22]
+          - link "Ziyaretçi Kayıt" [ref=e26]:
+            - /url: /visit
+        - menuitem "unordered-list Ziyaret Kayıtları" [ref=e27] [cursor=pointer]:
+          - img "unordered-list" [ref=e28]:
+            - img [ref=e29]
+          - link "Ziyaret Kayıtları" [ref=e32]:
+            - /url: /list
+        - menuitem "form Araç Kayıt" [ref=e33] [cursor=pointer]:
+          - img "form" [ref=e34]:
+            - img [ref=e35]
+          - link "Araç Kayıt" [ref=e39]:
+            - /url: /vehicles
+        - menuitem "unordered-list Araç Kayıtları" [ref=e40] [cursor=pointer]:
+          - img "unordered-list" [ref=e41]:
+            - img [ref=e42]
+          - link "Araç Kayıtları" [ref=e45]:
+            - /url: /vehicles/list
+        - menuitem "setting Admin" [expanded] [ref=e46] [cursor=pointer]:
+          - img "setting" [ref=e47]:
+            - img [ref=e48]
+          - generic [ref=e50]: Admin
+        - menu [ref=e51]:
+          - menuitem "team Kullanıcı İşlemleri" [ref=e52] [cursor=pointer]:
+            - img "team" [ref=e53]:
+              - img [ref=e54]
+            - link "Kullanıcı İşlemleri" [ref=e57]:
+              - /url: /admin/users
+          - menuitem "picture Marka Ayarları" [ref=e58] [cursor=pointer]:
+            - img "picture" [ref=e59]:
+              - img [ref=e60]
+            - link "Marka Ayarları" [ref=e63]:
+              - /url: /admin/branding
+          - menuitem "picture Audit Log" [ref=e64] [cursor=pointer]:
+            - img "picture" [ref=e65]:
+              - img [ref=e66]
+            - link "Audit Log" [ref=e69]:
+              - /url: /admin/audit
+          - menuitem "setting Sistem Yönetimi" [ref=e70] [cursor=pointer]:
+            - img "setting" [ref=e71]:
+              - img [ref=e72]
+            - link "Sistem Yönetimi" [ref=e75]:
+              - /url: /admin/ops
+  - generic [ref=e76]:
+    - banner [ref=e77]:
+      - generic [ref=e80]: Firma
+      - generic [ref=e81]:
+        - button "Tema" [ref=e83] [cursor=pointer]:
+          - img "moon" [ref=e85]:
+            - img [ref=e86]
+        - button "user Profil" [ref=e89] [cursor=pointer]:
+          - img "user" [ref=e91]:
+            - img [ref=e92]
+          - generic [ref=e94]: Profil
+        - button "logout Çıkış" [ref=e96] [cursor=pointer]:
+          - img "logout" [ref=e98]:
+            - img [ref=e99]
+          - generic [ref=e101]: Çıkış
+    - main "Ana içerik" [ref=e102]:
+      - generic [ref=e103]:
+        - heading "Kullanıcı İşlemleri" [level=3] [ref=e106]
+        - generic [ref=e107]:
+          - generic [ref=e110]: Kullanıcı Ekle
+          - generic [ref=e112]:
+            - textbox "E-posta" [ref=e118]: e2e_1766432268905@example.com
+            - textbox "Ad Soyad" [ref=e124]: E2E KULLANICI
+            - generic [ref=e130]:
+              - textbox "Şifre" [ref=e131]: e2e123
+              - img "eye-invisible" [ref=e133] [cursor=pointer]:
+                - img [ref=e134]
+            - generic [ref=e142] [cursor=pointer]:
+              - generic [ref=e144]:
+                - combobox [ref=e146]
+                - generic "OPERATOR" [ref=e147]
+              - generic:
+                - img:
+                  - img
+            - button "Ekle" [active] [ref=e153] [cursor=pointer]:
+              - generic [ref=e154]: Ekle
+        - generic [ref=e155]:
+          - generic [ref=e158]: Kullanıcılar
+          - generic [ref=e159]:
+            - generic [ref=e160]:
+              - textbox "E-posta ara" [ref=e163]
+              - textbox "Ad Soyad ara" [ref=e167]
+            - generic [ref=e171]:
+              - table [ref=e175]:
+                - rowgroup [ref=e176]:
+                  - row "E-posta Ad Soyad Rol Şifre Aksiyon" [ref=e177]:
+                    - columnheader "E-posta" [ref=e178] [cursor=pointer]:
+                      - generic [ref=e179]:
+                        - generic [ref=e180]: E-posta
+                        - generic [ref=e182]:
+                          - img [ref=e183]:
+                            - img [ref=e184]
+                          - img [ref=e186]:
+                            - img [ref=e187]
+                    - columnheader "Ad Soyad" [ref=e189] [cursor=pointer]:
+                      - generic [ref=e190]:
+                        - generic [ref=e191]: Ad Soyad
+                        - generic [ref=e193]:
+                          - img [ref=e194]:
+                            - img [ref=e195]
+                          - img [ref=e197]:
+                            - img [ref=e198]
+                    - columnheader "Rol" [ref=e200] [cursor=pointer]:
+                      - generic [ref=e201]:
+                        - generic [ref=e202]: Rol
+                        - generic [ref=e204]:
+                          - img [ref=e205]:
+                            - img [ref=e206]
+                          - img [ref=e208]:
+                            - img [ref=e209]
+                    - columnheader "Şifre" [ref=e211]
+                    - columnheader "Aksiyon" [ref=e212]
+                - rowgroup [ref=e213]:
+                  - row "admin@example.com Admin ADMIN eye-invisible Kaydet" [ref=e214]:
+                    - cell "admin@example.com" [ref=e215]
+                    - cell "Admin" [ref=e216]
+                    - cell "ADMIN" [ref=e217]:
+                      - generic [ref=e218] [cursor=pointer]:
+                        - generic [ref=e220]:
+                          - combobox [ref=e222]
+                          - generic "ADMIN" [ref=e223]
+                        - generic:
+                          - img:
+                            - img
+                    - cell "eye-invisible Kaydet" [ref=e224]:
+                      - generic [ref=e225]:
+                        - generic [ref=e226]:
+                          - textbox "Yeni şifre" [ref=e227]
+                          - img "eye-invisible" [ref=e229] [cursor=pointer]:
+                            - img [ref=e230]
+                        - button "Kaydet" [ref=e233] [cursor=pointer]:
+                          - generic [ref=e234]: Kaydet
+                    - cell [ref=e235]
+              - list [ref=e236]:
+                - listitem "Previous Page" [ref=e237]:
+                  - button "left" [disabled] [ref=e238]:
+                    - img "left" [ref=e239]:
+                      - img [ref=e240]
+                - listitem "1" [ref=e242] [cursor=pointer]:
+                  - generic [ref=e243]: "1"
+                - listitem "Next Page" [ref=e244]:
+                  - button "right" [disabled] [ref=e245]:
+                    - img "right" [ref=e246]:
+                      - img [ref=e247]
+                - listitem [ref=e249]:
+                  - generic "Page Size" [ref=e250] [cursor=pointer]:
+                    - generic [ref=e252]:
+                      - combobox "Page Size" [ref=e254]
+                      - generic "10 / page" [ref=e255]
+                    - generic:
+                      - img:
+                        - img
+```
