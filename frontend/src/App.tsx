@@ -130,7 +130,7 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
       items.push({ key: '/vehicles', icon: <FormOutlined />, label: <Link to="/vehicles">Araç Kayıt</Link>, title: 'Araç Kayıt' })
     }
     items.push({ key: '/vehicles/list', icon: <UnorderedListOutlined />, label: <Link to="/vehicles/list">Araç Kayıtları</Link>, title: 'Araç Kayıtları' })
-    items.push({ key: '/vehicles/all', icon: <CarOutlined />, label: <Link to="/vehicles/all">Araç Kayıt ve Liste</Link>, title: 'Araç Kayıt ve Liste' })
+    items.push({ key: '/vehicles/all', icon: <CarOutlined />, label: <Link to="/vehicles/all">Araç Kayıt / Listeler</Link>, title: 'Araç Kayıt / Listeler' })
     if (role === 'ADMIN') {
       items.push({
         key: 'admin',
@@ -152,7 +152,7 @@ function Shell({ children, themeName, setThemeName }: { children: JSX.Element; t
     const path = location.pathname
     if (path.startsWith('/admin/')) return [path]
     if (path === '/') return ['/']
-    const keys = ['/', '/dashboard', '/visit', '/list', '/reports', '/vehicles', '/vehicles/list']
+    const keys = ['/', '/dashboard', '/visit', '/list', '/reports', '/vehicles/all', '/vehicles', '/vehicles/list']
     const found = keys
       .filter((k) => k !== '/' && path.startsWith(k))
       .sort((a, b) => b.length - a.length)[0]

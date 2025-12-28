@@ -309,11 +309,11 @@ export default function VehicleFormAndList() {
                                 </Col>
                                 <Col xs={24} sm={12} md={6}>
                                     <Form.Item
-                                        label="İlçe"
+                                        label="Lokasyon"
                                         name="district"
-                                        rules={[{ required: true, message: 'İlçe gerekli' }]}
+                                        rules={[{ required: true, message: 'Lokasyon gerekli' }]}
                                     >
-                                        <Input placeholder="İlçe giriniz" />
+                                        <Input placeholder="Lokasyon giriniz" />
                                     </Form.Item>
                                 </Col>
                                 <Col xs={24} sm={12} md={6}>
