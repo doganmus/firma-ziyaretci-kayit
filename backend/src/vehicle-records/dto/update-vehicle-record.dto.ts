@@ -7,7 +7,7 @@ const TR_PLATE_REGEX = /^(0[1-9]|[1-7][0-9]|80|81)(?:[A-Z][0-9]{4,5}|[A-Z]{2}[0-
 export class UpdateVehicleRecordDto {
     @IsOptional()
     @IsDateString()
-    entry_at?: string;
+    entry_at?: string | null;
 
     @IsOptional()
     @IsDateString()
@@ -32,5 +32,11 @@ export class UpdateVehicleRecordDto {
 
     @IsOptional()
     @IsString()
+    @Length(1, 10)
+    vehicle_status?: string | null;
+
+    @IsOptional()
+    @IsString()
     note?: string | null;
 }
+

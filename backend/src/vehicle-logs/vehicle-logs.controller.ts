@@ -8,10 +8,10 @@ import { CreateVehicleLogDto } from './dto/create-vehicle-log.dto';
 @Controller('vehicle-logs')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class VehicleLogsController {
-  constructor(private readonly vehicleLogs: VehicleLogsService) {}
+  constructor(private readonly vehicleLogs: VehicleLogsService) { }
 
   @Get()
-  @Roles('ADMIN', 'OPERATOR', 'VIEWER')
+  @Roles('ADMIN', 'MANAGER', 'OPERATOR', 'VIEWER')
   list(
     @Query('dateFrom') dateFrom?: string,
     @Query('dateTo') dateTo?: string,
@@ -39,7 +39,7 @@ export class VehicleLogsController {
   }
 
   @Post()
-  @Roles('ADMIN', 'OPERATOR')
+  @Roles('ADMIN', 'MANAGER', 'OPERATOR')
   create(@Body() body: CreateVehicleLogDto) {
     return this.vehicleLogs.create(body as any);
   }

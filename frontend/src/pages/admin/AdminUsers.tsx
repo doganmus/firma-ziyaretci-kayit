@@ -51,9 +51,9 @@ export default function AdminUsers() {
   const createUser = async (values: { email: string; full_name: string; password: string; role: string }) => {
     if (!EMAIL_RE.test(values.email)) { message.error('Geçersiz e-posta'); return }
     // Password strength validation is handled by backend, but we can show a helpful message
-    if (!values.password || values.password.length < 8) { 
-      message.error('Şifre en az 8 karakter olmalı ve büyük harf, küçük harf, sayı ve özel karakter içermelidir'); 
-      return 
+    if (!values.password || values.password.length < 8) {
+      message.error('Şifre en az 8 karakter olmalı ve büyük harf, küçük harf, sayı ve özel karakter içermelidir');
+      return
     }
     setCreating(true)
     try {
@@ -100,9 +100,9 @@ export default function AdminUsers() {
   const saveRowPassword = async (id: string) => {
     const p = rowPasswords[id] || ''
     // Password strength validation is handled by backend, but we can show a helpful message
-    if (!p || p.length < 8) { 
-      message.error('Şifre en az 8 karakter olmalı ve büyük harf, küçük harf, sayı ve özel karakter içermelidir'); 
-      return 
+    if (!p || p.length < 8) {
+      message.error('Şifre en az 8 karakter olmalı ve büyük harf, küçük harf, sayı ve özel karakter içermelidir');
+      return
     }
     try {
       await updateUser(id, { password: p })
@@ -123,6 +123,7 @@ export default function AdminUsers() {
           onChange={(val) => updateUser(r.id, { role: val })}
           options={[
             { value: 'ADMIN', label: 'ADMIN' },
+            { value: 'MANAGER', label: 'MANAGER' },
             { value: 'OPERATOR', label: 'OPERATOR' },
             { value: 'VIEWER', label: 'VIEWER' },
           ]}
@@ -171,6 +172,7 @@ export default function AdminUsers() {
           <Form.Item name="role" rules={[{ required: true }]}>
             <Select style={{ width: 160 }} options={[
               { value: 'ADMIN', label: 'ADMIN' },
+              { value: 'MANAGER', label: 'MANAGER' },
               { value: 'OPERATOR', label: 'OPERATOR' },
               { value: 'VIEWER', label: 'VIEWER' },
             ]} />

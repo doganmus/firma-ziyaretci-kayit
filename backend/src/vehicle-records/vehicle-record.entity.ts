@@ -7,19 +7,19 @@ import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, Update
 )
 @Check(
     'exit_after_entry_vehicle_records',
-    "exit_at IS NULL OR exit_at > entry_at",
+    "exit_at IS NULL OR entry_at IS NULL OR exit_at > entry_at",
 )
 export class VehicleRecord {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column({ type: 'date' })
+    @Column({ type: 'date', nullable: true })
     @Index()
-    date: string;
+    date: string | null;
 
-    @Column({ type: 'timestamptz' })
+    @Column({ type: 'timestamptz', nullable: true })
     @Index()
-    entry_at: Date;
+    entry_at: Date | null;
 
     @Column({ type: 'timestamptz', nullable: true })
     @Index()
@@ -36,6 +36,9 @@ export class VehicleRecord {
     @Column({ type: 'varchar', length: 20, nullable: true })
     @Index()
     vehicle_type: string | null;
+
+    @Column({ type: 'varchar', length: 10, nullable: true })
+    vehicle_status: string | null;
 
     @Column({ type: 'text', nullable: true })
     note: string | null;

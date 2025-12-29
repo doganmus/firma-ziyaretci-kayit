@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, Index } from 'typeorm';
 
-export type UserRole = 'ADMIN' | 'OPERATOR' | 'VIEWER';
+export type UserRole = 'ADMIN' | 'MANAGER' | 'OPERATOR' | 'VIEWER';
 
 // User table definition with unique email and role
 @Entity('users')

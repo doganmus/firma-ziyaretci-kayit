@@ -10,11 +10,11 @@ import { UpdateVisitDto } from './dto/update-visit.dto';
 @Controller('visits')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class VisitsController {
-  constructor(private readonly visits: VisitsService) {}
+  constructor(private readonly visits: VisitsService) { }
 
   // Lists visits with optional filters; all roles can view
   @Get()
-  @Roles('ADMIN', 'OPERATOR', 'VIEWER')
+  @Roles('ADMIN', 'MANAGER', 'OPERATOR', 'VIEWER')
   list(@Query() q: QueryVisitsDto) {
     const filters = {
       dateFrom: q.dateFrom,
@@ -34,14 +34,14 @@ export class VisitsController {
 
   // Creates a new visit (ADMIN and OPERATOR only)
   @Post()
-  @Roles('ADMIN', 'OPERATOR')
+  @Roles('ADMIN', 'MANAGER', 'OPERATOR')
   create(@Body() body: CreateVisitDto) {
     return this.visits.create(body);
   }
 
   // Updates a visit (ADMIN and OPERATOR only)
   @Patch(':id')
-  @Roles('ADMIN', 'OPERATOR')
+  @Roles('ADMIN', 'MANAGER', 'OPERATOR')
   update(@Param('id') id: string, @Body() body: UpdateVisitDto) {
     return this.visits.update(id, body);
   }

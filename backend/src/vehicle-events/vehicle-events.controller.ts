@@ -9,10 +9,10 @@ import { UpdateVehicleEventDto } from './dto/update-vehicle-event.dto';
 @Controller('vehicle-events')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class VehicleEventsController {
-  constructor(private readonly service: VehicleEventsService) {}
+  constructor(private readonly service: VehicleEventsService) { }
 
   @Get()
-  @Roles('ADMIN', 'OPERATOR', 'VIEWER')
+  @Roles('ADMIN', 'MANAGER', 'OPERATOR', 'VIEWER')
   list(
     @Query('dateFrom') dateFrom?: string,
     @Query('dateTo') dateTo?: string,
@@ -42,13 +42,13 @@ export class VehicleEventsController {
   }
 
   @Post()
-  @Roles('ADMIN', 'OPERATOR')
+  @Roles('ADMIN', 'MANAGER', 'OPERATOR')
   create(@Body() body: CreateVehicleEventDto) {
     return this.service.create(body as any);
   }
 
   @Patch(':id')
-  @Roles('ADMIN', 'OPERATOR')
+  @Roles('ADMIN', 'MANAGER', 'OPERATOR')
   update(@Param('id') id: string, @Body() body: UpdateVehicleEventDto) {
     return this.service.update(id, body as any);
   }

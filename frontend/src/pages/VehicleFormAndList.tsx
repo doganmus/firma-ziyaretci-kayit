@@ -2,11 +2,11 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { api } from '../api/client'
 import {
     Form, Input, Button, Card, Typography, Table, Row, Col, Select,
-    DatePicker, Space, message, Radio, Tooltip
+    DatePicker, Space, message, Tooltip
 } from 'antd'
 import {
     SaveOutlined, EditOutlined, FilterOutlined, FileExcelOutlined,
-    CarOutlined, CheckCircleFilled, CloseCircleOutlined
+    CarOutlined, CheckCircleFilled, CloseCircleOutlined, CloseOutlined
 } from '@ant-design/icons'
 import dayjs, { Dayjs } from 'dayjs'
 
@@ -17,6 +17,7 @@ type FormValues = {
     plate: string
     district?: string
     vehicle_type?: string
+    vehicle_status?: 'BOŞ' | 'DOLU'
     note?: string
     entry_at?: Dayjs
     exit_at?: Dayjs
@@ -25,10 +26,11 @@ type FormValues = {
 type VehicleRecord = {
     id: string
     plate: string
-    entry_at: string
+    entry_at: string | null
     exit_at: string | null
     district?: string | null
     vehicle_type?: string | null
+    vehicle_status?: string | null
     note?: string | null
 }
 
@@ -38,8 +40,24 @@ export default function VehicleFormAndList() {
     const [loading, setLoading] = useState(false)
     const [items, setItems] = useState<VehicleRecord[]>([])
     const [editing, setEditing] = useState<VehicleRecord | null>(null)
-    const [formMode, setFormMode] = useState<'entry' | 'exit'>('entry')
+    const [isEditMode, setIsEditMode] = useState(false)
+    const [isExitMode, setIsExitMode] = useState(false)  // Çıkış ekleme modu
     const [form] = Form.useForm<FormValues>()
+
+    // Rol bazlı yetki kontrolleri
+    const role = (() => {
+        try {
+            const u = localStorage.getItem('user')
+            return u ? (JSON.parse(u).role as string) : null
+        } catch { return null }
+    })()
+    const isAdmin = role === 'ADMIN'
+    const isManager = role === 'MANAGER'
+    const isOperator = role === 'OPERATOR'
+    const isViewer = role === 'VIEWER'
+    const canFullEdit = isAdmin || isManager  // Full düzenleme yetkisi
+    const canAddExit = isAdmin || isManager || isOperator  // Çıkış ekleme yetkisi
+    const canCreate = isAdmin || isManager || isOperator  // Yeni kayıt oluşturma yetkisi
 
     const [page, setPage] = useState(1)
     const [pageSize, setPageSize] = useState(10)
@@ -87,42 +105,101 @@ export default function VehicleFormAndList() {
             const values = await form.validateFields()
             const normalizedPlate = (values.plate ?? '').replace(/\s+/g, '').toUpperCase()
 
-            if (formMode === 'entry') {
-                // Yeni giriş kaydı
-                const payload = {
-                    entry_at: values.entry_at ? dayjs(values.entry_at).toISOString() : dayjs().toISOString(),
-                    plate: normalizedPlate,
-                    district: values.district || null,
-                    vehicle_type: values.vehicle_type || null,
-                    note: values.note || null,
-                }
-                await api.post('/vehicle-records', payload)
-                message.success('Giriş kaydı oluşturuldu')
-            } else {
-                // Çıkış kaydı ekle
-                if (!editing) {
-                    message.error('Çıkış eklemek için listeden bir kayıt seçin')
+            if (isExitMode && editing) {
+                // Sadece çıkış ekleme modu (OPERATOR için)
+                if (!values.exit_at) {
+                    message.error('Çıkış tarihi gerekli')
+                    setLoading(false)
                     return
                 }
+                const exit_at = dayjs(values.exit_at).toISOString()
 
-                const exit_at = values.exit_at ? dayjs(values.exit_at).toISOString() : dayjs().toISOString()
-                const entry_at = dayjs(editing.entry_at)
-
-                // Frontend validasyonu: Çıkış tarihi giriş tarihinden sonra olmalı
-                if (dayjs(exit_at).isBefore(entry_at) || dayjs(exit_at).isSame(entry_at)) {
+                // Çıkış tarihi giriş tarihinden sonra olmalı
+                if (editing.entry_at && dayjs(exit_at).isBefore(editing.entry_at)) {
                     message.error('Çıkış tarihi giriş tarihinden sonra olmalıdır')
+                    setLoading(false)
                     return
                 }
 
                 await api.patch(`/vehicle-records/${editing.id}/exit`, { exit_at })
                 message.success('Çıkış kaydedildi')
+            } else if (isEditMode && editing) {
+                // Düzenleme modu - kayıt güncelle (ADMIN/MANAGER için)
+                // En az bir tarih olmalı
+                if (!values.entry_at && !values.exit_at) {
+                    message.error('En az giriş veya çıkış tarihi girilmelidir')
+                    setLoading(false)
+                    return
+                }
+
+                // Eğer hem giriş hem çıkış varsa, çıkış > giriş olmalı
+                if (values.entry_at && values.exit_at) {
+                    if (dayjs(values.exit_at).isBefore(values.entry_at) || dayjs(values.exit_at).isSame(values.entry_at)) {
+                        message.error('Çıkış tarihi giriş tarihinden sonra olmalıdır')
+                        setLoading(false)
+                        return
+                    }
+                }
+
+                const payload: any = {
+                    plate: normalizedPlate,
+                    district: values.district || null,
+                    vehicle_type: values.vehicle_type || null,
+                    vehicle_status: values.vehicle_status || null,
+                    note: values.note || null,
+                }
+                if (values.entry_at) {
+                    payload.entry_at = dayjs(values.entry_at).toISOString()
+                } else {
+                    payload.entry_at = null
+                }
+                if (values.exit_at) {
+                    payload.exit_at = dayjs(values.exit_at).toISOString()
+                } else {
+                    payload.exit_at = null
+                }
+                await api.patch(`/vehicle-records/${editing.id}`, payload)
+                message.success('Kayıt güncellendi')
+            } else {
+                // Yeni kayıt oluştur
+                // En az bir tarih olmalı
+                if (!values.entry_at && !values.exit_at) {
+                    message.error('En az giriş veya çıkış tarihi girilmelidir')
+                    setLoading(false)
+                    return
+                }
+
+                // Eğer hem giriş hem çıkış varsa, çıkış > giriş olmalı
+                if (values.entry_at && values.exit_at) {
+                    if (dayjs(values.exit_at).isBefore(values.entry_at) || dayjs(values.exit_at).isSame(values.entry_at)) {
+                        message.error('Çıkış tarihi giriş tarihinden sonra olmalıdır')
+                        setLoading(false)
+                        return
+                    }
+                }
+
+                const payload: any = {
+                    plate: normalizedPlate,
+                    district: values.district || null,
+                    vehicle_type: values.vehicle_type || null,
+                    vehicle_status: values.vehicle_status,
+                    note: values.note || null,
+                }
+                if (values.entry_at) {
+                    payload.entry_at = dayjs(values.entry_at).toISOString()
+                }
+                if (values.exit_at) {
+                    payload.exit_at = dayjs(values.exit_at).toISOString()
+                }
+                await api.post('/vehicle-records', payload)
+                message.success('Kayıt oluşturuldu')
             }
 
             await loadData()
             form.resetFields()
-            form.setFieldsValue({ entry_at: dayjs(), exit_at: dayjs() })
             setEditing(null)
-            setFormMode('entry')
+            setIsEditMode(false)
+            setIsExitMode(false)
         } catch (e: any) {
             const serverMsg = e?.response?.data?.message
             const text = Array.isArray(serverMsg) ? serverMsg[0] : (serverMsg || 'Hata oluştu')
@@ -137,9 +214,10 @@ export default function VehicleFormAndList() {
     }
 
     const exportExcel = () => {
-        const headers = ['Plaka', 'Giriş Durumu', 'Çıkış Durumu', 'Giriş Tarihi', 'Çıkış Tarihi', 'İlçe', 'Araç Türü', 'Not']
+        const headers = ['Plaka', 'Araç Durumu', 'Giriş Durumu', 'Çıkış Durumu', 'Giriş Tarihi', 'Çıkış Tarihi', 'Giriş/Çıkış Lokasyonu', 'Araç Türü', 'Not']
         const rows = items.map(v => [
             v.plate,
+            v.vehicle_status || '',
             v.entry_at ? 'Evet' : 'Hayır',
             v.exit_at ? 'Evet' : 'Hayır',
             v.entry_at ? dayjs(v.entry_at).format('DD.MM.YYYY HH:mm') : '-',
@@ -171,6 +249,24 @@ export default function VehicleFormAndList() {
                 render: (v: string) => <Text strong>{v}</Text>
             },
             {
+                title: 'Araç Durumu',
+                dataIndex: 'vehicle_status',
+                key: 'vehicle_status',
+                align: 'center' as const,
+                render: (v: string | null) => (
+                    v ? (
+                        <span style={{
+                            padding: '2px 8px',
+                            borderRadius: 4,
+                            backgroundColor: v === 'DOLU' ? '#e6f7ff' : '#fff7e6',
+                            color: v === 'DOLU' ? '#1890ff' : '#fa8c16'
+                        }}>
+                            {v === 'DOLU' ? 'Dolu' : 'Boş'}
+                        </span>
+                    ) : '-'
+                )
+            },
+            {
                 title: 'Giriş Durumu',
                 key: 'entryStatus',
                 align: 'center' as const,
@@ -200,7 +296,7 @@ export default function VehicleFormAndList() {
                 key: 'entry_at',
                 sorter: true,
                 sortOrder: sortKey === 'entry_at' ? sortOrder : null,
-                render: (v: string) => (
+                render: (v: string | null) => (
                     <Text type="secondary" style={{ fontFamily: 'monospace' }}>
                         {v ? dayjs(v).format('DD.MM.YYYY HH:mm') : '-'}
                     </Text>
@@ -218,7 +314,7 @@ export default function VehicleFormAndList() {
                     </Text>
                 )
             },
-            { title: 'İlçe', dataIndex: 'district', key: 'district' },
+            { title: 'Giriş/Çıkış Lokasyonu', dataIndex: 'district', key: 'district' },
             { title: 'Araç Türü', dataIndex: 'vehicle_type', key: 'vehicle_type' },
             {
                 title: 'Not',
@@ -228,9 +324,40 @@ export default function VehicleFormAndList() {
                     <Text type="secondary" italic>{v || '-'}</Text>
                 )
             },
+            {
+                title: 'İşlem',
+                key: 'actions',
+                align: 'center' as const,
+                render: (_: any, record: VehicleRecord) => (
+                    canFullEdit ? (
+                        <Tooltip title="Düzenle">
+                            <Button
+                                type="text"
+                                size="small"
+                                icon={<EditOutlined />}
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    setEditing(record)
+                                    setIsEditMode(true)
+                                    setIsExitMode(false)
+                                    form.setFieldsValue({
+                                        plate: record.plate,
+                                        entry_at: record.entry_at ? dayjs(record.entry_at) : undefined,
+                                        exit_at: record.exit_at ? dayjs(record.exit_at) : undefined,
+                                        district: record.district || undefined,
+                                        vehicle_type: record.vehicle_type || undefined,
+                                        vehicle_status: record.vehicle_status as FormValues['vehicle_status'] || undefined,
+                                        note: record.note || undefined,
+                                    })
+                                }}
+                            />
+                        </Tooltip>
+                    ) : null
+                )
+            },
         ]
         return base
-    }, [sortKey, sortOrder])
+    }, [sortKey, sortOrder, form])
 
     return (
         <div style={{ maxWidth: 1400, margin: '0 auto' }}>
@@ -245,174 +372,148 @@ export default function VehicleFormAndList() {
                 style={{ marginBottom: 24 }}
                 styles={{ header: { borderBottom: '1px solid rgba(0,0,0,0.06)' } }}
                 title={
-                    <Radio.Group
-                        value={formMode}
-                        onChange={(e) => {
-                            setFormMode(e.target.value)
-                            if (e.target.value === 'entry') {
-                                setEditing(null)
-                                form.resetFields()
-                                form.setFieldsValue({ entry_at: dayjs() })
-                            }
-                        }}
-                        optionType="button"
-                        buttonStyle="solid"
-                    >
-                        <Radio.Button value="entry" style={{ backgroundColor: formMode === 'entry' ? '#52c41a' : undefined, borderColor: formMode === 'entry' ? '#52c41a' : undefined }}>
-                            Yeni Giriş
-                        </Radio.Button>
-                        <Radio.Button value="exit" style={{ backgroundColor: formMode === 'exit' ? '#ff4d4f' : undefined, borderColor: formMode === 'exit' ? '#ff4d4f' : undefined }}>
-                            Çıkış Ekle
-                        </Radio.Button>
-                    </Radio.Group>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span>{isExitMode ? 'Çıkış Ekle' : (isEditMode ? 'Kayıt Düzenle' : 'Araç Giriş/Çıkış')}</span>
+                        {(isEditMode || isExitMode || editing) && (
+                            <Button
+                                type="text"
+                                icon={<CloseOutlined />}
+                                onClick={() => {
+                                    setEditing(null)
+                                    setIsEditMode(false)
+                                    setIsExitMode(false)
+                                    form.resetFields()
+                                }}
+                                size="small"
+                            >
+                                İptal
+                            </Button>
+                        )}
+                    </div>
                 }
             >
                 <Form
                     form={form}
                     layout="vertical"
-                    initialValues={{ entry_at: dayjs(), exit_at: dayjs() }}
                 >
-                    {formMode === 'entry' ? (
-                        <>
-                            <Row gutter={[24, 0]}>
-                                <Col xs={24} sm={12} md={6}>
-                                    <Form.Item
-                                        label="Giriş Tarihi"
-                                        name="entry_at"
-                                        rules={[{ required: true, message: 'Giriş tarihi gerekli' }]}
-                                    >
-                                        <DatePicker
-                                            showTime
-                                            style={{ width: '100%' }}
-                                            format="DD.MM.YYYY HH:mm"
-                                            placeholder="Tarih seçiniz"
-                                        />
-                                    </Form.Item>
-                                </Col>
-                                <Col xs={24} sm={12} md={6}>
-                                    <Form.Item
-                                        label="Plaka"
-                                        name="plate"
-                                        rules={[
-                                            { required: true, message: 'Plaka gerekli' },
-                                            {
-                                                validator: (_, value) => {
-                                                    const v = (value ?? '').toString().replace(/\s+/g, '').toUpperCase()
-                                                    return TR_PLATE_REGEX.test(v) ? Promise.resolve() : Promise.reject(new Error('Geçersiz plaka'))
-                                                }
-                                            }
-                                        ]}
-                                        getValueFromEvent={(e) => (e?.target?.value ?? '').toLocaleUpperCase('tr-TR')}
-                                    >
-                                        <Input placeholder="Örn: 34 ABC 1234" maxLength={12} />
-                                    </Form.Item>
-                                </Col>
-                                <Col xs={24} sm={12} md={6}>
-                                    <Form.Item
-                                        label="Lokasyon"
-                                        name="district"
-                                        rules={[{ required: true, message: 'Lokasyon gerekli' }]}
-                                    >
-                                        <Input placeholder="Lokasyon giriniz" />
-                                    </Form.Item>
-                                </Col>
-                                <Col xs={24} sm={12} md={6}>
-                                    <Form.Item
-                                        label="Araç Türü"
-                                        name="vehicle_type"
-                                        rules={[{ required: true, message: 'Araç türü gerekli' }]}
-                                    >
-                                        <Select
-                                            allowClear
-                                            placeholder="Seçiniz"
-                                            options={[
-                                                { value: 'BINEK', label: 'Binek' },
-                                                { value: 'TICARI', label: 'Ticari' },
-                                                { value: 'MOTOSIKLET', label: 'Motosiklet' },
-                                                { value: 'SERVIS', label: 'Servis' },
-                                                { value: 'DIGER', label: 'Diğer' },
-                                            ]}
-                                        />
-                                    </Form.Item>
-                                </Col>
-                            </Row>
-                            <Row gutter={[24, 0]}>
-                                <Col xs={24} md={18}>
-                                    <Form.Item label="Not" name="note">
-                                        <Input.TextArea
-                                            rows={1}
-                                            placeholder="Notlar..."
-                                            style={{ resize: 'none' }}
-                                        />
-                                    </Form.Item>
-                                </Col>
-                                <Col xs={24} md={6}>
-                                    <Form.Item label=" " colon={false}>
-                                        <Button
-                                            type="primary"
-                                            icon={<SaveOutlined />}
-                                            onClick={submit}
-                                            loading={loading}
-                                            block
-                                            style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}
-                                        >
-                                            Giriş Kaydet
-                                        </Button>
-                                    </Form.Item>
-                                </Col>
-                            </Row>
-                        </>
-                    ) : (
-                        <>
-                            {editing ? (
-                                <Row gutter={[24, 0]} align="middle">
-                                    <Col xs={24} md={8}>
-                                        <div style={{ marginBottom: 16 }}>
-                                            <Text type="secondary">Seçili Kayıt:</Text>
-                                            <div>
-                                                <Text strong style={{ fontSize: 16 }}>{editing.plate}</Text>
-                                                <Text type="secondary" style={{ marginLeft: 12 }}>
-                                                    Giriş: {dayjs(editing.entry_at).format('DD.MM.YYYY HH:mm')}
-                                                </Text>
-                                            </div>
-                                        </div>
-                                    </Col>
-                                    <Col xs={24} sm={12} md={8}>
-                                        <Form.Item
-                                            label="Çıkış Tarihi"
-                                            name="exit_at"
-                                            rules={[{ required: true, message: 'Çıkış tarihi gerekli' }]}
-                                        >
-                                            <DatePicker
-                                                showTime
-                                                style={{ width: '100%' }}
-                                                format="DD.MM.YYYY HH:mm"
-                                                placeholder="Çıkış tarihi seçiniz"
-                                            />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col xs={24} sm={12} md={8}>
-                                        <Form.Item label=" " colon={false}>
-                                            <Button
-                                                type="primary"
-                                                danger
-                                                icon={<SaveOutlined />}
-                                                onClick={submit}
-                                                loading={loading}
-                                                block
-                                            >
-                                                Çıkış Kaydet
-                                            </Button>
-                                        </Form.Item>
-                                    </Col>
-                                </Row>
-                            ) : (
-                                <div style={{ textAlign: 'center', padding: 24, color: '#8c8c8c' }}>
-                                    Çıkış eklemek için aşağıdaki listeden bir araç kaydı seçin
-                                </div>
-                            )}
-                        </>
-                    )}
+                    <Row gutter={[24, 0]}>
+                        <Col xs={24} sm={12} md={4}>
+                            <Form.Item
+                                label="Giriş Tarihi"
+                                name="entry_at"
+                                tooltip="İsteğe bağlı - en az bir tarih gerekli"
+                            >
+                                <DatePicker
+                                    showTime
+                                    style={{ width: '100%' }}
+                                    format="DD.MM.YYYY HH:mm"
+                                    placeholder="Tarih seçiniz"
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} sm={12} md={4}>
+                            <Form.Item
+                                label="Çıkış Tarihi"
+                                name="exit_at"
+                                tooltip="İsteğe bağlı - en az bir tarih gerekli"
+                            >
+                                <DatePicker
+                                    showTime
+                                    style={{ width: '100%' }}
+                                    format="DD.MM.YYYY HH:mm"
+                                    placeholder="Tarih seçiniz"
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} sm={12} md={4}>
+                            <Form.Item
+                                label="Plaka"
+                                name="plate"
+                                rules={[
+                                    { required: true, message: 'Plaka gerekli' },
+                                    {
+                                        validator: (_, value) => {
+                                            const v = (value ?? '').toString().replace(/\s+/g, '').toUpperCase()
+                                            return TR_PLATE_REGEX.test(v) ? Promise.resolve() : Promise.reject(new Error('Geçersiz plaka'))
+                                        }
+                                    }
+                                ]}
+                                getValueFromEvent={(e) => (e?.target?.value ?? '').toLocaleUpperCase('tr-TR')}
+                            >
+                                <Input placeholder="Örn: 34 ABC 1234" maxLength={12} />
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} sm={12} md={4}>
+                            <Form.Item
+                                label="Araç Durumu"
+                                name="vehicle_status"
+                                rules={[{ required: !isExitMode, message: 'Araç durumu gerekli' }]}
+                            >
+                                <Select
+                                    allowClear
+                                    placeholder="Seçiniz"
+                                    disabled={isExitMode}
+                                    options={[
+                                        { value: 'BOŞ', label: 'Boş' },
+                                        { value: 'DOLU', label: 'Dolu' },
+                                    ]}
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} sm={12} md={4}>
+                            <Form.Item
+                                label="Giriş/Çıkış Lokasyonu"
+                                name="district"
+                                rules={[{ required: true, message: 'Lokasyon gerekli' }]}
+                            >
+                                <Input placeholder="Lokasyon giriniz" />
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} sm={12} md={4}>
+                            <Form.Item
+                                label="Araç Türü"
+                                name="vehicle_type"
+                                rules={[{ required: true, message: 'Araç türü gerekli' }]}
+                            >
+                                <Select
+                                    allowClear
+                                    placeholder="Seçiniz"
+                                    options={[
+                                        { value: 'BINEK', label: 'Binek' },
+                                        { value: 'TICARI', label: 'Ticari' },
+                                        { value: 'MOTOSIKLET', label: 'Motosiklet' },
+                                        { value: 'SERVIS', label: 'Servis' },
+                                        { value: 'DIGER', label: 'Diğer' },
+                                    ]}
+                                />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                    <Row gutter={[24, 0]}>
+                        <Col xs={24} md={18}>
+                            <Form.Item label="Not" name="note">
+                                <Input.TextArea
+                                    rows={1}
+                                    placeholder="Notlar..."
+                                    style={{ resize: 'none' }}
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} md={6}>
+                            <Form.Item label=" " colon={false}>
+                                <Button
+                                    type="primary"
+                                    icon={isEditMode ? <EditOutlined /> : <SaveOutlined />}
+                                    onClick={submit}
+                                    loading={loading}
+                                    block
+                                    style={{ backgroundColor: isEditMode ? '#1890ff' : '#52c41a', borderColor: isEditMode ? '#1890ff' : '#52c41a' }}
+                                >
+                                    {isEditMode ? 'Güncelle' : 'Kaydet'}
+                                </Button>
+                            </Form.Item>
+                        </Col>
+                    </Row>
                 </Form>
             </Card>
 
@@ -518,17 +619,43 @@ export default function VehicleFormAndList() {
                     }}
                     onRow={(record) => ({
                         onClick: () => {
-                            if (!record.exit_at) {
-                                // Sadece çıkış yapılmamış kayıtlar için çıkış modu
+                            // Rol bazlı davranış
+                            if (canFullEdit) {
+                                // ADMIN/MANAGER: Full düzenleme
                                 setEditing(record)
-                                setFormMode('exit')
-                                form.setFieldsValue({ exit_at: dayjs() })
-                            } else {
+                                setIsEditMode(true)
+                                setIsExitMode(false)
+                                form.setFieldsValue({
+                                    plate: record.plate,
+                                    entry_at: record.entry_at ? dayjs(record.entry_at) : undefined,
+                                    exit_at: record.exit_at ? dayjs(record.exit_at) : undefined,
+                                    district: record.district || undefined,
+                                    vehicle_type: record.vehicle_type || undefined,
+                                    vehicle_status: record.vehicle_status as FormValues['vehicle_status'] || undefined,
+                                    note: record.note || undefined,
+                                })
+                            } else if (canAddExit && record.entry_at && !record.exit_at) {
+                                // OPERATOR: Sadece giriş kaydı varsa ve çıkış yoksa çıkış ekleme
+                                setEditing(record)
+                                setIsEditMode(false)
+                                setIsExitMode(true)
+                                form.setFieldsValue({
+                                    plate: record.plate,
+                                    entry_at: record.entry_at ? dayjs(record.entry_at) : undefined,
+                                    exit_at: dayjs(),
+                                    district: record.district || undefined,
+                                    vehicle_type: record.vehicle_type || undefined,
+                                    vehicle_status: record.vehicle_status as FormValues['vehicle_status'] || undefined,
+                                    note: record.note || undefined,
+                                })
+                            } else if (record.exit_at) {
                                 message.info('Bu kayıt için çıkış zaten yapılmış')
+                            } else {
+                                message.info('Bu işlem için yetkiniz yok')
                             }
                         },
                         style: {
-                            cursor: record.exit_at ? 'default' : 'pointer',
+                            cursor: (canFullEdit || (canAddExit && record.entry_at && !record.exit_at)) ? 'pointer' : 'default',
                             backgroundColor: editing?.id === record.id ? 'rgba(24, 144, 255, 0.1)' : undefined
                         }
                     })}

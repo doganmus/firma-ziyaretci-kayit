@@ -12,9 +12,9 @@ import path from 'path';
 
 @Controller('reports')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles('ADMIN', 'OPERATOR', 'VIEWER')
+@Roles('ADMIN', 'MANAGER', 'OPERATOR', 'VIEWER')
 export class ReportsController {
-  constructor(private readonly reports: ReportsService) {}
+  constructor(private readonly reports: ReportsService) { }
 
   // Returns total/with-vehicle/without-vehicle/active/exited counts for a date range
   @Get('summary')

@@ -2,7 +2,7 @@ import { IsIn, IsOptional, IsString, Length } from 'class-validator';
 import { UserRole } from '../user.entity';
 import { IsStrongPassword } from '../../common/validators/password-strength.validator';
 
-const ROLES: UserRole[] = ['ADMIN', 'OPERATOR', 'VIEWER'];
+const ROLES: UserRole[] = ['ADMIN', 'MANAGER', 'OPERATOR', 'VIEWER'];
 
 export class UpdateUserDto {
   // Optional full name change

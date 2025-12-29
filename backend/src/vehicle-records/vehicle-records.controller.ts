@@ -12,7 +12,7 @@ export class VehicleRecordsController {
     constructor(private readonly service: VehicleRecordsService) { }
 
     @Get()
-    @Roles('ADMIN', 'OPERATOR', 'VIEWER')
+    @Roles('ADMIN', 'MANAGER', 'OPERATOR', 'VIEWER')
     list(
         @Query('dateFrom') dateFrom?: string,
         @Query('dateTo') dateTo?: string,
@@ -40,19 +40,19 @@ export class VehicleRecordsController {
     }
 
     @Post()
-    @Roles('ADMIN', 'OPERATOR')
+    @Roles('ADMIN', 'MANAGER', 'OPERATOR')
     create(@Body() body: CreateVehicleRecordDto) {
         return this.service.createEntry(body as any);
     }
 
     @Patch(':id/exit')
-    @Roles('ADMIN', 'OPERATOR')
+    @Roles('ADMIN', 'MANAGER', 'OPERATOR')
     addExit(@Param('id') id: string, @Body() body: AddExitDto) {
         return this.service.addExit(id, body.exit_at);
     }
 
     @Patch(':id')
-    @Roles('ADMIN', 'OPERATOR')
+    @Roles('ADMIN', 'MANAGER')
     update(@Param('id') id: string, @Body() body: UpdateVehicleRecordDto) {
         return this.service.update(id, body as any);
     }
