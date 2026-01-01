@@ -17,7 +17,8 @@ type FormValues = {
     plate: string
     district?: string
     vehicle_type?: string
-    vehicle_status?: 'BOŞ' | 'DOLU'
+    entry_vehicle_status?: 'BOŞ' | 'DOLU'
+    exit_vehicle_status?: 'BOŞ' | 'DOLU'
     note?: string
     entry_at?: Dayjs
     exit_at?: Dayjs
@@ -30,7 +31,8 @@ type VehicleRecord = {
     exit_at: string | null
     district?: string | null
     vehicle_type?: string | null
-    vehicle_status?: string | null
+    entry_vehicle_status?: string | null
+    exit_vehicle_status?: string | null
     note?: string | null
 }
 
@@ -121,7 +123,10 @@ export default function VehicleFormAndList() {
                     return
                 }
 
-                await api.patch(`/vehicle-records/${editing.id}/exit`, { exit_at })
+                await api.patch(`/vehicle-records/${editing.id}/exit`, {
+                    exit_at,
+                    exit_vehicle_status: values.exit_vehicle_status || null
+                })
                 message.success('Çıkış kaydedildi')
             } else if (isEditMode && editing) {
                 // Düzenleme modu - kayıt güncelle (ADMIN/MANAGER için)
@@ -145,7 +150,8 @@ export default function VehicleFormAndList() {
                     plate: normalizedPlate,
                     district: values.district || null,
                     vehicle_type: values.vehicle_type || null,
-                    vehicle_status: values.vehicle_status || null,
+                    entry_vehicle_status: values.entry_vehicle_status || null,
+                    exit_vehicle_status: values.exit_vehicle_status || null,
                     note: values.note || null,
                 }
                 if (values.entry_at) {
@@ -182,7 +188,8 @@ export default function VehicleFormAndList() {
                     plate: normalizedPlate,
                     district: values.district || null,
                     vehicle_type: values.vehicle_type || null,
-                    vehicle_status: values.vehicle_status,
+                    entry_vehicle_status: values.entry_vehicle_status,
+                    exit_vehicle_status: values.exit_vehicle_status || null,
                     note: values.note || null,
                 }
                 if (values.entry_at) {
@@ -214,14 +221,15 @@ export default function VehicleFormAndList() {
     }
 
     const exportExcel = () => {
-        const headers = ['Plaka', 'Araç Durumu', 'Giriş Durumu', 'Çıkış Durumu', 'Giriş Tarihi', 'Çıkış Tarihi', 'Giriş/Çıkış Lokasyonu', 'Araç Türü', 'Not']
+        const headers = ['Plaka', 'Giriş Tarihi', 'Giriş Araç Durumu', 'Giriş Durumu', 'Çıkış Tarihi', 'Çıkış Araç Durumu', 'Çıkış Durumu', 'Giriş/Çıkış Lokasyonu', 'Araç Türü', 'Not']
         const rows = items.map(v => [
             v.plate,
-            v.vehicle_status || '',
-            v.entry_at ? 'Evet' : 'Hayır',
-            v.exit_at ? 'Evet' : 'Hayır',
             v.entry_at ? dayjs(v.entry_at).format('DD.MM.YYYY HH:mm') : '-',
+            v.entry_vehicle_status || '',
+            v.entry_at ? 'Evet' : 'Hayır',
             v.exit_at ? dayjs(v.exit_at).format('DD.MM.YYYY HH:mm') : '-',
+            v.exit_vehicle_status || '',
+            v.exit_at ? 'Evet' : 'Hayır',
             v.district || '',
             v.vehicle_type || '',
             v.note || '',
@@ -249,9 +257,21 @@ export default function VehicleFormAndList() {
                 render: (v: string) => <Text strong>{v}</Text>
             },
             {
-                title: 'Araç Durumu',
-                dataIndex: 'vehicle_status',
-                key: 'vehicle_status',
+                title: 'Giriş Tarihi',
+                dataIndex: 'entry_at',
+                key: 'entry_at',
+                sorter: true,
+                sortOrder: sortKey === 'entry_at' ? sortOrder : null,
+                render: (v: string | null) => (
+                    <Text type="secondary" style={{ fontFamily: 'monospace' }}>
+                        {v ? dayjs(v).format('DD.MM.YYYY HH:mm') : '-'}
+                    </Text>
+                )
+            },
+            {
+                title: 'Giriş Araç Durumu',
+                dataIndex: 'entry_vehicle_status',
+                key: 'entry_vehicle_status',
                 align: 'center' as const,
                 render: (v: string | null) => (
                     v ? (
@@ -279,30 +299,6 @@ export default function VehicleFormAndList() {
                 )
             },
             {
-                title: 'Çıkış Durumu',
-                key: 'exitStatus',
-                align: 'center' as const,
-                render: (_: any, record: VehicleRecord) => (
-                    record.exit_at ? (
-                        <CheckCircleFilled style={{ color: '#52c41a', fontSize: 18 }} />
-                    ) : (
-                        <CloseCircleOutlined style={{ color: '#8c8c8c', fontSize: 18 }} />
-                    )
-                )
-            },
-            {
-                title: 'Giriş Tarihi',
-                dataIndex: 'entry_at',
-                key: 'entry_at',
-                sorter: true,
-                sortOrder: sortKey === 'entry_at' ? sortOrder : null,
-                render: (v: string | null) => (
-                    <Text type="secondary" style={{ fontFamily: 'monospace' }}>
-                        {v ? dayjs(v).format('DD.MM.YYYY HH:mm') : '-'}
-                    </Text>
-                )
-            },
-            {
                 title: 'Çıkış Tarihi',
                 dataIndex: 'exit_at',
                 key: 'exit_at',
@@ -312,6 +308,36 @@ export default function VehicleFormAndList() {
                     <Text type="secondary" style={{ fontFamily: 'monospace' }}>
                         {v ? dayjs(v).format('DD.MM.YYYY HH:mm') : '-'}
                     </Text>
+                )
+            },
+            {
+                title: 'Çıkış Araç Durumu',
+                dataIndex: 'exit_vehicle_status',
+                key: 'exit_vehicle_status',
+                align: 'center' as const,
+                render: (v: string | null) => (
+                    v ? (
+                        <span style={{
+                            padding: '2px 8px',
+                            borderRadius: 4,
+                            backgroundColor: v === 'DOLU' ? '#e6f7ff' : '#fff7e6',
+                            color: v === 'DOLU' ? '#1890ff' : '#fa8c16'
+                        }}>
+                            {v === 'DOLU' ? 'Dolu' : 'Boş'}
+                        </span>
+                    ) : '-'
+                )
+            },
+            {
+                title: 'Çıkış Durumu',
+                key: 'exitStatus',
+                align: 'center' as const,
+                render: (_: any, record: VehicleRecord) => (
+                    record.exit_at ? (
+                        <CheckCircleFilled style={{ color: '#52c41a', fontSize: 18 }} />
+                    ) : (
+                        <CloseCircleOutlined style={{ color: '#8c8c8c', fontSize: 18 }} />
+                    )
                 )
             },
             { title: 'Giriş/Çıkış Lokasyonu', dataIndex: 'district', key: 'district' },
@@ -346,7 +372,8 @@ export default function VehicleFormAndList() {
                                         exit_at: record.exit_at ? dayjs(record.exit_at) : undefined,
                                         district: record.district || undefined,
                                         vehicle_type: record.vehicle_type || undefined,
-                                        vehicle_status: record.vehicle_status as FormValues['vehicle_status'] || undefined,
+                                        entry_vehicle_status: record.entry_vehicle_status as FormValues['entry_vehicle_status'] || undefined,
+                                        exit_vehicle_status: record.exit_vehicle_status as FormValues['exit_vehicle_status'] || undefined,
                                         note: record.note || undefined,
                                     })
                                 }}
@@ -399,6 +426,24 @@ export default function VehicleFormAndList() {
                     <Row gutter={[24, 0]}>
                         <Col xs={24} sm={12} md={4}>
                             <Form.Item
+                                label="Plaka"
+                                name="plate"
+                                rules={[
+                                    { required: true, message: 'Plaka gerekli' },
+                                    {
+                                        validator: (_, value) => {
+                                            const v = (value ?? '').toString().replace(/\s+/g, '').toUpperCase()
+                                            return TR_PLATE_REGEX.test(v) ? Promise.resolve() : Promise.reject(new Error('Geçersiz plaka'))
+                                        }
+                                    }
+                                ]}
+                                getValueFromEvent={(e) => (e?.target?.value ?? '').toLocaleUpperCase('tr-TR')}
+                            >
+                                <Input placeholder="Örn: 34 ABC 1234" maxLength={12} />
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} sm={12} md={4}>
+                            <Form.Item
                                 label="Giriş Tarihi"
                                 name="entry_at"
                                 tooltip="İsteğe bağlı - en az bir tarih gerekli"
@@ -408,6 +453,23 @@ export default function VehicleFormAndList() {
                                     style={{ width: '100%' }}
                                     format="DD.MM.YYYY HH:mm"
                                     placeholder="Tarih seçiniz"
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} sm={12} md={4}>
+                            <Form.Item
+                                label="Giriş Araç Durumu"
+                                name="entry_vehicle_status"
+                                rules={[{ required: !isExitMode, message: 'Giriş araç durumu gerekli' }]}
+                            >
+                                <Select
+                                    allowClear
+                                    placeholder="Seçiniz"
+                                    disabled={isExitMode || (editing?.exit_at != null)}
+                                    options={[
+                                        { value: 'BOŞ', label: 'Boş' },
+                                        { value: 'DOLU', label: 'Dolu' },
+                                    ]}
                                 />
                             </Form.Item>
                         </Col>
@@ -427,32 +489,13 @@ export default function VehicleFormAndList() {
                         </Col>
                         <Col xs={24} sm={12} md={4}>
                             <Form.Item
-                                label="Plaka"
-                                name="plate"
-                                rules={[
-                                    { required: true, message: 'Plaka gerekli' },
-                                    {
-                                        validator: (_, value) => {
-                                            const v = (value ?? '').toString().replace(/\s+/g, '').toUpperCase()
-                                            return TR_PLATE_REGEX.test(v) ? Promise.resolve() : Promise.reject(new Error('Geçersiz plaka'))
-                                        }
-                                    }
-                                ]}
-                                getValueFromEvent={(e) => (e?.target?.value ?? '').toLocaleUpperCase('tr-TR')}
-                            >
-                                <Input placeholder="Örn: 34 ABC 1234" maxLength={12} />
-                            </Form.Item>
-                        </Col>
-                        <Col xs={24} sm={12} md={4}>
-                            <Form.Item
-                                label="Araç Durumu"
-                                name="vehicle_status"
-                                rules={[{ required: !isExitMode, message: 'Araç durumu gerekli' }]}
+                                label="Çıkış Araç Durumu"
+                                name="exit_vehicle_status"
                             >
                                 <Select
                                     allowClear
                                     placeholder="Seçiniz"
-                                    disabled={isExitMode}
+                                    disabled={editing?.exit_at != null}
                                     options={[
                                         { value: 'BOŞ', label: 'Boş' },
                                         { value: 'DOLU', label: 'Dolu' },
@@ -631,7 +674,8 @@ export default function VehicleFormAndList() {
                                     exit_at: record.exit_at ? dayjs(record.exit_at) : undefined,
                                     district: record.district || undefined,
                                     vehicle_type: record.vehicle_type || undefined,
-                                    vehicle_status: record.vehicle_status as FormValues['vehicle_status'] || undefined,
+                                    entry_vehicle_status: record.entry_vehicle_status as FormValues['entry_vehicle_status'] || undefined,
+                                    exit_vehicle_status: record.exit_vehicle_status as FormValues['exit_vehicle_status'] || undefined,
                                     note: record.note || undefined,
                                 })
                             } else if (canAddExit && record.entry_at && !record.exit_at) {
@@ -645,7 +689,8 @@ export default function VehicleFormAndList() {
                                     exit_at: dayjs(),
                                     district: record.district || undefined,
                                     vehicle_type: record.vehicle_type || undefined,
-                                    vehicle_status: record.vehicle_status as FormValues['vehicle_status'] || undefined,
+                                    entry_vehicle_status: record.entry_vehicle_status as FormValues['entry_vehicle_status'] || undefined,
+                                    exit_vehicle_status: record.exit_vehicle_status as FormValues['exit_vehicle_status'] || undefined,
                                     note: record.note || undefined,
                                 })
                             } else if (record.exit_at) {

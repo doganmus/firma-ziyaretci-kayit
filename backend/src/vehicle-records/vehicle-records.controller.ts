@@ -48,7 +48,7 @@ export class VehicleRecordsController {
     @Patch(':id/exit')
     @Roles('ADMIN', 'MANAGER', 'OPERATOR')
     addExit(@Param('id') id: string, @Body() body: AddExitDto) {
-        return this.service.addExit(id, body.exit_at);
+        return this.service.addExit(id, body.exit_at, body.exit_vehicle_status);
     }
 
     @Patch(':id')

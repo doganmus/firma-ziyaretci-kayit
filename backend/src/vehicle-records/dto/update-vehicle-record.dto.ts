@@ -33,7 +33,12 @@ export class UpdateVehicleRecordDto {
     @IsOptional()
     @IsString()
     @Length(1, 10)
-    vehicle_status?: string | null;
+    entry_vehicle_status?: string | null;  // Giriş Araç Durumu
+
+    @IsOptional()
+    @IsString()
+    @Length(1, 10)
+    exit_vehicle_status?: string | null;   // Çıkış Araç Durumu
 
     @IsOptional()
     @IsString()

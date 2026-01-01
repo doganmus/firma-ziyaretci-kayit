@@ -30,7 +30,12 @@ export class CreateVehicleRecordDto {
 
     @IsString()
     @Length(1, 10)
-    vehicle_status!: string;
+    entry_vehicle_status!: string;  // Giriş Araç Durumu (zorunlu)
+
+    @IsOptional()
+    @IsString()
+    @Length(1, 10)
+    exit_vehicle_status?: string | null;  // Çıkış Araç Durumu (opsiyonel)
 
     @IsOptional()
     @IsString()
@@ -40,5 +45,10 @@ export class CreateVehicleRecordDto {
 export class AddExitDto {
     @IsDateString()
     exit_at!: string;
+
+    @IsOptional()
+    @IsString()
+    @Length(1, 10)
+    exit_vehicle_status?: string | null;  // Çıkış Araç Durumu
 }
 

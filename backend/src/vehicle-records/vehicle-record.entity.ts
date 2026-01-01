@@ -38,7 +38,10 @@ export class VehicleRecord {
     vehicle_type: string | null;
 
     @Column({ type: 'varchar', length: 10, nullable: true })
-    vehicle_status: string | null;
+    entry_vehicle_status: string | null;  // Giriş Araç Durumu (BOŞ/DOLU)
+
+    @Column({ type: 'varchar', length: 10, nullable: true })
+    exit_vehicle_status: string | null;   // Çıkış Araç Durumu (BOŞ/DOLU)
 
     @Column({ type: 'text', nullable: true })
     note: string | null;

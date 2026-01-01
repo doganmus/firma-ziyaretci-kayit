@@ -58,7 +58,8 @@ export class VehicleRecordsService {
         plate: string;
         district?: string | null;
         vehicle_type?: string | null;
-        vehicle_status?: string | null;
+        entry_vehicle_status?: string | null;
+        exit_vehicle_status?: string | null;
         note?: string | null;
     }): Promise<VehicleRecord> {
         const normalizedPlate = (payload.plate ?? '').replace(/\s+/g, '').toUpperCase();
@@ -102,14 +103,15 @@ export class VehicleRecordsService {
             plate: normalizedPlate,
             district: payload.district ?? null,
             vehicle_type: payload.vehicle_type ?? null,
-            vehicle_status: payload.vehicle_status ?? null,
+            entry_vehicle_status: payload.entry_vehicle_status ?? null,
+            exit_vehicle_status: payload.exit_vehicle_status ?? null,
             note: payload.note ?? null,
         });
         return this.repo.save(entity);
     }
 
     // Çıkış kaydı ekle (mevcut kayda)
-    async addExit(id: string, exit_at: string): Promise<VehicleRecord> {
+    async addExit(id: string, exit_at: string, exit_vehicle_status?: string | null): Promise<VehicleRecord> {
         const entity = await this.repo.findOne({ where: { id } });
         if (!entity) throw new BadRequestException('Kayıt bulunamadı');
 
@@ -132,6 +134,9 @@ export class VehicleRecordsService {
         }
 
         entity.exit_at = exitDate;
+        if (typeof exit_vehicle_status !== 'undefined') {
+            entity.exit_vehicle_status = exit_vehicle_status ?? null;
+        }
         return this.repo.save(entity);
     }
 
@@ -142,7 +147,8 @@ export class VehicleRecordsService {
         plate: string;
         district?: string | null;
         vehicle_type?: string | null;
-        vehicle_status?: string | null;
+        entry_vehicle_status?: string | null;
+        exit_vehicle_status?: string | null;
         note?: string | null;
     }>): Promise<VehicleRecord> {
         const entity = await this.repo.findOne({ where: { id } });
@@ -188,7 +194,8 @@ export class VehicleRecordsService {
         if (payload.plate) entity.plate = payload.plate.replace(/\s+/g, '').toUpperCase();
         if (typeof payload.district !== 'undefined') entity.district = payload.district ?? null;
         if (typeof payload.vehicle_type !== 'undefined') entity.vehicle_type = payload.vehicle_type ?? null;
-        if (typeof payload.vehicle_status !== 'undefined') entity.vehicle_status = payload.vehicle_status ?? null;
+        if (typeof payload.entry_vehicle_status !== 'undefined') entity.entry_vehicle_status = payload.entry_vehicle_status ?? null;
+        if (typeof payload.exit_vehicle_status !== 'undefined') entity.exit_vehicle_status = payload.exit_vehicle_status ?? null;
         if (typeof payload.note !== 'undefined') entity.note = payload.note ?? null;
 
         return this.repo.save(entity);
